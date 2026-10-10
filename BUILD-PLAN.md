@@ -697,7 +697,7 @@ Use a simple AWS deployment with one containerized backend.
 | Component          | AWS service            | Responsibility                             |
 | ------------------ | ---------------------- | ------------------------------------------ |
 | Frontend           | Amazon S3 + CloudFront | Static React application                   |
-| Backend            | AWS App Runner         | Containerized FastAPI service              |
+| Backend            | Amazon ECS Express     | Containerized FastAPI service              |
 | Database           | Amazon RDS PostgreSQL  | Operational state and event history        |
 | File storage       | Amazon S3              | Uploaded datasets and validation artifacts |
 | Authentication     | Amazon Cognito         | User identity and JWT                      |
@@ -708,7 +708,7 @@ Use a simple AWS deployment with one containerized backend.
 
 ### Request flow
 
-**User → CloudFront → React application → App Runner API → PostgreSQL**
+**User → CloudFront → React application → ECS API → PostgreSQL**
 
 Dataset files are uploaded to S3 using short-lived, authorized upload URLs.
 
@@ -717,7 +717,7 @@ The backend validates the file, imports records, and triggers optimization.
 ### Networking
 
 - Place RDS in private VPC subnets.
-- Connect App Runner to the database using a VPC connector.
+- Connect the ECS backend task security group to the private database on port 5432.
 - Restrict database access to the backend security group.
 - Use TLS for API and database connections.
 - Configure VPC endpoints or controlled NAT access where outbound connectivity is required.
@@ -747,7 +747,7 @@ Create:
 - S3 bucket for datasets.
 - ECR repository.
 - RDS PostgreSQL instance.
-- App Runner backend service.
+- ECS backend service.
 - Cognito user pool.
 - Secrets Manager entries.
 - CloudWatch log configuration.
@@ -788,7 +788,7 @@ GitHub Actions pipeline:
 2. Run unit and integration tests.
 3. Build backend Docker image.
 4. Push to ECR.
-5. Deploy App Runner revision.
+5. Deploy the ECS backend revision.
 6. Apply database migrations safely.
 7. Build and deploy frontend.
 8. Run smoke tests.

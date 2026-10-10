@@ -146,8 +146,8 @@ Local requests require explicit `X-Demo-Role` and `X-Demo-Actor` headers; option
 
 ## AWS status
 
-The app currently runs locally. The workshop provides an AWS account and code editor; **no Sevaro AWS services or public URL have been created**. Deployment will use the workshop console or CLI directly. There is no infrastructure provisioning framework in this repository.
+The AWS foundation has been created in workshop account `033301207528`, region `us-west-2`: private S3 buckets, ECR, an ECS cluster and service roles, private RDS PostgreSQL with a managed secret, Cognito, CloudFront, and CloudWatch logs. See [resource identifiers and current provisioning status](docs/deployment.md).
 
-The backend supports Cognito access-token validation, but the frontend still uses local synthetic actors; hosted login remains unfinished. The official Sevaro format and live Jev credentials have not been supplied. Physician consent and activation are simulated explicitly, with no external SMS, calls or email.
+The application still runs locally. No backend image or frontend bundle has been published. Hosted login, application database credentials, migrations, and the backend service are the next deployment steps. The official Sevaro format and live Jev credentials have not been supplied.
 
-See [current AWS status](docs/deployment.md). `AWS_REGION=us-west-2 make aws-preflight` checks the account without creating resources. Keep workshop credentials out of git and frontend settings.
+Run `make aws-preflight` with AWS CLI and the workshop session to check only the resources recorded in [the inventory](docs/aws-resources.json). It verifies the account and does not modify resources or retrieve secret values. Setup uses ordinary AWS console/CLI actions, with no infrastructure framework.

@@ -1,6 +1,6 @@
 # Implementation and verification report
 
-Verified locally on October 10, 2026. The running application is at [localhost:5173](http://localhost:5173); the API documentation is at [localhost:8000/docs](http://localhost:8000/docs). This is a synthetic operations demonstration. No AWS application URL or live Sevaro/Jev integration is claimed.
+Verified locally on October 10, 2026. The running application is at [localhost:5173](http://localhost:5173); the API documentation is at [localhost:8000/docs](http://localhost:8000/docs). This is a synthetic operations demonstration. The AWS foundation was provisioned afterward; current resource status is in `deployment.md`. No hosted application or live Sevaro/Jev integration is claimed.
 
 The implementation follows the supplied master guide where it refines BUILD-PLAN.md: FastAPI, PostgreSQL, React/Vite, deterministic domain services, and a separate advisory adapter. The older serverless/Next.js architecture in the original plan is not the implemented runtime.
 
@@ -73,10 +73,10 @@ Timing is measured and can vary. Replay metadata defines the evaluation window, 
 | Jev typed adapter, off/mock modes and bounded failures | Implemented and tested; current mode `mock`, returned model `mock-operations-v1` |
 | Successful live Jev validation | Specifically blocked: sponsor API credentials not supplied; live smoke not attempted |
 | API roles, hospital scopes, production demo-auth guard | Implemented; local role/scope regressions pass |
-| Cognito signed access-token validation | Implemented server-side; live pool/claims and hosted frontend login not provisioned or verified |
+| Cognito signed access-token validation | Implemented server-side; Cognito pool now created, hosted login and authorization claims still pending |
 | Request logs, audit and decision metadata | Implemented; dedicated operational metrics dashboard/alerts remain pending |
 | Commands, production artifacts, CI definition | Implemented; local checks pass; remote CI execution not observed |
-| AWS runtime | Local runtime verified; AWS account access checked, application services not provisioned |
+| AWS runtime | Local runtime verified; AWS foundation created afterward, application deployment remains pending (see deployment.md) |
 | HTTPS hosted end-to-end smoke | Pending deployment and completed hosted authentication |
 | Demo script and deployment/retention instructions | Implemented in linked documentation |
 
@@ -87,3 +87,9 @@ Use `make dev`, then `make seed`, or import a fresh uniquely named fixture in Si
 See [README](../README.md), [architecture](architecture.md), [assumptions](assumptions.md), [Jev contract](jev-integration.md), [deployment status and commands](deployment.md), [five-minute demo](demo-script.md), and the [generated endpoint contract](openapi.json).
 
 ![Running local command center](screenshots/command-center.png)
+
+## AWS foundation verification
+
+Verified in workshop account `033301207528`, `us-west-2`, on October 10, 2026 at 19:47 UTC using the authenticated workshop CloudShell session. RDS is `available`, CloudFront is `Deployed`, and the Cognito domain is `ACTIVE`. Assertions passed for encrypted private storage, isolated database routes, database ingress restricted to the backend security group, CloudFront access limited to the frontend bucket, ECR immutable tags and scanning, Cognito admin-only user creation with zero users, and scoped image-pull/log permissions. The RDS master secret is active without retrieving its value; backend and PostgreSQL log retention is 14 days.
+
+The application remains local: no ECS service, image, frontend bundle, migrations, or hosted login flow has been deployed or tested. See [deployment notes](deployment.md) and [verified database console](screenshots/aws-rds.png). Local application checks above were not rerun for this infrastructure-only setup.
