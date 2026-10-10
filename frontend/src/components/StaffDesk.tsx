@@ -74,6 +74,9 @@ export default function StaffDesk({ user, onSignOut }: { user: User; onSignOut: 
           </>
         )}
       </main>
+      <footer className="footer-note">
+        Synthetic data only · Built for Sevaro Challenge 2 at Rutgers Health Hack 2026 · Not an official Sevaro product
+      </footer>
     </>
   );
 }

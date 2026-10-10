@@ -63,8 +63,9 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
     <div className="login">
       <div className="card">
         <div className="brand" style={{ marginBottom: 4 }}>
-          <span className="brand-mark" aria-hidden>S</span> Sevaro Intervention Desk
+          <span className="brand-mark" aria-hidden>S</span> <span className="gradient-text">Intervention Desk</span>
         </div>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "6px 0 4px" }}>Detect. Decide. Act.</h1>
         <p className="muted small" style={{ marginTop: 0 }}>
           Synthetic tele-neurology operations demo. No real physicians are contacted and no patient data is used.
         </p>
@@ -103,6 +104,9 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
             <p className="muted small">Shown only in local mode. Hosted mode uses server-configured passwords.</p>
           </div>
         )}
+        <p className="footer-note" style={{ paddingBottom: 0 }}>
+          Built for Sevaro Challenge 2 at Rutgers Health Hack 2026. Not an official Sevaro product.
+        </p>
       </div>
     </div>
   );
