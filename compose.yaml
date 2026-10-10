@@ -1,0 +1,42 @@
+# Sevaro Intervention Desk: one API worker + static UI/proxy.
+#   Local:   docker compose up --build        -> http://localhost:8080
+#   Hosted:  infra/scripts/deploy.sh (sets SEVARO_MODE=hosted and secrets via .env on the host)
+# Variables come from the environment or a .env file next to this file (see .env.example).
+name: sevaro
+
+services:
+  api:
+    image: sevaro-api:${RELEASE_SHA:-dev}
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        RELEASE_SHA: ${RELEASE_SHA:-dev}
+    environment:
+      SEVARO_MODE: ${SEVARO_MODE:-local}
+      SEVARO_DEMO_PASSWORD: ${SEVARO_DEMO_PASSWORD:-}
+      SEVARO_ALLOWED_ORIGINS: ${SEVARO_ALLOWED_ORIGINS:-}
+      SEVARO_SESSION_HOURS: ${SEVARO_SESSION_HOURS:-12}
+    volumes:
+      # SQLite lives on persistent storage (EBS on AWS). Never on container-only storage.
+      - ${SEVARO_STATE_PATH:-./state}:/state
+    restart: unless-stopped
+    stop_grace_period: 20s
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "5" }
+
+  web:
+    image: sevaro-web:${RELEASE_SHA:-dev}
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "5" }

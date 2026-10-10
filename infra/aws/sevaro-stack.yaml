@@ -1,0 +1,268 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Sevaro Intervention Desk hackathon demo. One EC2 host (Docker Compose: nginx UI/proxy + one
+  Python API worker) in a PRIVATE subnet, SQLite on a persistent encrypted EBS volume, public
+  HTTPS through CloudFront's default domain using a CloudFront VPC origin, versioned S3 backups,
+  Session Manager administration (no SSH, no public IP). Single host: NOT highly available.
+
+Parameters:
+  AvailabilityZone:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Description: >
+      AZ for the private host. CloudFront VPC origins are not supported in every AZ; check
+      "VPC origins" in the CloudFront developer guide for unsupported AZ IDs in your region.
+  InstanceType:
+    Type: String
+    Default: t3.small
+    AllowedValues: [t3.small, t3.medium, t3a.small, t3a.medium]
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+  RepoUrl:
+    Type: String
+    Default: https://github.com/belalezat1/RUHealthHacks.git
+  DataVolumeGiB:
+    Type: Number
+    Default: 10
+    MinValue: 5
+    MaxValue: 50
+
+Resources:
+  # ------------------------------------------------------------------ network
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags: [{ Key: Name, Value: sevaro-demo }]
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: { VpcId: !Ref Vpc, InternetGatewayId: !Ref InternetGateway }
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Ref AvailabilityZone
+      CidrBlock: 10.42.0.0/24
+      Tags: [{ Key: Name, Value: sevaro-public-nat }]
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Ref AvailabilityZone
+      CidrBlock: 10.42.1.0/24
+      MapPublicIpOnLaunch: false
+      Tags: [{ Key: Name, Value: sevaro-private-app }]
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: { VpcId: !Ref Vpc }
+  PublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachment
+    Properties: { RouteTableId: !Ref PublicRouteTable, DestinationCidrBlock: 0.0.0.0/0, GatewayId: !Ref InternetGateway }
+  PublicSubnetRoutes:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: { SubnetId: !Ref PublicSubnet, RouteTableId: !Ref PublicRouteTable }
+
+  # Egress for the private host (dnf, git clone, Docker Hub base images, SSM, S3, CloudWatch).
+  NatEip:
+    Type: AWS::EC2::EIP
+    DependsOn: GatewayAttachment
+    Properties: { Domain: vpc }
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties: { AllocationId: !GetAtt NatEip.AllocationId, SubnetId: !Ref PublicSubnet }
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: { VpcId: !Ref Vpc }
+  PrivateDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties: { RouteTableId: !Ref PrivateRouteTable, DestinationCidrBlock: 0.0.0.0/0, NatGatewayId: !Ref NatGateway }
+  PrivateSubnetRoutes:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: { SubnetId: !Ref PrivateSubnet, RouteTableId: !Ref PrivateRouteTable }
+
+  # Inbound only on the proxy port and only from inside the VPC (CloudFront VPC origin ENIs).
+  # After the VPC origin is deployed, you may tighten this to the service-managed
+  # "CloudFront-VPCOrigins-Service-SG" security group (see RUNBOOK.md).
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Sevaro proxy port from CloudFront VPC origin only
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 8080, ToPort: 8080, CidrIp: 10.42.0.0/16, Description: CloudFront VPC origin }
+      SecurityGroupEgress:
+        - { IpProtocol: "-1", CidrIp: 0.0.0.0/0, Description: egress via NAT }
+
+  # ------------------------------------------------------------------ storage
+  BackupBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      VersioningConfiguration: { Status: Enabled }
+      PublicAccessBlockConfiguration:
+        { BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true }
+      BucketEncryption:
+        ServerSideEncryptionConfiguration: [{ ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 } }]
+      OwnershipControls: { Rules: [{ ObjectOwnership: BucketOwnerEnforced }] }
+      LifecycleConfiguration:
+        Rules:
+          - { Id: expire-old-versions, Status: Enabled, NoncurrentVersionExpiration: { NoncurrentDays: 30 } }
+
+  DataVolume:
+    Type: AWS::EC2::Volume
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+    Properties:
+      AvailabilityZone: !Ref AvailabilityZone
+      Size: !Ref DataVolumeGiB
+      VolumeType: gp3
+      Encrypted: true
+      Tags: [{ Key: Name, Value: sevaro-state }]
+
+  AppLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: { LogGroupName: /sevaro/app, RetentionInDays: 14 }
+
+  # ------------------------------------------------------------------ host
+  HostRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: [{ Effect: Allow, Principal: { Service: ec2.amazonaws.com }, Action: sts:AssumeRole }]
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: sevaro-host
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [s3:PutObject, s3:GetObject, s3:ListBucket, s3:GetObjectVersion, s3:ListBucketVersions]
+                Resource: [!GetAtt BackupBucket.Arn, !Sub "${BackupBucket.Arn}/*"]
+              - Effect: Allow
+                Action: [ssm:GetParameter, ssm:GetParameters]
+                Resource: !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sevaro/*
+              - Effect: Allow
+                Action: kms:Decrypt
+                Resource: "*"
+                Condition: { StringEquals: { "kms:ViaService": !Sub "ssm.${AWS::Region}.amazonaws.com" } }
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents, logs:DescribeLogStreams]
+                Resource: !Sub "${AppLogGroup.Arn}:*"
+  HostProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: { Roles: [!Ref HostRole] }
+
+  Host:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateDefaultRoute
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      SubnetId: !Ref PrivateSubnet
+      SecurityGroupIds: [!Ref AppSecurityGroup]
+      IamInstanceProfile: !Ref HostProfile
+      MetadataOptions: { HttpTokens: required, HttpEndpoint: enabled, HttpPutResponseHopLimit: 2 }
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs: { VolumeSize: 20, VolumeType: gp3, Encrypted: true, DeleteOnTermination: true }
+      Tags: [{ Key: Name, Value: sevaro-demo-host }]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Bootstrap only installs tooling, mounts persistent state and clones the repo.
+          # Releases are deployed separately with infra/scripts/deploy.sh (via Session Manager).
+          set -euxo pipefail
+          dnf install -y docker git
+          systemctl enable --now docker
+          mkdir -p /usr/local/lib/docker/cli-plugins
+          curl -fsSL -o /usr/local/lib/docker/cli-plugins/docker-compose \
+            https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-x86_64
+          curl -fsSL -o /usr/local/lib/docker/cli-plugins/docker-buildx \
+            https://github.com/docker/buildx/releases/download/v0.18.0/buildx-v0.18.0.linux-amd64
+          chmod +x /usr/local/lib/docker/cli-plugins/*
+
+          VOL="${DataVolume}"
+          DEV="/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_${!VOL//-/}"
+          for i in $(seq 1 90); do [ -e "$DEV" ] && break; sleep 5; done
+          # Format ONLY if the volume is blank. Existing state is never re-initialised.
+          blkid "$DEV" || mkfs.xfs -L sevaro-state "$DEV"
+          mkdir -p /srv/sevaro
+          grep -q sevaro-state /etc/fstab || echo "LABEL=sevaro-state /srv/sevaro xfs defaults,nofail 0 2" >> /etc/fstab
+          mount -a
+          mkdir -p /srv/sevaro/state /srv/sevaro/backups
+          chown 10001:10001 /srv/sevaro/state
+
+          mkdir -p /opt/sevaro
+          [ -d /opt/sevaro/repo ] || git clone "${RepoUrl}" /opt/sevaro/repo
+          echo "${BackupBucket}" > /opt/sevaro/backup-bucket
+          echo "bootstrap complete" > /opt/sevaro/bootstrap.done
+
+  DataVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: { InstanceId: !Ref Host, VolumeId: !Ref DataVolume, Device: /dev/sdf }
+
+  # ------------------------------------------------------------------ public HTTPS
+  VpcOrigin:
+    Type: AWS::CloudFront::VpcOrigin
+    Properties:
+      VpcOriginEndpointConfig:
+        Name: !Sub "${AWS::StackName}-host"
+        Arn: !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/${Host}
+        HTTPPort: 8080
+        HTTPSPort: 443
+        OriginProtocolPolicy: http-only
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: Sevaro Intervention Desk (synthetic demo)
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: app
+            DomainName: !GetAtt Host.PrivateDnsName
+            VpcOriginConfig: { VpcOriginId: !GetAtt VpcOrigin.Id }
+        # Everything (index.html, /api/*, /health/*): never cached, all viewer cookies,
+        # query strings and headers (incl. X-CSRF-Token, Idempotency-Key) forwarded.
+        DefaultCacheBehavior:
+          TargetOriginId: app
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # Managed-AllViewerExceptHostHeader
+        # Only content-hashed build assets are cached.
+        CacheBehaviors:
+          - PathPattern: /assets/*
+            TargetOriginId: app
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            Compress: true
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+
+Outputs:
+  AppUrl:
+    Description: Public HTTPS URL (default CloudFront domain)
+    Value: !Sub https://${Distribution.DomainName}
+  InstanceId:
+    Value: !Ref Host
+  BackupBucketName:
+    Value: !Ref BackupBucket
+  DataVolumeId:
+    Value: !Ref DataVolume
+  DistributionId:
+    Value: !Ref Distribution

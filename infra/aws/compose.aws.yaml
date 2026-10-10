@@ -1,0 +1,17 @@
+# AWS overlay: ship container logs to CloudWatch (log group created by the stack).
+# Used by infra/scripts/deploy.sh:  docker compose -f compose.yaml -f infra/aws/compose.aws.yaml ...
+services:
+  api:
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: /sevaro/app
+        awslogs-stream: api-${RELEASE_SHA}
+  web:
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: /sevaro/app
+        awslogs-stream: web-${RELEASE_SHA}
