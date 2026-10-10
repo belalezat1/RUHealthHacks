@@ -9,7 +9,7 @@ test("synthetic import, live event, consent, assignment, activation, audit, and 
   await expect(page.getByText("Synthetic demo", { exact: true })).toBeVisible();
   await page.getByRole("tab", { name: "Dataset import" }).click();
   const examples = page.getByLabel("Example dataset");
-  await expect(examples.locator("option")).not.toHaveCount(1);
+  await expect(examples.locator("option").nth(1)).toBeAttached();
   const exampleIds = await examples
     .locator("option")
     .evaluateAll((options) =>
@@ -71,7 +71,7 @@ test("synthetic import, live event, consent, assignment, activation, audit, and 
 
   await page.getByRole("link", { name: "Interventions", exact: true }).click();
   const consultations = page.getByLabel("Waiting consultation");
-  await expect(consultations.locator("option")).not.toHaveCount(1);
+  await expect(consultations.locator("option").nth(1)).toBeAttached();
   await consultations.selectOption({ index: 1 });
   await page.getByRole("button", { name: "Preview recommendation" }).click();
   await expect(
@@ -137,8 +137,13 @@ test("synthetic import, live event, consent, assignment, activation, audit, and 
   });
 
   await page.getByRole("link", { name: "Simulation Lab", exact: true }).click();
-  const scenarios = page.getByLabel("Scenario", { exact: true });
-  await expect(scenarios.locator("option")).not.toHaveCount(1);
+  await page.getByRole("tab", { name: "Scenario replay", exact: true }).click();
+  const scenarios = page.getByRole("combobox", {
+    name: "Scenario",
+    exact: true,
+  });
+  await expect(scenarios).toBeVisible();
+  await expect(scenarios.locator("option").nth(1)).toBeAttached();
   await scenarios.selectOption({ index: 1 });
   await page.getByRole("button", { name: "Run isolated comparison" }).click();
   await expect(
