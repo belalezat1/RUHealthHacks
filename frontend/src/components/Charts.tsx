@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { hhmm } from "../format";
 import type { HospitalProjection } from "../types";
 
 const SERIES = [
   { key: "required", label: "Required", color: "var(--series-2)", dash: "" },
-  { key: "available", label: "Available (persistent activity)", color: "var(--series-1)", dash: "" },
+  { key: "available", label: "Available (persistent activity)", color: "var(--brand-indigo)", dash: "" },
   { key: "roster_ceiling", label: "Roster ceiling", color: "var(--series-3)", dash: "4 3" },
 ] as const;
 
@@ -12,7 +12,16 @@ const SERIES = [
 export function ForecastChart({ hospital }: { hospital: HospitalProjection }) {
   const [hover, setHover] = useState<number | null>(null);
   const wrap = useRef<HTMLDivElement>(null);
-  const W = 640, H = 220, L = 34, R = 12, T = 10, B = 26;
+  const [W, setW] = useState(640);
+  useEffect(() => {
+    // Draw at the real pixel width so text and strokes stay their true size at any screen width.
+    const el = wrap.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(Math.max(320, Math.round(e.contentRect.width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const H = 240, L = 34, R = 12, T = 10, B = 26;
   const s = hospital.samples;
   const maxY = Math.max(3, ...s.flatMap((x) => [x.required, x.available, x.roster_ceiling]));
   const x = (i: number) => L + (i / (s.length - 1)) * (W - L - R);
@@ -40,7 +49,7 @@ export function ForecastChart({ hospital }: { hospital: HospitalProjection }) {
         ))}
         <span><span className="key" style={{ background: "var(--critical)", opacity: 0.25, height: 10 }} />Deficit</span>
       </div>
-      <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img"
+      <svg className="chart" viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img"
         aria-label={`${hospital.hospital_name}: required versus available credentialed physicians over 90 minutes`}
         onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
         {Array.from({ length: maxY + 1 }, (_, v) => (
@@ -55,8 +64,15 @@ export function ForecastChart({ hospital }: { hospital: HospitalProjection }) {
               fill="var(--critical)" opacity={0.18} />
           ) : null,
         )}
+        <defs>
+          <linearGradient id="availFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--brand-indigo)" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="var(--brand-indigo)" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={`${step("available")} V${y(0)} H${x(0)} Z`} fill="url(#availFill)" stroke="none" />
         <line className="axis-line" x1={L} x2={W - R} y1={y(0)} y2={y(0)} />
-        {s.map((pt, i) => (i % 3 === 0 ? <text key={i} x={x(i)} y={H - 8} textAnchor="middle">{hhmm(pt.at)}</text> : null))}
+        {s.map((pt, i) => (i % (W < 520 ? 6 : 3) === 0 ? <text key={i} x={x(i)} y={H - 8} textAnchor="middle">{hhmm(pt.at)}</text> : null))}
         {SERIES.map((k) => (
           <path key={k.key} d={step(k.key)} fill="none" stroke={k.color} strokeWidth={2}
             strokeDasharray={k.dash || undefined} strokeLinejoin="round" />
@@ -67,7 +83,7 @@ export function ForecastChart({ hospital }: { hospital: HospitalProjection }) {
         ))}
       </svg>
       {p && (
-        <div className="tooltip" style={{ left: `${Math.min(70, (x(hover!) / W) * 100)}%`, top: 30 }}>
+        <div className="tooltip" style={{ left: Math.min(W - 220, x(hover!) + 12), top: 40 }}>
           <div className="t-head">{hhmm(p.at)} ET</div>
           <div className="t-row"><span>Required</span><b className="num">{p.required}</b></div>
           <div className="t-row muted"><span>· block minimum</span><span className="num">{p.minimum}</span></div>

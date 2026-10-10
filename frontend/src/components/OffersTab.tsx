@@ -1,7 +1,14 @@
+import { useState } from "react";
 import { mutate } from "../api";
 import { hhmm } from "../format";
 import type { Candidate, Offer, Report, User } from "../types";
 import { useAction } from "./useAction";
+
+const SHORT: Record<string, string> = {
+  opt_in: "Opted in", credentialed: "Credentialed", rest: "10h rest", weekly_hours: "≤60h/7d",
+  no_schedule_overlap: "No shift overlap", duration: "≥2h offer", no_accepted_overlap: "No accepted overlap",
+  one_open_offer: "No open offer", weekly_offer_limit: "<3 offers/wk",
+};
 
 export function CandidateTable({ candidates }: { candidates: Candidate[] }) {
   return (
@@ -23,7 +30,7 @@ export function CandidateTable({ candidates }: { candidates: Candidate[] }) {
                 {c.rules.map((rule) => (
                   <span key={rule.rule} className={`rule ${rule.passed ? "pass" : "fail"}`} title={`${rule.label}: ${rule.detail}`}>
                     <span className="mark" aria-label={rule.passed ? "pass" : "fail"}>{rule.passed ? "✓" : "✗"}</span>
-                    {rule.passed ? rule.label.split(" ")[0] + "…" : `${rule.label} — ${rule.detail}`}
+                    {rule.passed ? SHORT[rule.rule] ?? rule.label : `${SHORT[rule.rule] ?? rule.label}: ${rule.detail}`}
                   </span>
                 ))}
                 <details><summary className="small">All rule details</summary>
@@ -39,6 +46,55 @@ export function CandidateTable({ candidates }: { candidates: Candidate[] }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+const FAIL: Record<string, string> = {
+  opt_in: "Not opted in", credentialed: "Not credentialed here", rest: "Under 10h rest", weekly_hours: "Over 60h/7d",
+  no_schedule_overlap: "Overlaps a scheduled shift", duration: "Under 2h", no_accepted_overlap: "Already committed",
+  one_open_offer: "Has an open offer", weekly_offer_limit: "3 offers this week",
+};
+const WITH_DETAIL = new Set(["weekly_hours", "rest"]);
+
+/** Compact version for the Desk: one line per physician, rules on demand. */
+export function CandidateList({ candidates, offers = {} }: { candidates: Candidate[]; offers?: Record<string, string> }) {
+  const [open, setOpen] = useState<string | null>(null);
+  const sorted = [...candidates].sort((a, b) => Number(b.eligible) - Number(a.eligible) || (a.rank ?? 99) - (b.rank ?? 99));
+  return (
+    <ul className="cand-list">
+      {sorted.map((c) => {
+        const failed = c.rules.filter((x) => !x.passed);
+        const offer = offers[c.physician_id];
+        const ok = c.eligible || !!offer;
+        return (
+          <li key={c.physician_id} className={c.selected ? "selected" : ""}>
+            <button className="cand-row" onClick={() => setOpen(open === c.physician_id ? null : c.physician_id)}
+              aria-expanded={open === c.physician_id}>
+              <span className={`cand-mark ${ok ? "ok" : "bad"}`} aria-label={ok ? "eligible" : "excluded"}>
+                {ok ? "✓" : "✗"}
+              </span>
+              <span className="cand-name">{c.name}</span>
+              <span className="cand-why">
+                {offer ? `Offer ${offer} · online in ${c.minutes_to_online} min`
+                  : c.eligible ? `All ${c.rules.length} rules pass · online in ${c.minutes_to_online} min`
+                  : failed.map((x) => (FAIL[x.rule] ?? x.label) + (WITH_DETAIL.has(x.rule) ? ` (${x.detail})` : "")).join(" · ")}
+              </span>
+              {offer ? <span className={`tag ${offer === "accepted" ? "teal" : "indigo"}`}>{offer}</span>
+                : c.selected && <span className="tag teal">Selected</span>}
+            </button>
+            {open === c.physician_id && (
+              <div className="cand-rules">
+                {c.rules.map((rule) => (
+                  <span key={rule.rule} className={`rule ${rule.passed ? "pass" : "fail"}`} title={rule.label}>
+                    <span className="mark">{rule.passed ? "✓" : "✗"}</span>{SHORT[rule.rule] ?? rule.label}: {rule.detail}
+                  </span>
+                ))}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -73,7 +129,7 @@ export default function OffersTab({ r, user, refresh }: { r: Report; user: User;
       <section className="card">
         <div className="card-head">
           <h2>Split-shift offers</h2>
-          <span className="small muted">Propose → clinical lead approves → simulated send → physician answers within 10 min</span>
+          <span className="small muted">Propose → approve → send → answer (10 min)</span>
         </div>
         {offers.length === 0 && <p className="muted">No offers yet. Propose one from the Desk.</p>}
         {offers.map((o) => (
@@ -110,9 +166,12 @@ export default function OffersTab({ r, user, refresh }: { r: Report; user: User;
               {o.online_at && <>Planned online {hhmm(o.online_at)} ET (planned capacity, not verified presence). </>}
             </div>
             <details>
-              <summary>Rationale and candidate audit</summary>
-              <pre className="mono small" style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(o.rationale, null, 2)}</pre>
-              <CandidateTable candidates={o.candidate_audit} />
+              <summary>Why this offer · who else was considered</summary>
+              <p className="small" style={{ margin: "6px 0" }}>
+                Gap {String(o.rationale.baseline_deficit_minutes)} → {String(o.rationale.projected_deficit_minutes_with_selection)} physician-min
+                over 90 min. Approved by {o.approved_by ?? "—"}.
+              </p>
+              <CandidateList candidates={o.candidate_audit} />
             </details>
           </article>
         ))}
@@ -132,7 +191,7 @@ export default function OffersTab({ r, user, refresh }: { r: Report; user: User;
               ))}
             </tbody>
           </table>
-          <p className="small muted">A unique (gap, slot) claim in the database guarantees one winner per slot; remaining offers are cancelled when a gap fills.</p>
+          <p className="small muted">One winner per slot, enforced by the database. Other offers cancel when the gap fills.</p>
         </section>
       )}
     </div>

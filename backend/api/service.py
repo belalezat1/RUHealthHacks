@@ -616,21 +616,36 @@ class Service:
                                 responded_at=run["scenario_clock"])
 
     # ---- immediate actions
-    def escalate(self, conn, run, ident, risk_id: str, consult_id: str | None, note: str) -> dict:
+    def escalate(self, conn, run, ident, risk_id: str, consult_id: str | None, note: str,
+                 kind: str = "escalation", target_physician_id: str | None = None) -> dict:
+        """Escalation to the clinical lead, or a nudge (simulated internal message) to an on-shift physician."""
         require_role(ident, "coordinator", "clinical_lead")
-        if conn.execute("SELECT 1 FROM actions WHERE run_id=? AND kind='escalation' AND risk_id=? AND status='open'",
-                        (run["run_id"], risk_id)).fetchone():
-            raise ApiError(409, "already_escalated", "An open escalation already exists for this risk")
-        aid = _new_id("ESC")
+        if kind not in ("escalation", "nudge"):
+            raise ApiError(422, "invalid_kind", "kind must be 'escalation' or 'nudge'")
+        if kind == "escalation":
+            dup = conn.execute("SELECT 1 FROM actions WHERE run_id=? AND kind='escalation' AND risk_id=? "
+                               "AND status='open'", (run["run_id"], risk_id)).fetchone()
+            if dup:
+                raise ApiError(409, "already_escalated", "This is already escalated and waiting for the clinical lead")
+        else:
+            if not target_physician_id or target_physician_id not in self.ref.physicians:
+                raise ApiError(422, "invalid_target", "A nudge needs an on-shift physician")
+            dup = conn.execute("SELECT 1 FROM actions WHERE run_id=? AND kind='nudge' AND risk_id=? AND created_at=?",
+                               (run["run_id"], risk_id, run["scenario_clock"])).fetchone()
+            if dup:
+                raise ApiError(409, "already_nudged", "Already nudged at this scenario time")
+        aid = _new_id("ESC" if kind == "escalation" else "NDG")
+        status = "open" if kind == "escalation" else "sent"
         rev = self._bump(conn, run["run_id"])
-        conn.execute("INSERT INTO actions(action_id, run_id, kind, status, consult_id, risk_id, note, created_by, "
-                     "created_at, detail) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                     (aid, run["run_id"], "escalation", "open", consult_id, risk_id, note[:500], ident.username,
-                      run["scenario_clock"], dumps({"internal_only": True})))
-        self._audit(conn, run["run_id"], rev, run["scenario_clock"], ident, "escalation_created", aid,
-                    {"risk_id": risk_id, "consult_id": consult_id, "note": note[:500],
-                     "delivery": "internal alert only; no external contact"})
-        return {"action_id": aid, "status": "open"}
+        conn.execute("INSERT INTO actions(action_id, run_id, kind, status, consult_id, risk_id, target_physician_id, "
+                     "note, created_by, created_at, detail) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                     (aid, run["run_id"], kind, status, consult_id, risk_id, target_physician_id, note[:500],
+                      ident.username, run["scenario_clock"], dumps({"internal_only": True, "simulated": True})))
+        self._audit(conn, run["run_id"], rev, run["scenario_clock"], ident,
+                    "escalation_created" if kind == "escalation" else "nudge_sent", aid,
+                    {"risk_id": risk_id, "consult_id": consult_id, "to": target_physician_id or "clinical_lead",
+                     "note": note[:500], "delivery": "SIMULATED internal message; no external contact"})
+        return {"action_id": aid, "status": status, "kind": kind}
 
     def acknowledge(self, conn, run, ident, action_id: str, decision: str) -> dict:
         require_role(ident, "clinical_lead")

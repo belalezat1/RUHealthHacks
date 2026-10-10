@@ -51,6 +51,8 @@ class EscalateBody(BaseModel):
     risk_id: str = Field(max_length=120)
     consult_id: str | None = Field(default=None, max_length=40)
     note: str = Field(default="", max_length=500)
+    kind: str = Field(default="escalation", pattern="^(escalation|nudge)$")
+    target_physician_id: str | None = Field(default=None, max_length=40)
 
 
 class AckBody(BaseModel):
@@ -299,7 +301,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                  rev: str | None = H(None, alias="X-Expected-Revision")):
         service = svc(request)
         return mutation(request, service, ident, "actions/escalate",
-                        lambda c, r: service.escalate(c, r, ident, body.risk_id, body.consult_id, body.note),
+                        lambda c, r: service.escalate(c, r, ident, body.risk_id, body.consult_id, body.note,
+                                                      body.kind, body.target_physician_id),
                         idem, run, rev)
 
     @app.post("/api/v1/actions/{action_id}/acknowledge")

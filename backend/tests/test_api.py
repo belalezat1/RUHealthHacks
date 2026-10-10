@@ -240,6 +240,20 @@ def test_escalation_and_reassignment_rules(app):
     assert targets["waiting"]
 
 
+def test_nudge_is_recorded_once_per_scenario_time(app):
+    coord = User(app, "coordinator")
+    body = {"risk_id": "doc:CON-2111", "consult_id": "CON-2111", "note": "note overdue", "kind": "nudge",
+            "target_physician_id": "PHY-003"}
+    r = coord.post("/api/v1/actions/escalate", json=body)
+    assert r.status_code == 200 and r.json()["result"]["status"] == "sent"
+    assert coord.post("/api/v1/actions/escalate", json=body).status_code == 409
+    rep = coord.report()
+    assert any(a["kind"] == "nudge" and a["target_physician_id"] == "PHY-003" for a in rep["actions"])
+    assert any(a["kind"] == "nudge_sent" for a in rep["audit_tail"])
+    bad = coord.post("/api/v1/actions/escalate", json=body | {"risk_id": "x", "target_physician_id": None})
+    assert bad.status_code == 422
+
+
 def test_reassignment_records_when_target_eligible(app):
     coord = User(app, "coordinator")
     # PHY-005 finishes the CON-2104 call at 18:21; after the 2-minute cooldown they are the

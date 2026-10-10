@@ -32,7 +32,7 @@ export interface Envelope<T> {
 export type Severity = "critical" | "warning" | "info";
 
 export interface RiskAction {
-  action: "reassign" | "escalate" | "notify" | "verify" | "handoff" | "propose_offer" | "monitor";
+  action: "reassign" | "escalate" | "nudge" | "propose_offer" | "monitor";
   role: "coordinator" | "clinical_lead";
   label: string;
   why: string;
@@ -46,6 +46,7 @@ export interface Risk {
   severity: Severity;
   score: number;
   title: string;
+  summary: string;
   detail: string;
   consult_id: string | null;
   hospital_id: string | null;
@@ -206,7 +207,7 @@ export interface Gap {
 
 export interface Action {
   action_id: string;
-  kind: "escalation" | "reassignment";
+  kind: "escalation" | "reassignment" | "nudge";
   status: string;
   consult_id: string | null;
   risk_id: string | null;

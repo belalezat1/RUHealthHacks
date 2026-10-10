@@ -1486,6 +1486,24 @@
             "maxLength": 500,
             "title": "Note",
             "default": ""
+          },
+          "kind": {
+            "type": "string",
+            "pattern": "^(escalation|nudge)$",
+            "title": "Kind",
+            "default": "escalation"
+          },
+          "target_physician_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Physician Id"
           }
         },
         "type": "object",
