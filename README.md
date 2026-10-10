@@ -102,20 +102,57 @@ All data is synthetic. No patient information is used or required.
 
 ## Tech stack
 
-- **Backend:** Python 3.12, FastAPI, Pytest
-- **State:** in memory, rebuilt by replaying the event stream; new events are applied live through the API
-- **Frontend:** TBD
+- **Engine:** Python 3.12, deterministic, no network calls on the decision path (`backend/core/`)
+- **API:** FastAPI + Uvicorn, one worker (`backend/api/`); contract in [contracts/API_CONTRACT.md](contracts/API_CONTRACT.md)
+- **State:** events, offers, audit and sessions in SQLite (transactional, survives restarts); the report is a projection rebuilt from the stored events and cached per revision
+- **Frontend:** React + TypeScript + Vite (`frontend/`), polls every 2 s and refetches on revision change
+- **Cloud:** Docker Compose on one EC2 host in a private subnet, CloudFront HTTPS via a VPC origin, EBS for state, versioned S3 backups (`infra/`); see [docs/RUNBOOK.md](docs/RUNBOOK.md)
 
 ## Getting started
 
-> TODO: fill in once the backend code lands.
+**Run locally (no Docker):**
 
 ```bash
-git clone <repo-url>
-cd RUHealthHacks
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+python -m venv .venv
+.venv/Scripts/activate            # macOS/Linux: source .venv/bin/activate
+pip install -r backend/requirements-dev.txt
+cd frontend && npm ci && npm run build && cd ..
+uvicorn backend.api.main:app --port 8000
 ```
+
+Open http://127.0.0.1:8000 and click a demo account (local password `sevaro-demo`).
+For frontend hot reload, run `npm run dev` in `frontend/` and open http://localhost:5173.
+
+**Run with Docker:** `docker compose up --build` then open http://localhost:8080.
+
+**Test:**
+
+```bash
+python -m pytest backend/tests -q                         # engine + API (snapshot, races, persistence)
+python scripts/smoke_live.py --base http://127.0.0.1:8000 --reset   # live end-to-end check
+python scripts/bench.py                                    # engine latency distribution
+python scripts/loadtest.py --base http://127.0.0.1:8000 --users 20 --seconds 60
+```
+
+**Demo accounts:** `coordinator`, `lead`, and one per off-shift physician (`phy-009` = Dr. Grace Okafor, ... `phy-014`).
+
+## Measured results (local, Windows 11, Python 3.14, final numbers to be re-run on the release build)
+
+| Measurement | Result | Target |
+|---|---|---|
+| Reference snapshot | 208/208 fields | 208/208 |
+| Warm analysis + JSON (300 runs) | p50 9.3 ms, p95 10.1 ms | p95 ≤ 50 ms |
+| Load CSVs + replay + analysis + JSON (100 runs) | p50 17.4 ms, p95 19.1 ms | p95 ≤ 150 ms |
+| Report over HTTP, 20 users polling every 2 s (local) | p95 34.5 ms, 0 errors | p95 ≤ 500 ms |
+| Write → visible to polling users | ~0.1 s median | ≤ 3 s |
+
+Evidence files: `output/evidence/`. Hosted numbers are measured separately and are not implied by these.
+
+## What is modeled vs. measured
+
+- **Measured:** replay correctness against the reference snapshot, engine and HTTP latency, idempotency, restart persistence.
+- **Modeled:** coverage deficits (physician-minutes, a hospital-access measure, *not* patient wait time), routing effects, the split-shift trap.
+- **Assumptions:** listed in the app's Evidence tab and in `backend/core/report.py`. No profit, wait-time reduction or clinical outcome is claimed.
 
 ## Team
 
