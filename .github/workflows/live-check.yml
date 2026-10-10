@@ -1,0 +1,39 @@
+# Scheduled / on-demand check that the HOSTED demo is actually live and updating in real time.
+# Set repository secrets SEVARO_URL (the CloudFront https URL) and SEVARO_DEMO_PASSWORD.
+# Starts a new run on the hosted system (history is kept), so it is manual-only during judging.
+name: Hosted live check
+
+on:
+  workflow_dispatch:
+    inputs:
+      reset:
+        description: "Start a fresh run before checking (keeps previous runs)"
+        type: boolean
+        default: true
+
+jobs:
+  hosted:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secrets are configured
+        env:
+          URL: ${{ secrets.SEVARO_URL }}
+        run: |
+          if [ -z "$URL" ]; then echo "::error::Set the SEVARO_URL repository secret"; exit 1; fi
+      - name: Live smoke test against hosted URL
+        env:
+          URL: ${{ secrets.SEVARO_URL }}
+          PW: ${{ secrets.SEVARO_DEMO_PASSWORD }}
+        run: python3 scripts/smoke_live.py --base "$URL" --password "$PW" ${{ inputs.reset && '--reset' || '' }}
+      - name: Hosted latency (1 user, then 20 users)
+        env:
+          URL: ${{ secrets.SEVARO_URL }}
+          PW: ${{ secrets.SEVARO_DEMO_PASSWORD }}
+        run: |
+          python3 scripts/loadtest.py --base "$URL" --password "$PW" --users 1 --seconds 120 --out hosted-1user.json
+          python3 scripts/loadtest.py --base "$URL" --password "$PW" --users 20 --seconds 120 --out hosted-20users.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hosted-evidence
+          path: hosted-*.json

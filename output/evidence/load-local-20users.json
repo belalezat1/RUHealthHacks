@@ -1,0 +1,26 @@
+{
+  "measured_at": "2026-10-10T20:04:18.924179+00:00",
+  "base": "http://127.0.0.1:8011",
+  "client_machine": "Windows-11-10.0.26200-SP0",
+  "users": 20,
+  "seconds": 40,
+  "poll_interval_s": 2.0,
+  "operation": "GET /api/v1/report (full report, cookie auth) incl. network",
+  "requests": 397,
+  "errors": 0,
+  "error_samples": [],
+  "latency_ms": {
+    "p50": 26.47,
+    "p95": 34.51,
+    "p99": 36.64,
+    "max": 43.24
+  },
+  "writes": 5,
+  "revision_lag_ms": {
+    "p50": 98.4,
+    "max": 167.3,
+    "n": 4
+  },
+  "target_p95_ms": 500,
+  "meets_target": true
+}

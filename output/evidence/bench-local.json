@@ -1,0 +1,34 @@
+{
+  "measured_at": "2026-10-10T20:03:03.006154+00:00",
+  "release_sha": "f5e3b85643d8e963af7ea2d523cba024506f6266",
+  "machine": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.4",
+    "processor": "AMD64 Family 26 Model 96 Stepping 0, AuthenticAMD",
+    "cpus": 16
+  },
+  "scenario": "original fixture, 18:20 ET",
+  "notes": "Interpreter startup excluded; OS file cache likely warm; no projection cache used.",
+  "warm_analysis_plus_json_ms": {
+    "n": 300,
+    "min": 9.084,
+    "p50": 9.333,
+    "p95": 10.098,
+    "p99": 11.418,
+    "max": 15.203,
+    "mean": 9.472,
+    "target_p95": 50,
+    "meets_target": true
+  },
+  "full_load_replay_analysis_json_ms": {
+    "n": 100,
+    "min": 16.478,
+    "p50": 17.395,
+    "p95": 19.101,
+    "p99": 19.793,
+    "max": 20.005,
+    "mean": 17.578,
+    "target_p95": 150,
+    "meets_target": true
+  }
+}
