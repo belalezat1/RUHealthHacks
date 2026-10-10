@@ -78,6 +78,19 @@ Use the app's **Data & clock → Start new run** (or `POST /api/v1/runs`). It cr
 from the original fixture; previous runs and their audit stay in the database. Never delete the
 database to reset.
 
+## Hosted verification (release ebd27cd, 10 Oct 2026)
+
+| Check | Result |
+|---|---|
+| Public URL | https://d36g8wfpwrhreb.cloudfront.net (CloudFront default domain, private VPC origin) |
+| `smoke_live.py` through CloudFront, hosted-mode auth/CSRF/origin | 16/16 passed, incl. 208/208 snapshot and live import visible without restart |
+| 20 users polling the full report every 2 s for 60 s, 6 writes | 586 requests, 0 errors, p50 44.9 ms, p95 83.8 ms, p99 113.1 ms |
+| API restart → identical run, revision, offers, audit | ready in 12 s, state identical |
+| Backup to S3 + restore drill in a separate path | integrity ok, report rebuilt |
+
+Load generator ran on the EC2 host itself (us-east-1) through the public CloudFront URL, so the
+numbers include CloudFront but little internet distance; judges' browsers add their own network time.
+
 ## Monitoring
 
 - `.\infra\aws\sevaro.ps1 logs` tails structured request logs (`rid`, path, status, ms).
@@ -100,8 +113,9 @@ Identify it accurately during the demo: "local fallback of release <sha>".
 
 ## Security notes
 
-- Host has no public IP; security group allows :8080 from inside the VPC only. Optional
-  tightening: replace the CIDR rule with the service-managed `CloudFront-VPCOrigins-Service-SG`.
+- Host has no public IP; its security group allows :8080 only from inside the VPC and from the
+  service-managed `CloudFront-VPCOrigins-Service-SG`. **That second rule is required**: without
+  it CloudFront returns 504. `sevaro.ps1 create` adds it automatically after the stack is created.
 - Demo auth: hashed passwords, HTTP-only Secure SameSite=Strict session cookie, CSRF token on
   every write, exact origin check in hosted mode. Not enterprise SSO.
 - No real physician is ever contacted; "send" is simulated and recorded in the audit.

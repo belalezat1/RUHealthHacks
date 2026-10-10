@@ -88,9 +88,9 @@ Resources:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties: { SubnetId: !Ref PrivateSubnet, RouteTableId: !Ref PrivateRouteTable }
 
-  # Inbound only on the proxy port and only from inside the VPC (CloudFront VPC origin ENIs).
-  # After the VPC origin is deployed, you may tighten this to the service-managed
-  # "CloudFront-VPCOrigins-Service-SG" security group (see RUNBOOK.md).
+  # Inbound only on the proxy port. CloudFront VPC-origin traffic must ALSO be allowed from the
+  # service-managed "CloudFront-VPCOrigins-Service-SG", which CloudFront creates after the VPC
+  # origin exists; `sevaro.ps1 create` adds that rule (without it CloudFront returns 504).
   AppSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

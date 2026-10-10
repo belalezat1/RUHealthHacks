@@ -65,6 +65,17 @@ switch ($Action) {
     if (-not $AvailabilityZone) { throw "Pass -AvailabilityZone (run 'check' to list them)" }
     aws cloudformation deploy --region $Region --stack-name $StackName --template-file $Template `
       --capabilities CAPABILITY_IAM --parameter-overrides "AvailabilityZone=$AvailabilityZone"
+    # CloudFront creates its VPC-origin security group only after the VPC origin exists, so the
+    # host must be opened to that group here (a CIDR rule alone gives 504s). Safe to re-run.
+    $id = Out-Stack "InstanceId"
+    $vpc = aws ec2 describe-instances --region $Region --instance-ids $id --query "Reservations[0].Instances[0].VpcId" --output text
+    $appSg = aws ec2 describe-instances --region $Region --instance-ids $id --query "Reservations[0].Instances[0].SecurityGroups[0].GroupId" --output text
+    $cfSg = aws ec2 describe-security-groups --region $Region --filters "Name=vpc-id,Values=$vpc" "Name=group-name,Values=CloudFront-VPCOrigins-Service-SG" --query "SecurityGroups[0].GroupId" --output text
+    if ($cfSg -and $cfSg -ne "None") {
+      aws ec2 authorize-security-group-ingress --region $Region --group-id $appSg `
+        --ip-permissions "IpProtocol=tcp,FromPort=8080,ToPort=8080,UserIdGroupPairs=[{GroupId=$cfSg}]" 2>$null | Out-Null
+      Write-Host "Allowed CloudFront VPC-origin group $cfSg -> $appSg on 8080"
+    } else { Write-Host "CloudFront-VPCOrigins-Service-SG not found yet; re-run 'create' in a minute." }
     aws cloudformation describe-stacks --region $Region --stack-name $StackName --query "Stacks[0].Outputs" --output table
   }
   "params" {
