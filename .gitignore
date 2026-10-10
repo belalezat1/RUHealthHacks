@@ -18,3 +18,7 @@ test-results/
 .terraform/
 *.tfvars
 !*.tfvars.example
+.tools/
+*.tfplan
+exports/
+*.tsbuildinfo

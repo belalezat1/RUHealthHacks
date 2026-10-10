@@ -82,7 +82,9 @@ def ingest(session, active, event, actor, now):
         actor.scope(consultation.data['hospital_id'])
         if actor.role == 'physician' and consultation.data.get('physician_id') != actor.id:
             raise HTTPException(403, 'Physician is not assigned to this consultation')
-        if consultation.status == 'completed':
+        if consultation.status == 'completed' or utc(event.observed_at) < utc(
+            consultation.data.get('assigned_at', consultation.data['requested_at'])
+        ):
             outcome = 'late'
         elif consultation.status not in {'assigned', 'active'}:
             raise HTTPException(409, 'Only assigned or active consultation can complete')
@@ -99,7 +101,8 @@ def ingest(session, active, event, actor, now):
     session.add(RawEvent(id=str(uuid4()), dataset_id=event.dataset_id, source=event.source,
                          event_id=event.event_id, entity_id=event.entity_id, event_type=event.event_type,
                          semantic_hash=digest, observed_at=event.observed_at, received_at=now,
-                         data={**semantic, 'received_at': now.isoformat()}, outcome=outcome))
+                         data={**semantic, 'received_at': now.isoformat(),
+                               'original_observed_at': event.observed_at.isoformat()}, outcome=outcome))
     record(session, actor, event.dataset_id, 'event.' + outcome, event.entity_id, now,
            after={'event_id': event.event_id, 'source_version': active.source_version})
     session.flush()

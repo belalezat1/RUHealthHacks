@@ -23,6 +23,7 @@ jobs:
       AUTH_MODE: demo
       JEV_MODE: mock
       DATABASE_URL: postgresql+psycopg://sevaro:sevaro-test@localhost:5432/sevaro
+      TEST_DATABASE_URL: postgresql+psycopg://sevaro:sevaro-test@localhost:5432/sevaro
     defaults:
       run:
         working-directory: backend

@@ -1,0 +1,554 @@
+{
+  "schema_version": "synthetic_v1",
+  "dataset_id": "harbor_demo",
+  "label": "Harbor Network \u00b7 Split-shift pressure",
+  "synthetic": true,
+  "as_of": "2026-10-10T16:00:00+00:00",
+  "hospitals": [
+    {
+      "id": "harbor_demo-river",
+      "name": "Riverfront Medical Center",
+      "jurisdiction": "NJ",
+      "timezone": "America/New_York",
+      "specialty": "neurology",
+      "minimum_coverage": 1,
+      "arrival_work_minutes_per_bin": 5
+    },
+    {
+      "id": "harbor_demo-lake",
+      "name": "Lakeside Community Hospital",
+      "jurisdiction": "NJ",
+      "timezone": "America/New_York",
+      "specialty": "neurology",
+      "minimum_coverage": 1,
+      "arrival_work_minutes_per_bin": 3
+    }
+  ],
+  "physicians": [
+    {
+      "id": "harbor_demo-01-ending",
+      "name": "Dr. Avery Reed (synthetic)",
+      "specialties": [
+        "neurology"
+      ],
+      "max_concurrent": 1,
+      "metadata": {
+        "synthetic": true,
+        "operational_note": "Shift ends soon; extension limited by demo policy."
+      }
+    },
+    {
+      "id": "harbor_demo-02-occupied",
+      "name": "Dr. Jordan Park (synthetic)",
+      "specialties": [
+        "neurology"
+      ],
+      "max_concurrent": 1,
+      "metadata": {
+        "synthetic": true,
+        "operational_note": "Active consultation continuity must be preserved."
+      }
+    },
+    {
+      "id": "harbor_demo-03-reserve",
+      "name": "Dr. Morgan Vale (synthetic)",
+      "specialties": [
+        "neurology"
+      ],
+      "max_concurrent": 1,
+      "metadata": {
+        "synthetic": true,
+        "operational_note": "Available for a consenting off-shift block."
+      }
+    },
+    {
+      "id": "harbor_demo-04-split-trap",
+      "name": "Dr. Sam Rivera (synthetic)",
+      "specialties": [
+        "neurology"
+      ],
+      "max_concurrent": 1,
+      "metadata": {
+        "synthetic": true,
+        "operational_note": "Next mandatory shift begins 150 minutes from snapshot; inspect rest beyond chart."
+      }
+    },
+    {
+      "id": "harbor_demo-05-stale",
+      "name": "Dr. Casey Lin (synthetic)",
+      "specialties": [
+        "neurology"
+      ],
+      "max_concurrent": 1,
+      "metadata": {
+        "synthetic": true,
+        "operational_note": "Available self-report conflicts with stale connectivity."
+      }
+    },
+    {
+      "id": "harbor_demo-06-expired",
+      "name": "Dr. Taylor Chen (synthetic)",
+      "specialties": [
+        "neurology"
+      ],
+      "max_concurrent": 1,
+      "metadata": {
+        "synthetic": true,
+        "operational_note": "License evidence is expired."
+      }
+    },
+    {
+      "id": "harbor_demo-07-unknown",
+      "name": "Dr. Quinn Ellis (synthetic)",
+      "specialties": [
+        "neurology"
+      ],
+      "max_concurrent": 1,
+      "metadata": {
+        "synthetic": true,
+        "operational_note": "Facility privilege has no supplied expiry."
+      }
+    }
+  ],
+  "credentials": [
+    {
+      "id": "harbor_demo-01-ending-license",
+      "physician_id": "harbor_demo-01-ending",
+      "kind": "license",
+      "jurisdiction": "NJ",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-01-ending-harbor_demo-river-privilege",
+      "physician_id": "harbor_demo-01-ending",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-river",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-01-ending-harbor_demo-lake-privilege",
+      "physician_id": "harbor_demo-01-ending",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-lake",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-02-occupied-license",
+      "physician_id": "harbor_demo-02-occupied",
+      "kind": "license",
+      "jurisdiction": "NJ",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-02-occupied-harbor_demo-river-privilege",
+      "physician_id": "harbor_demo-02-occupied",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-river",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-02-occupied-harbor_demo-lake-privilege",
+      "physician_id": "harbor_demo-02-occupied",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-lake",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-03-reserve-license",
+      "physician_id": "harbor_demo-03-reserve",
+      "kind": "license",
+      "jurisdiction": "NJ",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-03-reserve-harbor_demo-river-privilege",
+      "physician_id": "harbor_demo-03-reserve",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-river",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-03-reserve-harbor_demo-lake-privilege",
+      "physician_id": "harbor_demo-03-reserve",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-lake",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-04-split-trap-license",
+      "physician_id": "harbor_demo-04-split-trap",
+      "kind": "license",
+      "jurisdiction": "NJ",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-04-split-trap-harbor_demo-river-privilege",
+      "physician_id": "harbor_demo-04-split-trap",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-river",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-04-split-trap-harbor_demo-lake-privilege",
+      "physician_id": "harbor_demo-04-split-trap",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-lake",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-05-stale-license",
+      "physician_id": "harbor_demo-05-stale",
+      "kind": "license",
+      "jurisdiction": "NJ",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-05-stale-harbor_demo-river-privilege",
+      "physician_id": "harbor_demo-05-stale",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-river",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-05-stale-harbor_demo-lake-privilege",
+      "physician_id": "harbor_demo-05-stale",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-lake",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-06-expired-license",
+      "physician_id": "harbor_demo-06-expired",
+      "kind": "license",
+      "jurisdiction": "NJ",
+      "expires_at": "2026-10-10T15:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-06-expired-harbor_demo-river-privilege",
+      "physician_id": "harbor_demo-06-expired",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-river",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-06-expired-harbor_demo-lake-privilege",
+      "physician_id": "harbor_demo-06-expired",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-lake",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-07-unknown-license",
+      "physician_id": "harbor_demo-07-unknown",
+      "kind": "license",
+      "jurisdiction": "NJ",
+      "expires_at": "2027-10-10T16:00:00+00:00"
+    },
+    {
+      "id": "harbor_demo-07-unknown-harbor_demo-river-privilege",
+      "physician_id": "harbor_demo-07-unknown",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-river",
+      "expires_at": null
+    },
+    {
+      "id": "harbor_demo-07-unknown-harbor_demo-lake-privilege",
+      "physician_id": "harbor_demo-07-unknown",
+      "kind": "privilege",
+      "hospital_id": "harbor_demo-lake",
+      "expires_at": null
+    }
+  ],
+  "shifts": [
+    {
+      "id": "harbor_demo-ending-shift",
+      "physician_id": "harbor_demo-01-ending",
+      "hospital_id": "harbor_demo-river",
+      "start_at": "2026-10-10T13:00:00+00:00",
+      "end_at": "2026-10-10T16:10:00+00:00",
+      "status": "scheduled",
+      "mandatory": false
+    },
+    {
+      "id": "harbor_demo-occupied-shift",
+      "physician_id": "harbor_demo-02-occupied",
+      "hospital_id": "harbor_demo-lake",
+      "start_at": "2026-10-10T15:00:00+00:00",
+      "end_at": "2026-10-10T19:00:00+00:00",
+      "status": "scheduled",
+      "mandatory": true
+    },
+    {
+      "id": "harbor_demo-reserve-prior",
+      "physician_id": "harbor_demo-03-reserve",
+      "hospital_id": "harbor_demo-river",
+      "start_at": "2026-10-10T09:00:00+00:00",
+      "end_at": "2026-10-10T13:00:00+00:00",
+      "status": "scheduled",
+      "mandatory": false
+    },
+    {
+      "id": "harbor_demo-reserve-later",
+      "physician_id": "harbor_demo-03-reserve",
+      "hospital_id": "harbor_demo-river",
+      "start_at": "2026-10-10T22:00:00+00:00",
+      "end_at": "2026-10-11T02:00:00+00:00",
+      "status": "scheduled",
+      "mandatory": false
+    },
+    {
+      "id": "harbor_demo-split-prior",
+      "physician_id": "harbor_demo-04-split-trap",
+      "hospital_id": "harbor_demo-lake",
+      "start_at": "2026-10-10T09:00:00+00:00",
+      "end_at": "2026-10-10T13:00:00+00:00",
+      "status": "scheduled",
+      "mandatory": false
+    },
+    {
+      "id": "harbor_demo-split-future",
+      "physician_id": "harbor_demo-04-split-trap",
+      "hospital_id": "harbor_demo-lake",
+      "start_at": "2026-10-10T18:30:00+00:00",
+      "end_at": "2026-10-10T21:30:00+00:00",
+      "status": "scheduled",
+      "mandatory": true
+    },
+    {
+      "id": "harbor_demo-stale-shift",
+      "physician_id": "harbor_demo-05-stale",
+      "hospital_id": "harbor_demo-river",
+      "start_at": "2026-10-10T15:00:00+00:00",
+      "end_at": "2026-10-10T18:00:00+00:00",
+      "status": "scheduled",
+      "mandatory": false
+    },
+    {
+      "id": "harbor_demo-expired-shift",
+      "physician_id": "harbor_demo-06-expired",
+      "hospital_id": "harbor_demo-river",
+      "start_at": "2026-10-10T15:00:00+00:00",
+      "end_at": "2026-10-10T18:00:00+00:00",
+      "status": "scheduled",
+      "mandatory": false
+    },
+    {
+      "id": "harbor_demo-unknown-shift",
+      "physician_id": "harbor_demo-07-unknown",
+      "hospital_id": "harbor_demo-lake",
+      "start_at": "2026-10-10T15:00:00+00:00",
+      "end_at": "2026-10-10T18:00:00+00:00",
+      "status": "scheduled",
+      "mandatory": false
+    }
+  ],
+  "signals": [
+    {
+      "id": "harbor_demo-01-ending-heartbeat",
+      "physician_id": "harbor_demo-01-ending",
+      "source": "synthetic_monitor",
+      "kind": "heartbeat",
+      "value": "connected",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-01-ending-self_report",
+      "physician_id": "harbor_demo-01-ending",
+      "source": "synthetic_monitor",
+      "kind": "self_report",
+      "value": "available",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-02-occupied-heartbeat",
+      "physician_id": "harbor_demo-02-occupied",
+      "source": "synthetic_monitor",
+      "kind": "heartbeat",
+      "value": "connected",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-02-occupied-self_report",
+      "physician_id": "harbor_demo-02-occupied",
+      "source": "synthetic_monitor",
+      "kind": "self_report",
+      "value": "available",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-03-reserve-heartbeat",
+      "physician_id": "harbor_demo-03-reserve",
+      "source": "synthetic_monitor",
+      "kind": "heartbeat",
+      "value": "connected",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-03-reserve-self_report",
+      "physician_id": "harbor_demo-03-reserve",
+      "source": "synthetic_monitor",
+      "kind": "self_report",
+      "value": "available",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-04-split-trap-heartbeat",
+      "physician_id": "harbor_demo-04-split-trap",
+      "source": "synthetic_monitor",
+      "kind": "heartbeat",
+      "value": "connected",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-04-split-trap-self_report",
+      "physician_id": "harbor_demo-04-split-trap",
+      "source": "synthetic_monitor",
+      "kind": "self_report",
+      "value": "available",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-05-stale-heartbeat",
+      "physician_id": "harbor_demo-05-stale",
+      "source": "synthetic_monitor",
+      "kind": "heartbeat",
+      "value": "connected",
+      "observed_at": "2026-10-10T15:50:00+00:00",
+      "received_at": "2026-10-10T15:50:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-05-stale-self_report",
+      "physician_id": "harbor_demo-05-stale",
+      "source": "synthetic_monitor",
+      "kind": "self_report",
+      "value": "available",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-06-expired-heartbeat",
+      "physician_id": "harbor_demo-06-expired",
+      "source": "synthetic_monitor",
+      "kind": "heartbeat",
+      "value": "connected",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-06-expired-self_report",
+      "physician_id": "harbor_demo-06-expired",
+      "source": "synthetic_monitor",
+      "kind": "self_report",
+      "value": "available",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-07-unknown-heartbeat",
+      "physician_id": "harbor_demo-07-unknown",
+      "source": "synthetic_monitor",
+      "kind": "heartbeat",
+      "value": "connected",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-07-unknown-self_report",
+      "physician_id": "harbor_demo-07-unknown",
+      "source": "synthetic_monitor",
+      "kind": "self_report",
+      "value": "available",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    },
+    {
+      "id": "harbor_demo-busy-activity",
+      "physician_id": "harbor_demo-02-occupied",
+      "source": "synthetic_monitor",
+      "kind": "activity",
+      "value": "busy",
+      "observed_at": "2026-10-10T15:59:00+00:00",
+      "received_at": "2026-10-10T15:59:00+00:00",
+      "source_sequence": 1
+    }
+  ],
+  "consultations": [
+    {
+      "id": "harbor_demo-urgent-001",
+      "hospital_id": "harbor_demo-river",
+      "specialty": "neurology",
+      "priority": "urgent",
+      "requested_at": "2026-10-10T15:52:00+00:00",
+      "deadline_at": "2026-10-10T16:10:00+00:00",
+      "duration_minutes": 45,
+      "status": "waiting",
+      "physician_id": null
+    },
+    {
+      "id": "harbor_demo-routine-002",
+      "hospital_id": "harbor_demo-lake",
+      "specialty": "neurology",
+      "priority": "routine",
+      "requested_at": "2026-10-10T15:48:00+00:00",
+      "deadline_at": "2026-10-10T16:30:00+00:00",
+      "duration_minutes": 25,
+      "status": "waiting",
+      "physician_id": null
+    },
+    {
+      "id": "harbor_demo-routine-003",
+      "hospital_id": "harbor_demo-river",
+      "specialty": "neurology",
+      "priority": "routine",
+      "requested_at": "2026-10-10T15:56:00+00:00",
+      "deadline_at": "2026-10-10T16:35:00+00:00",
+      "duration_minutes": 20,
+      "status": "waiting",
+      "physician_id": null
+    },
+    {
+      "id": "harbor_demo-urgent-004",
+      "hospital_id": "harbor_demo-lake",
+      "specialty": "neurology",
+      "priority": "urgent",
+      "requested_at": "2026-10-10T15:57:00+00:00",
+      "deadline_at": "2026-10-10T16:15:00+00:00",
+      "duration_minutes": 30,
+      "status": "waiting",
+      "physician_id": null
+    },
+    {
+      "id": "harbor_demo-active-005",
+      "hospital_id": "harbor_demo-lake",
+      "specialty": "neurology",
+      "priority": "urgent",
+      "requested_at": "2026-10-10T15:55:00+00:00",
+      "deadline_at": "2026-10-10T16:00:00+00:00",
+      "duration_minutes": 35,
+      "status": "active",
+      "physician_id": "harbor_demo-02-occupied"
+    }
+  ]
+}

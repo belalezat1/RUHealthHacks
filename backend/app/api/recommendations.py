@@ -5,7 +5,7 @@ from starlette.concurrency import run_in_threadpool
 from app.core.config import load_policy
 from app.core.database import engine, get_session, locked_state
 from app.core.security import Actor, actor_context
-from app.models import AdvisoryResult
+from app.models import AdvisoryResult, Recommendation
 from app.schemas.decisions import ActionRequest, PhysicianResponse, PreviewRequest, RecommendationResponse
 from app.services.advisory import build_advisory
 from app.services.decisions import create_proposal, get_proposal, serialize, transition
@@ -32,14 +32,16 @@ async def optimize(body: PreviewRequest, request: Request,
     def persist():
         with Session(engine()) as session, session.begin():
             active = locked_state(session)
-            row = get_proposal(session, active, proposal['id'], actor)
+            row = session.get(Recommendation, (state['dataset_id'], proposal['id']))
+            if row is None:
+                return {**proposal, 'advisory': {**advisory, 'status': 'stale', 'answers': {}}}
             current = request.app.state.clock.now()
             if active.dataset_id != state['dataset_id'] or active.source_version != state['source_version']:
                 advisory.update({'status': 'stale', 'answers': {}})
             if current >= row.expires_at:
                 advisory.update({'status': 'stale', 'answers': {}})
             row.data = {**row.data, 'advisory': advisory}
-            session.merge(AdvisoryResult(dataset_id=active.dataset_id, id=row.id, data=advisory))
+            session.merge(AdvisoryResult(dataset_id=state['dataset_id'], id=row.id, data=advisory))
             return serialize(row, current)
     return await run_in_threadpool(persist)
 

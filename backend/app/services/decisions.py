@@ -10,6 +10,7 @@ from app.models import Assignment, AvailabilitySignal, Consultation, Recommendat
 from app.services.audit import record
 from app.services.datasets import invalidate, read_state, stable_hash
 from app.services.eligibility import evaluate
+from app.services.forecast import build_forecast
 from app.services.optimizer import preview
 
 
@@ -164,8 +165,15 @@ def transition(session, active, row, action, body, key, actor, now, policy):
         consultation.status = 'active'
         consultation.data = {**consultation.data, 'status': 'active'}
         row.status = 'verified'
+        coverage = build_forecast(read_state(session, active), now, policy)
+        affected = [h for interval in coverage['intervals'] for h in interval['hospitals']
+                    if h['hospital_id'] == candidate['hospital_id']]
         data['verification'] = {'activation_signal_id': evidence[-1]['id'], 'checked_at': now.isoformat(),
-                                'outcome': 'Assigned work has fresh activation evidence and passes current rules'}
+                                'outcome': 'Assigned work has fresh activation evidence and passes current rules',
+                                'coverage_as_of': coverage['as_of'],
+                                'affected_intervals': affected,
+                                'remaining_gap': any(h['unmet_minutes'] > 0 for h in affected),
+                                'coverage_note': 'Activation is verified; remaining network coverage gaps stay visible.'}
         active.source_version += 1
         row.source_version = active.source_version
         invalidate(session, active.dataset_id, except_id=row.id)

@@ -1,0 +1,29 @@
+{
+  "version": "synthetic-demo-v1",
+  "label": "Synthetic staffing assumptions; not a clinical staffing policy",
+  "horizon_minutes": 90,
+  "interval_minutes": 15,
+  "heartbeat_freshness_seconds": 300,
+  "self_report_freshness_seconds": 7200,
+  "activity_freshness_seconds": 300,
+  "activation_freshness_seconds": 300,
+  "future_tolerance_seconds": 120,
+  "source_priority": {"synthetic-ui": 100, "synthetic_console": 100, "synthetic_monitor": 90, "synthetic_roster": 70},
+  "min_rest_minutes": 120,
+  "max_work_minutes_24h": 720,
+  "max_continuous_work_minutes": 480,
+  "max_extension_minutes": 30,
+  "consent_required_on_shift": true,
+  "max_candidates": 64,
+  "max_solver_seconds": 0.25,
+  "solver_seed": 42,
+  "weights": {"delay": 10, "uncovered": 3, "overtime": 1, "activation": 8, "split_shift": 4, "schedule_instability": 5, "workload_balance": 0.02},
+  "forecast_assumptions": [
+    "Six rolling 15-minute intervals use clinician work-minutes; concurrency is one globally shared slot per physician.",
+    "Current fresh connectivity and availability are conditionally carried into the forecast; this is not guaranteed future attendance.",
+    "Known assignments use their supplied expected end; actual assignment eligibility still requires completion evidence.",
+    "Scheduled capacity and explicit accepted assignment blocks are included; unaccepted off-shift offers add no capacity.",
+    "Backlog carries into later bins; each hospital's arrival work assumption is a demo input, not a clinical prediction.",
+    "Deadline ordering uses source-provided urgency; the application does not create clinical priorities."
+  ]
+}

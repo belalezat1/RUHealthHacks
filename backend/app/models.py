@@ -54,7 +54,7 @@ class AvailabilitySignal(EntityMixin, Base):
 
 class Consultation(EntityMixin, Base):
     __tablename__ = 'consultations'
-    status: Mapped[str] = mapped_column(String(30), index=True)
+    status: Mapped[str] = mapped_column(String(40), index=True)
 
 
 class RawEvent(Base):
@@ -90,7 +90,7 @@ class Assignment(EntityMixin, Base):
     __tablename__ = 'assignments'
     consultation_id: Mapped[str] = mapped_column(String(120))
     physician_id: Mapped[str] = mapped_column(String(120))
-    status: Mapped[str] = mapped_column(String(30))
+    status: Mapped[str] = mapped_column(String(40))
     __table_args__ = (
         Index('uq_active_consult', 'dataset_id', 'consultation_id', unique=True,
               postgresql_where=text("status IN ('assigned','verified')")),

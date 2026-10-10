@@ -30,8 +30,13 @@ def run(body: SimulationRequest, request: Request, actor: Actor = Depends(actor_
     with Session(engine()) as session, session.begin():
         active = locked_state(session, read=True)
         state = read_state(session, active)
+    if body.scenario not in {item['id'] for item in SCENARIOS}:
+        raise HTTPException(422, 'Unknown scenario')
     now = request.app.state.clock.now()
-    result = run_simulation(state, body.scenario, body.seed, now, load_policy())
+    try:
+        result = run_simulation(state, body.scenario, body.seed, now, load_policy())
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from None
     identifier = str(uuid4())
     result['metadata']['advisory_mode'] = get_settings().jev_mode
     result['id'] = identifier

@@ -1,0 +1,54 @@
+{
+  "schema_version": "synthetic_events_v1",
+  "description": "Synthetic replay event examples. Rebase observed_at/requested_at/deadline_at from as_of before injection. Events are revealed at minute_offset.",
+  "as_of": "2026-10-10T16:00:00+00:00",
+  "events": [
+    {
+      "minute_offset": 2,
+      "dataset_id": "harbor_demo",
+      "source": "synthetic_monitor",
+      "event_id": "demo-heartbeat-refresh",
+      "event_type": "availability",
+      "entity_id": "harbor_demo-05-stale",
+      "observed_at": "2026-10-10T16:02:00+00:00",
+      "source_sequence": 2,
+      "payload": {
+        "kind": "heartbeat",
+        "value": "connected"
+      }
+    },
+    {
+      "minute_offset": 10,
+      "dataset_id": "harbor_demo",
+      "source": "synthetic_scenario",
+      "event_id": "demo-surge-01",
+      "event_type": "consultation.created",
+      "entity_id": "harbor_demo-surge-01",
+      "observed_at": "2026-10-10T16:10:00+00:00",
+      "payload": {
+        "id": "harbor_demo-surge-01",
+        "hospital_id": "harbor_demo-river",
+        "specialty": "neurology",
+        "priority": "urgent",
+        "requested_at": "2026-10-10T16:10:00+00:00",
+        "deadline_at": "2026-10-10T16:20:00+00:00",
+        "duration_minutes": 30,
+        "status": "waiting"
+      }
+    },
+    {
+      "minute_offset": 11,
+      "dataset_id": "harbor_demo",
+      "source": "synthetic_monitor",
+      "event_id": "demo-heartbeat-late",
+      "event_type": "availability",
+      "entity_id": "harbor_demo-05-stale",
+      "observed_at": "2026-10-10T15:58:00+00:00",
+      "source_sequence": 0,
+      "payload": {
+        "kind": "heartbeat",
+        "value": "disconnected"
+      }
+    }
+  ]
+}
