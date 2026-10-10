@@ -17,5 +17,6 @@ def explain_candidate(candidate):
     return (f'{verb}. {effect["work_minutes"]:g} clinician work-minutes are projected for '
             f'this consultation; {effect["delay_minutes"]:g} minutes beyond its supplied deadline. '
             f'Incremental overtime: {effect["overtime_minutes"]:g} minutes. '
+            f'Projected qualified capacity change over 90 minutes: {effect["capacity_gain_minutes_90m"]:g} minutes. '
             'Known later commitments were checked beyond the 90-minute chart. '
             'Supervisor approval, explicit physician consent, and activation evidence are still required.')

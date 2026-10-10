@@ -36,7 +36,8 @@ def request_for(state: dict, proposal: dict, model: str) -> JevRequest | None:
     physician_ids = {item["physician_id"] for item in compact}
     notes = [
         {"physician_id": physician["id"], "untrusted_operations_note":
-         str(physician.get("metadata", {}).get("operations_note", ""))[:600]}
+         str(physician.get("metadata", {}).get("operations_note",
+             physician.get("metadata", {}).get("operational_note", "")))[:600]}
         for physician in state.get("physicians", []) if physician["id"] in physician_ids
     ]
     criteria = {item["physician_id"]: f"Secondary preference for the already feasible plan with physician_id={item['physician_id']}."

@@ -12,7 +12,7 @@ seed:
 
 test:
 	docker compose exec backend ruff check app tests scripts
-	docker compose exec backend pytest -q
+	docker compose exec backend sh -c 'export TEST_DATABASE_URL="$${TEST_DATABASE_URL:-$$DATABASE_URL}"; test -n "$$TEST_DATABASE_URL" && pytest -q'
 	docker compose exec frontend npm run typecheck
 
 smoke:

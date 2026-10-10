@@ -183,6 +183,23 @@ def test_rest_before_new_block_maximum_work_and_extension(state):
     assert 'SHIFT_EXTENSION_LIMIT' in codes(check(state), 'fail')
 
 
+def test_minimum_activation_block_is_explicit_demo_policy(state):
+    state['consultations'][0]['duration_minutes'] = 5
+    assert check(state)['outcome'] == 'eligible'
+    state['shifts'] = []
+    assert 'MINIMUM_ACTIVATION_BLOCK' in codes(check(state), 'fail')
+
+
+def test_optimizer_projects_full_horizon_without_mutating_state(state):
+    state['shifts'] = []
+    before = deepcopy(state)
+    candidate = preview(state, 'consult-a', NOW, POLICY)['selected']
+    assert state == before
+    assert candidate['expected_effect']['capacity_gain_minutes_90m'] == 20
+    assert candidate['expected_effect']['mean_bin_unmet_minutes_after'] < \
+        candidate['expected_effect']['mean_bin_unmet_minutes_before']
+
+
 def test_cross_hospital_mandatory_and_minimum_coverage(state):
     state['shifts'][0].update(hospital_id='hospital-b', mandatory=True)
     assert 'COVERAGE_CONTINUITY_FAILURE' in codes(check(state), 'fail')
@@ -191,6 +208,27 @@ def test_cross_hospital_mandatory_and_minimum_coverage(state):
     assert 'COVERAGE_CONTINUITY_FAILURE' in codes(check(state), 'fail')
     state['hospitals'][1]['minimum_coverage'] = 0
     assert check(state)['outcome'] == 'eligible'
+
+
+def test_coverage_replacement_cannot_be_reused_across_facilities(state):
+    state['hospitals'][0]['minimum_coverage'] = 1
+    state['hospitals'][1]['minimum_coverage'] = 1
+    state['hospitals'].append({**state['hospitals'][0], 'id': 'hospital-c', 'minimum_coverage': 0})
+    state['credentials'].append({**state['credentials'][1], 'id': 'privilege-c', 'hospital_id': 'hospital-c'})
+    state['physicians'].append({**state['physicians'][0], 'id': 'replacement'})
+    for credential in list(state['credentials']):
+        state['credentials'].append({**credential, 'id': credential['id'] + '-replacement',
+                                     'physician_id': 'replacement'})
+    for signal in list(state['signals']):
+        state['signals'].append({**signal, 'id': signal['id'] + '-replacement', 'physician_id': 'replacement'})
+    for hid in ['hospital-a', 'hospital-b']:
+        state['shifts'].append({**state['shifts'][0], 'id': 'replacement-' + hid,
+                                'physician_id': 'replacement', 'hospital_id': hid})
+    state['consultations'][0]['hospital_id'] = 'hospital-c'
+    result = evaluate(state, 'physician-x', 'hospital-c', 'consult-a', 'contact', NOW, POLICY)
+    assert 'COVERAGE_CONTINUITY_FAILURE' in codes(result, 'fail')
+    reasons = next(r['observed'] for r in result['rules'] if r['code'] == 'COVERAGE_CONTINUITY_FAILURE')
+    assert any('unfilled_minimum_coverage' in reason for reason in reasons)
 
 
 def test_shared_capacity_never_multiplied_across_hospitals(state):

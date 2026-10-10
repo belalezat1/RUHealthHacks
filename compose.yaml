@@ -17,14 +17,6 @@ x-backend: &backend
     JEV_TIMEOUT_SECONDS: ${JEV_TIMEOUT_SECONDS:-5}
     JEV_MAX_RETRIES: ${JEV_MAX_RETRIES:-1}
     DEMO_POLICY_PATH: /app/config/demo_policies.json
-  volumes:
-    - ./backend/app:/app/backend/app
-    - ./backend/tests:/app/backend/tests
-    - ./backend/scripts:/app/backend/scripts
-    - ./backend/alembic:/app/backend/alembic
-    - ./backend/alembic.ini:/app/backend/alembic.ini
-    - ./config:/app/config:ro
-    - ./data:/app/data:ro
 
 services:
   db:

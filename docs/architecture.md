@@ -21,4 +21,4 @@ Jev uses one shared bounded HTTPX client. Preview creates a proposal in a short 
 
 Simulation clones an operational snapshot. Both policies receive the same scenario and exogenous events at the same simulated time. Only the resulting run record and audit entry are persisted; simulation does not modify live assignments or the active dataset.
 
-The selected verified runtime is local Docker Compose. Conditional AWS support targets ECS Express Mode using approved existing workshop resources. No AWS resources or public URL have been created. See `deployment.md` for exact preconditions and tooling checks.
+The selected verified runtime is local Docker Compose. Backend source, migrations, policies, and fixtures are baked into its image; rebuilding with `make dev` applies edits without exposing the running process to partial host-file writes. PostgreSQL persists in its separate named volume. Conditional AWS support targets ECS Express Mode using approved existing workshop resources. No AWS resources or public URL have been created. See `deployment.md` for exact preconditions and tooling checks.

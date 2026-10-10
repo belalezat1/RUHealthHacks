@@ -1707,6 +1707,18 @@
               }
             ],
             "title": "Assignment Id"
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification"
           }
         },
         "type": "object",

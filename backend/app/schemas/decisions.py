@@ -31,6 +31,7 @@ class RecommendationResponse(BaseModel):
     advisory: dict
     consent: dict | None = None
     assignment_id: str | None = None
+    verification: dict | None = None
 
 
 class SimulationRequest(BaseModel):

@@ -18,6 +18,9 @@ def ingest(session, active, event, actor, now):
         raise HTTPException(409, 'Event dataset is not active')
     if utc(event.observed_at) > now + timedelta(seconds=get_settings().future_tolerance_seconds):
         raise HTTPException(422, 'Observation time exceeds configured future tolerance')
+    if event.event_type == 'consultation.completed' and utc(event.observed_at) > now:
+        # Clock-skew tolerance must never release a busy physician before completion was observed.
+        raise HTTPException(422, 'Future completion evidence cannot release current capacity')
     semantic = normalize(event.model_dump())
     digest = stable_hash(semantic)
     previous = session.scalar(select(RawEvent).where(
@@ -56,11 +59,13 @@ def ingest(session, active, event, actor, now):
             return (seq if seq is not None else -1, utc(row['observed_at']), row['id'])
         if same and order(normalize(signal.model_dump()))[:2] <= max(order(s) for s in same)[:2]:
             outcome = 'late'
-        # Keep every signal as evidence, but resolver chooses sequence/time, never ingestion order.
+        # Preserve ineffective late/tied evidence in RawEvent only. Inserting an equal-time signal
+        # here would let its random UUID win reconciliation without changing source_version.
         data = normalize(signal.model_dump())
         if kind == 'activation':
             data['recommendation_id'] = event.payload['recommendation_id']
-        session.add(AvailabilitySignal(dataset_id=event.dataset_id, id=signal.id, data=data))
+        if outcome == 'applied':
+            session.add(AvailabilitySignal(dataset_id=event.dataset_id, id=signal.id, data=data))
     elif event.event_type == 'consultation.created':
         if actor.role == 'physician':
             raise HTTPException(403, 'Physician cannot inject consultations')

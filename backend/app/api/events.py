@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_session, locked_state
@@ -12,12 +12,17 @@ from app.services.ingestion import ingest
 router = APIRouter(prefix='/v1/events', tags=['events'])
 
 
+def physician_hospitals(state, physician_id):
+    affected = {s['hospital_id'] for s in state['shifts'] if s['physician_id'] == physician_id}
+    affected.update(c['hospital_id'] for c in state['credentials']
+                    if c['physician_id'] == physician_id and c.get('hospital_id'))
+    return affected
+
+
 def check_scope(session, active, actor, event):
     if event.event_type in {'availability', 'activation'} and actor.hospitals is not None:
         state = read_state(session, active)
-        affected = {s['hospital_id'] for s in state['shifts'] if s['physician_id'] == event.entity_id}
-        affected.update(c['hospital_id'] for c in state['credentials']
-                        if c['physician_id'] == event.entity_id and c.get('hospital_id'))
+        affected = physician_hospitals(state, event.entity_id)
         if not affected or not affected.issubset(actor.hospitals):
             raise HTTPException(403, 'Physician affects hospitals outside actor scope')
 
@@ -51,10 +56,18 @@ def events(actor: Actor = Depends(actor_context), session: Session = Depends(get
     query = select(RawEvent).where(RawEvent.dataset_id == active.dataset_id)
     if actor.hospitals is not None:
         state = read_state(session, active)
-        permitted = {c['id'] for c in state['consultations'] if c['hospital_id'] in actor.hospitals}
-        permitted.update(p['id'] for p in state['physicians'] if all(
-            s['hospital_id'] in actor.hospitals for s in state['shifts'] if s['physician_id'] == p['id']))
-        query = query.where(RawEvent.entity_id.in_(permitted))
+        consultations = {c['id'] for c in state['consultations'] if c['hospital_id'] in actor.hospitals}
+        physicians = set()
+        for physician in state['physicians']:
+            affected = physician_hospitals(state, physician['id'])
+            if affected and affected.issubset(actor.hospitals):
+                physicians.add(physician['id'])
+        # Entity IDs are source-defined and can collide across record types. Scope each kind.
+        query = query.where(or_(
+            and_(RawEvent.event_type.in_(['availability', 'activation']), RawEvent.entity_id.in_(physicians)),
+            and_(RawEvent.event_type.in_(['consultation.created', 'consultation.completed']),
+                 RawEvent.entity_id.in_(consultations)),
+        ))
     total = session.scalar(select(func.count()).select_from(query.subquery()))
     rows = session.scalars(query.order_by(RawEvent.received_at.desc(), RawEvent.id).offset(offset).limit(limit))
     return {'items': [{**r.data, 'outcome': r.outcome} for r in rows], 'total': total}

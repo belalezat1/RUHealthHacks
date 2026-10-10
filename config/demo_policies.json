@@ -10,6 +10,7 @@
   "future_tolerance_seconds": 120,
   "source_priority": {"synthetic-ui": 100, "synthetic_console": 100, "synthetic_monitor": 90, "synthetic_roster": 70},
   "min_rest_minutes": 120,
+  "min_activation_block_minutes": 15,
   "max_work_minutes_24h": 720,
   "max_continuous_work_minutes": 480,
   "max_extension_minutes": 30,
@@ -22,6 +23,7 @@
     "Six rolling 15-minute intervals use clinician work-minutes; concurrency is one globally shared slot per physician.",
     "Current fresh connectivity and availability are conditionally carried into the forecast; this is not guaranteed future attendance.",
     "Known assignments use their supplied expected end; actual assignment eligibility still requires completion evidence.",
+    "Active source work without an assignment end uses request time plus supplied duration as a disclosed synthetic remaining-work estimate.",
     "Scheduled capacity and explicit accepted assignment blocks are included; unaccepted off-shift offers add no capacity.",
     "Backlog carries into later bins; each hospital's arrival work assumption is a demo input, not a clinical prediction.",
     "Deadline ordering uses source-provided urgency; the application does not create clinical priorities."

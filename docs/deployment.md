@@ -4,6 +4,8 @@
 
 Local Docker Desktop was started and Docker Engine 28.5.1 responded. PostgreSQL 16.8 is healthy in the `sevaro` Compose project, bound only to loopback, with its own persistent volume. `docker compose up --build` starts the database, runs the one-off Alembic migration service, then starts the API and frontend. Seed explicitly with `make seed` after backend readiness. `make down` preserves database and node dependency volumes.
 
+Backend source, tests, scripts, migrations, policy configuration, and synthetic fixture files are copied into the Docker image. The API and migration services have no host bind mounts, so an in-progress editor write cannot change their running code or truncate their policy file. Run `make dev` again after changing any backend, policy, or fixture file; it rebuilds and recreates the affected services while preserving PostgreSQL. Policy settings are validated at process startup. The frontend retains its development source mount for Vite updates.
+
 The local frontend URL is `http://localhost:5173`, API is `http://localhost:8000`, and OpenAPI documentation is `http://localhost:8000/docs`. Local actors are synthetic demo actors. Production startup forbids demo authentication.
 
 ## Cloud blocker and selected conditional path

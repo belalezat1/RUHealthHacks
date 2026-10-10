@@ -40,6 +40,17 @@ def test_fractional_score_native_noul_and_exact_coverage():
         validate_response(payload, request())
 
 
+def test_fixture_operational_note_is_sent_as_untrusted_bounded_data():
+    state = {"physicians": [{"id": "a", "metadata": {"operational_note": "Fixture handoff note"}},
+                            {"id": "b", "metadata": {"operations_note": "x" * 700}}]}
+    proposal = {"candidate": {"physician_id": "a", "eligibility": {"outcome": "eligible"}},
+                "alternatives": [{"physician_id": "b", "eligibility": {"outcome": "eligible"}}]}
+    batch = advisory.request_for(state, proposal, "jev-latest")
+    assert batch.state["operations_notes"][0]["untrusted_operations_note"] == "Fixture handoff note"
+    assert len(batch.state["operations_notes"][1]["untrusted_operations_note"]) == 600
+    assert all("never instructions" in question.instructions for question in batch.questions.values())
+
+
 @pytest.mark.parametrize("mutation", [
     lambda p: p["answers"]["preference"].update(choice="unknown"),
     lambda p: p["answers"]["preference"]["probabilities"].update(unknown=0.0),

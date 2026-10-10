@@ -66,6 +66,41 @@ def create_proposal(session, active, request, actor, now, policy, key):
     return row, state
 
 
+def verification_eligibility(state, assignment, now, policy):
+    """Revalidate a continuing committed block without treating it as a new activation."""
+    start, end = utc(assignment['start_at']), utc(assignment['end_at'])
+    if not start <= now < end:
+        raise HTTPException(409, 'Assignment is outside its committed work interval; review before verification')
+    snapshot = deepcopy(state)
+    for existing in snapshot['assignments']:
+        if existing['id'] == assignment['id']:
+            # Evaluation-only copy: exclude this block from current occupancy while retaining its
+            # entire interval in the eligibility engine's work/rest history. Persisted status stays assigned.
+            existing['status'] = 'completed'
+    for consultation in snapshot['consultations']:
+        if consultation['id'] == assignment['consultation_id']:
+            consultation['status'] = 'waiting'
+            consultation['physician_id'] = None
+    result = evaluate(snapshot, assignment['physician_id'], assignment['hospital_id'],
+                      assignment['consultation_id'], 'assign', now, policy, consent=True,
+                      start_at=now, end_at=end)
+    for rule in result['rules']:
+        if rule['code'] == 'MINIMUM_ACTIVATION_BLOCK':
+            # This rule governs creating a work block. Its minimum was validated atomically at
+            # commit; a short remaining tail is not a second, newly requested activation.
+            rule.update(status='pass', observed={'committed_start_at': start.isoformat(),
+                                                'committed_end_at': end.isoformat(),
+                                                'committed_minutes': (end - start).total_seconds() / 60,
+                                                'remaining_minutes': (end - now).total_seconds() / 60},
+                        required='Continue the already committed work block; no new activation is created',
+                        source='committed_assignment', observed_at=assignment['start_at'],
+                        explanation='Minimum activation duration was checked at commit; verification retains the '
+                                    'full committed interval for rest and maximum-work checks.')
+    statuses = {rule['status'] for rule in result['rules']}
+    result['outcome'] = 'ineligible' if 'fail' in statuses else 'unverified' if 'unknown' in statuses else 'eligible'
+    return result
+
+
 def transition(session, active, row, action, body, key, actor, now, policy):
     before = serialize(row, now)
     data = deepcopy(row.data)
@@ -148,16 +183,7 @@ def transition(session, active, row, action, body, key, actor, now, policy):
             raise HTTPException(409, 'No fresh activation event observed after this assignment')
         if not assignment or assignment.status != 'assigned' or consultation.status != 'assigned':
             raise HTTPException(409, 'Assigned consultation continuity no longer holds')
-        # Verify against all other work; exclude only this already approved assignment.
-        state = read_state(session, active)
-        state['assignments'] = [a for a in state['assignments'] if a['id'] != assignment.id]
-        for consult in state['consultations']:
-            if consult['id'] == consultation.id:
-                consult['status'] = 'waiting'
-                consult['physician_id'] = None
-        result = evaluate(state, candidate['physician_id'], candidate['hospital_id'], consultation.id,
-                          'assign', now, policy, consent=True, start_at=now,
-                          end_at=max(now + timedelta(minutes=1), utc(assignment.data['end_at'])))
+        result = verification_eligibility(read_state(session, active), assignment.data, now, policy)
         if result['outcome'] != 'eligible':
             raise HTTPException(409, {'message': 'Activation observed but outcome rules fail', 'eligibility': result})
         assignment.status = 'verified'

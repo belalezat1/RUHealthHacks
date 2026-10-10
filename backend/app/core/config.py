@@ -55,7 +55,10 @@ def get_settings():
     return Settings()
 
 
+@lru_cache
 def load_policy():
     policy = json.loads(Path(get_settings().demo_policy_path).read_text())
+    if not policy.get('version') or not isinstance(policy.get('source_priority'), dict):
+        raise ValueError('Demo policy requires version and explicit source precedence')
     policy['max_solver_seconds'] = get_settings().max_solver_seconds
     return policy

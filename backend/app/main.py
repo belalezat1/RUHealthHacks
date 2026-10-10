@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.api import datasets, events, health, operations, recommendations, simulations
 from app.core.clock import Clock
-from app.core.config import get_settings
+from app.core.config import get_settings, load_policy
 from app.core.logging import RequestLoggingMiddleware
 from app.integrations.jev import get_adapter
 
@@ -18,6 +18,7 @@ from app.integrations.jev import get_adapter
 @asynccontextmanager
 async def lifespan(app):
     settings = get_settings()
+    load_policy()
     async with httpx.AsyncClient(timeout=settings.jev_timeout_seconds,
                                  limits=httpx.Limits(max_connections=5, max_keepalive_connections=2)) as client:
         app.state.jev = get_adapter(settings, client)

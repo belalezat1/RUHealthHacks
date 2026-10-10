@@ -51,6 +51,68 @@ def _covered(state, physician_id, hospital_id, start, end):
                for s in state.get('shifts', []))
 
 
+def _shared_coverage_conflict(state, physician_id, destination, origin, left, right, now, policy):
+    """Match minimum-coverage slots to distinct physicians in the connected facility group."""
+    routes = {}
+    for physician in state['physicians']:
+        pid = physician['id']
+        if pid == physician_id:
+            routes[pid] = {destination}
+            continue
+        availability = reconcile(state, pid, now, policy)
+        work = active_work(state, pid, now)
+        if (not availability['connected'] or availability['stale']
+                or availability['status'] not in {'available', 'off_shift_available', 'busy'}
+                or (availability['status'] == 'busy' and not work)
+                or any(c.startswith('CONFLICTING_') for c in availability['conflicts'])):
+            continue
+        mandatory = {s['hospital_id'] for s in state.get('shifts', []) if s['physician_id'] == pid
+                     and s.get('status', 'scheduled') == 'scheduled' and s.get('mandatory')
+                     and interval_overlap(left, right, parse_time(s['start_at']), parse_time(s['end_at']))}
+        fixed_work = {w.get('hospital_id') for w in work}
+        fixed_work.update(a['hospital_id'] for a in state.get('assignments', [])
+                          if a['physician_id'] == pid and a['status'] != 'completed'
+                          and interval_overlap(left, right, parse_time(a['start_at']), parse_time(a['end_at'])))
+        allowed = set()
+        for hospital in state['hospitals']:
+            hid = hospital['id']
+            if (hospital['specialty'] not in physician.get('specialties', [])
+                    or not _covered(state, pid, hid, left, right)
+                    or (mandatory and mandatory != {hid}) or (fixed_work and fixed_work != {hid})):
+                continue
+            if all(status == 'pass' for _, status, _, _ in credentials_for(state, pid, hospital, right)):
+                allowed.add(hid)
+        routes[pid] = allowed
+    # Unrelated pre-existing shortages must not block an improvement at the affected facilities.
+    component = {origin}
+    changed = True
+    while changed:
+        changed = False
+        for allowed in routes.values():
+            if component.intersection(allowed) and not allowed <= component:
+                component.update(allowed)
+                changed = True
+    slots = [(h['id'], index) for h in sorted(state['hospitals'], key=lambda h: h['id'])
+             if h['id'] in component for index in range(int(h.get('minimum_coverage', 0)))]
+    assigned = {}
+
+    def place(slot, visited):
+        for pid in sorted(routes):
+            if pid in visited or slot[0] not in routes[pid]:
+                continue
+            visited.add(pid)
+            if pid not in assigned or place(assigned[pid], visited):
+                assigned[pid] = slot
+                return True
+        return False
+
+    missing = [slot[0] for slot in slots if not place(slot, set())]
+    if missing:
+        return {'hospital_ids': sorted(component), 'unfilled_minimum_coverage': missing,
+                'reason': 'Distinct globally shared physicians cannot cover these facility obligations'}
+    return None
+
+
 def _coverage_conflicts(state, physician_id, hospital_id, start, end, now, policy):
     """Moving a physician cannot remove required scheduled capacity at another facility."""
     conflicts = []
@@ -70,9 +132,8 @@ def _coverage_conflicts(state, physician_id, hospital_id, start, end, now, polic
         affected_start, affected_end = max(start, parse_time(shift['start_at'])), min(end, parse_time(shift['end_at']))
         boundaries = {affected_start, affected_end}
         for other in state.get('shifts', []):
-            if other['hospital_id'] == hospital['id']:
-                boundaries.update(t for t in [parse_time(other['start_at']), parse_time(other['end_at'])]
-                                  if affected_start < t < affected_end)
+            boundaries.update(t for t in [parse_time(other['start_at']), parse_time(other['end_at'])]
+                              if affected_start < t < affected_end)
         for left, right in zip(sorted(boundaries), sorted(boundaries)[1:]):
             replacements = []
             for physician in state['physicians']:
@@ -97,6 +158,11 @@ def _coverage_conflicts(state, physician_id, hospital_id, start, end, now, polic
             if len(replacements) < required:
                 conflicts.append({'hospital_id': hospital['id'], 'start_at': left.isoformat(),
                                   'remaining_qualified': len(replacements), 'required': required})
+                break
+            shared = _shared_coverage_conflict(state, physician_id, hospital_id, hospital['id'],
+                                               left, right, now, policy)
+            if shared:
+                conflicts.append(shared)
                 break
     return conflicts
 
@@ -173,8 +239,12 @@ def evaluate(state, physician_id, hospital_id, consultation_id, action, now, pol
         'Existing active work must complete before routing elsewhere.' if occupied else 'No active consultation is displaced.')
     shifts = [s for s in state.get('shifts', []) if s['physician_id'] == physician_id
               and s.get('status', 'scheduled') == 'scheduled']
-    same_shift = [s for s in shifts if s['hospital_id'] == hospital_id
-                  and parse_time(s['start_at']) <= start < parse_time(s['end_at'])]
+    same_shift = [s for s in shifts if parse_time(s['start_at']) <= start < parse_time(s['end_at'])]
+    minimum_block = policy.get('min_activation_block_minutes', 15)
+    block_allowed = bool(same_shift) or _minutes(start, end) >= minimum_block
+    add('MINIMUM_ACTIVATION_BLOCK', 'pass' if block_allowed else 'fail', _minutes(start, end), minimum_block,
+        'The activation block meets the synthetic minimum duration, or falls within existing scheduled work.'
+        if block_allowed else 'The off-shift block is shorter than the configured demo minimum.', 'demo_policy')
     covered = _covered(state, physician_id, hospital_id, start, end)
     extension = min([max(0, _minutes(parse_time(s['end_at']), end)) for s in same_shift], default=0)
     extension_allowed = not same_shift or extension <= policy.get('max_extension_minutes', 30)

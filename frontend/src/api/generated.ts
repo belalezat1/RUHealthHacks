@@ -688,6 +688,10 @@ export interface components {
             } | null;
             /** Assignment Id */
             assignment_id?: string | null;
+            /** Verification */
+            verification?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** Rule */
         Rule: {

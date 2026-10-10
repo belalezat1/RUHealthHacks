@@ -270,18 +270,25 @@ export default function Interventions() {
                   </p>
                 </div>
                 <div className="effect-grid">
-                  {Object.entries(rec.candidate.expected_effect ?? {}).map(
-                    ([key, value]) => (
+                  {Object.entries(rec.candidate.expected_effect ?? {})
+                    .filter(
+                      ([, value]) =>
+                        value !== null && typeof value !== "object",
+                    )
+                    .map(([key, value]) => (
                       <div key={key}>
                         <small>{human(key)}</small>
                         <strong>{human(value)}</strong>
                       </div>
-                    ),
-                  )}
+                    ))}
                 </div>
                 <p className="muted small-text">
                   Expected effects are projections until verification completes.
                 </p>
+                <JsonDetails
+                  title="Projected effects and downstream analysis"
+                  value={rec.candidate.expected_effect}
+                />
                 <EligibilityDetails eligibility={rec.candidate.eligibility} />
                 <details className="evidence-section">
                   <summary>
@@ -508,6 +515,22 @@ export default function Interventions() {
                           ? "The server confirmed stored activation evidence for this assignment."
                           : "This proposal cannot advance. Create a fresh preview for any remaining waiting consultation."}
                       </p>
+                      {rec.status === "verified" && rec.verification && (
+                        <>
+                          <p>
+                            <strong>
+                              {rec.verification.remaining_gap === true
+                                ? "Coverage gaps remain at this hospital."
+                                : "No remaining gap in the checked hospital intervals."}
+                            </strong>
+                          </p>
+                          <p>{human(rec.verification.coverage_note)}</p>
+                          <JsonDetails
+                            title="Verified activation and remaining coverage"
+                            value={rec.verification}
+                          />
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
