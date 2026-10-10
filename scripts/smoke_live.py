@@ -14,7 +14,6 @@ Exit code 0 = every check passed. Run it against a FRESH run (it starts one itse
 from __future__ import annotations
 
 import argparse
-import http.cookiejar
 import json
 import sys
 import time
@@ -32,8 +31,9 @@ class Client:
     def __init__(self, base: str, origin: str | None):
         self.base = base.rstrip("/")
         self.origin = origin or self.base
-        self.jar = http.cookiejar.CookieJar()
-        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.jar))
+        # Cookies are handled by hand: the session cookie is marked Secure in hosted mode, and
+        # Python's cookiejar refuses to send Secure cookies to http://localhost (browsers do).
+        self.cookies: dict[str, str] = {}
         self.csrf = ""
 
     def call(self, method: str, path: str, body=None, headers=None, raw: str | None = None):
@@ -44,15 +44,26 @@ class Client:
         elif body is not None:
             data, h["Content-Type"] = json.dumps(body).encode(), "application/json"
         h.update(headers or {})
+        if self.cookies:
+            h["Cookie"] = "; ".join(f"{k}={v}" for k, v in self.cookies.items())
         req = urllib.request.Request(self.base + path, data=data, method=method, headers=h)
         t0 = time.perf_counter()
         try:
-            with self.opener.open(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=30) as resp:
                 text = resp.read().decode()
                 status = resp.status
+                set_cookies = resp.headers.get_all("Set-Cookie") or []
         except urllib.error.HTTPError as e:
             text, status = e.read().decode(), e.code
+            set_cookies = e.headers.get_all("Set-Cookie") or []
         ms = (time.perf_counter() - t0) * 1000
+        for c in set_cookies:
+            name, _, rest = c.partition("=")
+            value = rest.split(";", 1)[0]
+            if value and "max-age=0" not in c.lower():
+                self.cookies[name.strip()] = value
+            else:
+                self.cookies.pop(name.strip(), None)
         return status, (json.loads(text) if text.startswith("{") else text), ms
 
     def login(self, user: str, password: str):
