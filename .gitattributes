@@ -1,0 +1,11 @@
+# Source fixtures are provenance evidence: store the exact bytes (original files use CRLF).
+data/original/*.csv -text
+data/original/MANIFEST.sha256 -text
+
+# Files executed on Linux hosts/containers must keep LF endings even when edited on Windows.
+*.sh text eol=lf
+*.py text eol=lf
+*.conf text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+Dockerfile text eol=lf
