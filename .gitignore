@@ -1,0 +1,25 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Runtime state (SQLite, backups) — never commit
+state/
+*.sqlite3
+*.sqlite3-*
+backups/
+
+# Secrets
+.env
+*.pem
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
