@@ -16,7 +16,6 @@ class Settings(BaseSettings):
     auth_mode: Literal['demo', 'cognito'] = 'demo'
     cors_origins: list[str] = ['http://localhost:5173', 'http://127.0.0.1:5173']
     aws_region: str = ''
-    datasets_bucket: str = ''
     cognito_user_pool_id: str = ''
     cognito_app_client_id: str = ''
     jev_mode: Literal['off', 'mock', 'live'] = 'mock'

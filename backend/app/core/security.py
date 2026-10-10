@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 
 import jwt
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException, Request
 from jwt import PyJWKClient
 
 from app.core.config import get_settings
@@ -59,6 +59,3 @@ def actor_context(request: Request):
         return Actor(claims.get('physician_id', claims['sub']), role, hospitals)
     except (jwt.PyJWTError, ValueError):
         raise HTTPException(401, 'Invalid or expired Cognito access token') from None
-
-
-ActorDependency = Depends(actor_context)

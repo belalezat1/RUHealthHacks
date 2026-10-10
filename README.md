@@ -54,7 +54,7 @@ Run these from the repository root after `make dev`:
 | Command | Effect |
 | --- | --- |
 | `make migrate` | Wait for PostgreSQL and run the one-off Alembic migration service |
-| `make seed` | Import the initial synthetic fixture; existing identical seed is a no-op |
+| `make seed` | Import the initial synthetic fixture; an existing seed ID is a no-op |
 | `make test` | Backend Ruff checks, domain/integration tests against real PostgreSQL, frontend type check |
 | `make smoke` | Exercise the real HTTP import/event/recommendation/consent/activation/audit/simulation workflow |
 | `make build` | Build the production backend image and static frontend into `frontend/dist` |
@@ -117,7 +117,7 @@ It covers UI import, a real consultation event, event-to-queue latency, all cons
 
 ## Data, rules, and Jev
 
-Only the documented `synthetic_v1` adapter is operational. The official Sevaro developer-kit format was not supplied; its adapter reports unavailable instead of inventing a mapping. Source IDs, original payloads, timestamps and import hashes are retained. Imports validate before atomic activation, and switching datasets does not mix records. Requests are limited to 2 MB and datasets to 10,000 rows; event batches are atomic and limited to 100 events.
+Imports accept the documented `synthetic_v1` schema directly. The official Sevaro developer-kit format was not supplied and is not supported. Source IDs, original payloads, timestamps and import hashes are retained. Imports validate before atomic activation, and switching datasets does not mix records. Requests are limited to 2 MB and datasets to 10,000 rows; event batches are atomic and limited to 100 events.
 
 The two fixtures are in [data/synthetic](data/synthetic), and explicit demo staffing/freshness assumptions are in [config/demo_policies.json](config/demo_policies.json). A physician has one globally shared active work slot. Forecasts use clinician work-minutes and allocated capacity, not learned clinical predictions. The optimizer offers deterministic greedy/baseline modes and a bounded CP-SAT option with fallback and reported solver status.
 
@@ -142,15 +142,12 @@ Local requests require explicit `X-Demo-Role` and `X-Demo-Actor` headers; option
 - `backend/app/`: API, PostgreSQL persistence, domain rules, workflow, Jev and replay modules.
 - `backend/alembic/`: versioned migrations; `backend/tests/`: domain and real-database regressions.
 - `frontend/src/`: six React views, reusable components and generated API types.
-- `infra/terraform/`: conditional ECS Express configuration using approved existing resources.
 - [Architecture](docs/architecture.md), [assumptions](docs/assumptions.md), [API implementation contract](docs/implementation-contract.md), [frontend notes](frontend/README.md), [five-minute demo](docs/demo-script.md).
 
-## Deployment status and limitations
+## AWS status
 
-The verified application is a **local synthetic demonstration**. No AWS application resources or public HTTPS application URL have been created. The workshop console identity and selected permissions were inspected, and the conditional ECS Express Terraform module was validated; identity and policy simulation do not prove a deployment is ready or authorized under every resource condition.
+The app currently runs locally. The workshop provides an AWS account and code editor; **no Sevaro AWS services or public URL have been created**. Deployment will use the workshop console or CLI directly. There is no infrastructure provisioning framework in this repository.
 
-The backend has Cognito access-token validation, but the frontend currently uses local demo actors and does **not** implement a verified public Cognito login flow. Do not expose this demo UI publicly as an authenticated production application. Hosted application authentication, approved region/resources/networking, migrations in the selected environment, and hosted end-to-end verification remain deployment prerequisites.
+The backend supports Cognito access-token validation, but the frontend still uses local synthetic actors; hosted login remains unfinished. The official Sevaro format and live Jev credentials have not been supplied. Physician consent and activation are simulated explicitly, with no external SMS, calls or email.
 
-The application sends no external physician SMS, calls or email. Synthetic consent and activation are explicitly labeled. No real Sevaro integration, clinical outcomes or live Jev connection are implied.
-
-See [deployment status and exact next steps](docs/deployment.md) before running `make aws-preflight` or the conditional deployment script. Keep workshop credentials out of chat, git and frontend settings. Preserve permitted exports outside the temporary workshop account; local volumes do not survive deletion of their host.
+See [current AWS status](docs/deployment.md). `AWS_REGION=us-west-2 make aws-preflight` checks the account without creating resources. Keep workshop credentials out of git and frontend settings.

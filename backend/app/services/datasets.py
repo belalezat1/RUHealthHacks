@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from pydantic import ValidationError
 from sqlalchemy import select
 
-from app.adapters.synthetic_v1 import SyntheticV1Adapter
 from app.core.clock import utc
 from app.core.config import ROOT, get_settings
 from app.models import (
@@ -21,6 +20,7 @@ from app.models import (
     Recommendation,
     Shift,
 )
+from app.schemas.events import Dataset
 from app.services.audit import record
 
 ENTITY_TABLES = {'hospitals': Hospital, 'physicians': Physician, 'credentials': PhysicianCredential,
@@ -36,7 +36,7 @@ def validate_dataset(payload):
     try:
         if len(json.dumps(payload).encode()) > get_settings().max_upload_bytes:
             raise ValueError('Dataset exceeds size limit')
-        dataset = SyntheticV1Adapter().parse(payload)
+        dataset = Dataset.model_validate(payload)
         counts = {key: len(getattr(dataset, key)) for key in ENTITY_TABLES if key != 'assignments'}
         if sum(counts.values()) > get_settings().max_dataset_rows:
             raise ValueError('Dataset exceeds row limit')

@@ -2,7 +2,7 @@
 
 This application is an operations demonstration using invented, explicitly labeled physicians, facilities, credentials, and consultation records. It does not establish real clinical urgency, staffing policy, licensure, patient outcomes, or an integration with Sevaro Synapse.
 
-The authoritative implementation inputs are BUILD-PLAN.md, the accompanying architecture diagram, and the supplied master build guide. Where the master guide changes an older architecture choice, the implementation follows the guide. The official developer-kit format has not been supplied. `SevaroAdapter` therefore reports unavailable instead of guessing a mapping.
+The authoritative implementation inputs are BUILD-PLAN.md, the accompanying architecture diagram, and the supplied master build guide. Where the master guide changes an older architecture choice, the implementation follows the guide. Imports validate the documented `synthetic_v1` schema directly. The official developer-kit format has not been supplied and is not supported.
 
 `synthetic_v1` is a JSON object with a dataset ID, an observation anchor, and arrays of hospitals, physicians, credentials, shifts, signals, and consultations. Each record uses a source ID. IDs need only be unique within their entity type and dataset. The canonical import schema is exposed in the backend source and validation API. JSON uploads are parsed by the frontend and validated again by the API; invalid imports leave the active dataset untouched. Maximum request size is 2MB, maximum rows 10,000. Batch ingestion is atomic, with at most 100 events.
 

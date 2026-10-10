@@ -14,11 +14,5 @@ dist/
 playwright-report/
 test-results/
 .local/
-*.tfstate*
-.terraform/
-*.tfvars
-!*.tfvars.example
-.tools/
-*.tfplan
 exports/
 *.tsbuildinfo

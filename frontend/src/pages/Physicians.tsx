@@ -218,7 +218,7 @@ export default function Physicians() {
                         }
                       >
                         {c.expires_at
-                          ? `Expires ${datetime(c.expires_at)}`
+                          ? `Expires ${datetime(c.expires_at, true)}`
                           : "Validity not supplied"}
                       </span>
                     </div>

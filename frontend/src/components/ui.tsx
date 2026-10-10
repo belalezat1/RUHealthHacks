@@ -175,9 +175,10 @@ export const time = (value?: string | null) =>
         minute: "2-digit",
       }).format(new Date(value))
     : "—";
-export const datetime = (value?: string | null) =>
+export const datetime = (value?: string | null, includeYear = false) =>
   value && Number.isFinite(Date.parse(value))
     ? new Intl.DateTimeFormat(undefined, {
+        ...(includeYear ? { year: "numeric" as const } : {}),
         month: "short",
         day: "numeric",
         hour: "2-digit",

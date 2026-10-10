@@ -752,7 +752,7 @@ Create:
 - Secrets Manager entries.
 - CloudWatch log configuration.
 
-Use Terraform or AWS CDK to make the infrastructure reproducible.
+Use the workshop AWS console or CLI directly. Start with the smallest deployment that runs the app, and add services only when needed.
 
 ### Step 2 — Containerize backend
 

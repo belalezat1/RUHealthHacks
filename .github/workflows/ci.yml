@@ -34,16 +34,30 @@ jobs:
           python-version: '3.12'
       - run: pip install uv==0.8.22
       - run: uv sync --frozen --extra solver
-      - run: uv run ruff check app tests scripts
-      - run: uv run alembic upgrade head
-      - run: uv run pytest -q
+      - name: Lint backend
+        run: uv run ruff check app tests scripts
+      - name: Verify migrations against PostgreSQL
+        run: uv run alembic upgrade head
+      - name: Domain, simulation and Jev contract tests
+        run: uv run pytest -q -m 'not postgres' --strict-markers --junitxml=test-results/domain.xml
+      - name: Real PostgreSQL workflow, concurrency and scope tests
+        run: |
+          test -n "$TEST_DATABASE_URL"
+          uv run pytest -q -m postgres --strict-markers --junitxml=test-results/postgres.xml
       - run: uv run python scripts/export_openapi.py
       - uses: actions/upload-artifact@v4
         with:
           name: openapi
           path: docs/openapi.json
-      - run: docker build --target production -f backend/Dockerfile -t sevaro-api:ci .
+      - name: Build production backend image
+        run: docker build --target production -f backend/Dockerfile -t sevaro-api:ci .
         working-directory: .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: backend/test-results
+          if-no-files-found: ignore
   frontend:
     needs: backend
     runs-on: ubuntu-latest
@@ -62,10 +76,85 @@ jobs:
           name: openapi
           path: docs
       - run: npm ci
-      - run: npm run generate:api && git diff --exit-code -- src/api/generated.ts
+      - name: Verify generated API types match FastAPI
+        run: npm run generate:api && git diff --exit-code -- src/api/generated.ts
+      - run: npm run format:check
       - run: npm run typecheck
       - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
           path: frontend/dist
+  browser:
+    name: Synthetic browser workflow
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16.8-alpine
+        env:
+          POSTGRES_USER: sevaro
+          POSTGRES_PASSWORD: sevaro-test
+          POSTGRES_DB: sevaro
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U sevaro -d sevaro"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      APP_ENV: test
+      AUTH_MODE: demo
+      JEV_MODE: mock
+      DATABASE_URL: postgresql+psycopg://sevaro:sevaro-test@localhost:5432/sevaro
+      E2E_BASE_URL: http://127.0.0.1:5173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.15.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: pip install uv==0.8.22
+      - name: Install API and migrate isolated CI database
+        working-directory: backend
+        run: |
+          uv sync --frozen --extra solver
+          uv run alembic upgrade head
+      - name: Install frontend and pinned browser
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Start API and frontend
+        run: |
+          (cd backend && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 > ../backend-e2e.log 2>&1) &
+          (cd frontend && npm run dev -- --host 127.0.0.1 > ../frontend-e2e.log 2>&1) &
+          for endpoint in http://127.0.0.1:8000/ready http://127.0.0.1:5173; do
+            ready=0
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "$endpoint" > /dev/null; then
+                ready=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$ready" -ne 1 ]; then
+              cat backend-e2e.log frontend-e2e.log
+              exit 1
+            fi
+          done
+      - name: Verify import, live event, consent, activation, audit and replay in browser
+        working-directory: frontend
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-workflow-evidence
+          path: |
+            frontend/test-results
+            backend-e2e.log
+            frontend-e2e.log
+          if-no-files-found: ignore

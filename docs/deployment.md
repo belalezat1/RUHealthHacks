@@ -1,37 +1,36 @@
-# Deployment and workshop status
+# Running locally and AWS status
 
-## Verified locally
+The app currently runs locally with Docker Compose. **No AWS resources have been created for Sevaro, and there is no hosted application URL.**
 
-Local Docker Desktop was started and Docker Engine 28.5.1 responded. PostgreSQL 16.8 is healthy in the `sevaro` Compose project, bound only to loopback, with its own persistent volume. `docker compose up --build` starts the database, runs the one-off Alembic migration service, then starts the API and frontend. Seed explicitly with `make seed` after backend readiness. `make down` preserves database and node dependency volumes.
+## What is ready
 
-Backend source, tests, scripts, migrations, policy configuration, and synthetic fixture files are copied into the Docker image. The API and migration services have no host bind mounts, so an in-progress editor write cannot change their running code or truncate their policy file. Run `make dev` again after changing any backend, policy, or fixture file; it rebuilds and recreates the affected services while preserving PostgreSQL. Policy settings are validated at process startup. The frontend retains its development source mount for Vite updates.
+- PostgreSQL, FastAPI and React run with `make dev`; `make seed` loads synthetic data.
+- The backend image, frontend production build, database migrations and health checks work.
+- Local URLs: http://localhost:5173 and http://localhost:8000/docs.
+- Database data persists across `make down` and restarts. Run `make dev` again after backend changes.
 
-The local frontend URL is `http://localhost:5173`, API is `http://localhost:8000`, and OpenAPI documentation is `http://localhost:8000/docs`. Local actors are synthetic demo actors. Production startup forbids demo authentication.
+## Workshop access
 
-## Cloud blocker and selected conditional path
+The [Rutgers HealthHack workshop dashboard](https://catalog.us-east-1.prod.workshops.aws/event/dashboard/en-US) was checked on October 10, 2026. It provides AWS console access and an existing code-editor environment. Its listed regions are `us-west-2` and `us-east-1`; the console link opens `us-west-2`.
 
-No AWS resources have been created and no hosted application URL is verified. The local `scripts/aws-preflight.sh` returned exit code 2 because the local AWS CLI is absent; this is not an AWS AccessDenied response. Subsequent read-only inspection through the existing console CloudShell successfully ran `aws sts get-caller-identity`: workshop account **033301207528**, assumed role **WSParticipantRole/Participant**. IAM policy simulation returned `allowed` for `ecs:CreateExpressGatewayService`, `ec2:RunInstances`, `rds:CreateDBInstance`, `s3:CreateBucket`, `ecr:CreateRepository`, `cognito-idp:CreateUserPool`, `iam:PassRole`, and `iam:CreateRole`. Policy simulation does not prove actual creation will succeed under service control policies, resource conditions, or quotas. No resource creation was attempted.
+The previous CloudShell identity check confirmed account `033301207528` and role `WSParticipantRole/Participant`. That confirms access, not an application deployment. The dashboard lists a 72-hour event starting October 9 at 6:43 PM; it does not label that display's timezone.
 
-Browser inspection confirmed an active **Rutgers HealthHack 2026** workshop, displaying a start of **October 9, 2026 at 6:43 PM**, duration **72 hours**, accessible regions **us-west-2** and **us-east-1**, and a console link labeled **us-west-2**. The dashboard does not identify its display timezone; October 12 at 6:43 PM is an inferred expiration in that display timezone, not a verified UTC deadline. A supplied code-editor output was observed; its credential-bearing URL is intentionally not reproduced. Approved resource selections, deployment region selection, network configuration, service quotas, and application Cognito integration remain pending. The current coding work does not imply provisioning billable public infrastructure.
+| Item | Status |
+| --- | --- |
+| Workshop account and console | Available |
+| Workshop code editor | Provided by the workshop |
+| Local app, database and builds | Working |
+| Sevaro AWS compute, database and hosting | Not created |
+| Hosted login and HTTPS app URL | Not configured |
 
-The intended path is ECS Express Mode with organizer-approved existing resources. The repository does not provision an alternative EC2 stack. Express Mode requires [execution and infrastructure roles](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/express-service-getting-started.html); successful STS identity alone does not demonstrate PassRole or creation permission. It provisions supporting Fargate/load-balancing resources, which remain billable until removed. Public subnet selection determines internet access; network behavior is described in the [Express resource documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/express-service-work.html).
+## Keep deployment simple
 
-The conditional `infra/terraform` module uses the real [`aws_ecs_express_gateway_service`](https://registry.terraform.io/providers/hashicorp/aws/6.43.0/docs/resources/ecs_express_gateway_service) resource pinned to AWS provider 6.43.0. It takes existing ECR image, cluster, roles, public subnet IDs, Secrets Manager ARN, Cognito identifiers, log group, dataset bucket, and HTTPS frontend origin as inputs. It runs one API worker, listens on 8000, checks `/ready`, and caps tasks at two. It neither fabricates workshop permissions nor creates RDS/VPC/IAM/CloudFront/Cognito infrastructure before discovery. This module is a validated starting point, not a completed hosted deployment.
+Use the workshop's AWS console or CLI directly. Reuse its existing environment where practical; choose one place to run the app before adding separate services. There is no infrastructure provisioning framework or multi-service deployment pipeline in this repository.
 
-Terraform 1.11.4 and AWS provider 6.43.0 were installed locally for validation. `terraform validate` passed, and the installed provider schema confirms Express Gateway support. No Terraform plan or apply against AWS was run. The Python 3.12.10 production backend image also built successfully with the frozen lockfile and unprivileged runtime user.
+`AWS_REGION=us-west-2 make aws-preflight` is a read-only account check when AWS CLI and the workshop session are available. It does not create services or install credentials. Local AWS CLI is not currently installed.
 
-## Continue with a permitted workshop session
+The backend can validate Cognito access tokens, but the frontend still uses explicit local demo actors. Hosted login must be wired before public deployment. Keep keys and database credentials on the server.
 
-1. Install AWS CLI locally and use the workshop credential mechanism or existing profile. Temporary credentials need a session token. Keep all credentials out of git and chat; do not store expiring workshop keys in GitHub Secrets.
-2. Set the organizer-approved `AWS_REGION`; run `make aws-preflight`. This script performs read-only discovery and stops on denied actions. Record actual action/error, event expiration, supplied resources, permission boundaries, PassRole ARNs, and quotas here. Do not switch accounts to evade a boundary.
-3. Verify the Cognito access-token flow and the authenticated HTTPS frontend. Supply the actual frontend origin for CORS. Use a private S3 frontend origin behind CloudFront OAC, a separate private dataset bucket, and private RDS subnets in the same VPC as the backend. Allow PostgreSQL only from the backend task security group. Reuse supplied resources; only add missing infrastructure after workshop permissions are known.
-4. Build the backend with `docker build --target production -f backend/Dockerfile -t <approved-ecr-uri>:<git-commit> .`, push with the existing temporary workshop session, and build the frontend with its public auth/API settings. Never embed server secrets in Vite configuration.
-5. Run `alembic upgrade head` once in a one-off ECS task using the release image and the verified database network/secrets. Wait for task completion and confirm the migration container exit code is zero. Do not run migrations independently in every web worker. Set `migration_verified=true` only after this succeeds.
-6. Prepare an untracked absolute `.tfvars` path with actual approved inputs and `workshop_permissions_verified=true`. `scripts/deploy-workshop.sh /absolute/path/approved.tfvars` produces a plan. Review the plan; when authorization and migration checks hold, add `--apply`. This uses the user's workshop session, not CI credentials. The module requires existing resources and does not claim to create the missing frontend/database/auth prerequisites.
-7. Verify the actual HTTPS URL, authentication, import → event → changed forecast → proposal → approval → physician consent → commit → separate activation event → verification → audit → simulation. Repeat with the second dataset. Record URLs, live provider result/model if enabled, observed latency, and test outcomes.
+## Preserve the demo
 
-## Retention and teardown
-
-`make export` creates a PostgreSQL custom-format dump under ignored `exports/`. Restore into an isolated database using `scripts/restore-local.sh exports/<file>.dump sevaro_restore_review`; it refuses the active database name. Keep permitted exports and source code outside the temporary workshop account before its recorded expiration. A Docker volume cannot survive deletion of the event instance/account.
-
-Cleanup is deliberate: preserve required exports, inspect the project-specific Terraform plan, then destroy only resources owned by this module under the same permitted workshop session. Never delete shared organizer resources. Express-managed load balancer/tasks, RDS, CloudFront transfer, S3, ECR images, Secrets Manager, and logs can incur charges while retained. No routine command in this repository runs `docker compose down -v`.
+`make export` saves a PostgreSQL dump under ignored `exports/`. `scripts/restore-local.sh exports/<file>.dump sevaro_restore_review` restores into a separate database. Keep needed source and exports outside the temporary workshop account before it expires. `make down` preserves local volumes.
