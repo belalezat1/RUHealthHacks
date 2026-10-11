@@ -16,11 +16,11 @@ const STEPS = [
   },
   {
     word: "Decide",
-    body: "Rank eligible physicians by cost and experience. Every hard rule is shown as pass or fail, never hidden in a score.",
+    body: "Rank eligible physicians using verified operational evidence. Every hard rule is shown as pass or fail, never hidden in a score.",
   },
   {
     word: "Act",
-    body: "A clinical lead approves, the offer goes out without patient data, and offers stop the moment the gap closes.",
+    body: "A clinical lead approves, the offer goes out without patient data, and the physician responds through their own account.",
   },
 ] as const;
 

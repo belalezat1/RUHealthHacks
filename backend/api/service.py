@@ -269,6 +269,8 @@ class Service:
                 "SELECT * FROM audit WHERE run_id=? ORDER BY seq DESC LIMIT 60", (run["run_id"],))]
             imports = [dict(r) | {"summary": json.loads(r["summary"])} for r in conn.execute(
                 "SELECT * FROM imports WHERE run_id=? ORDER BY created_at", (run["run_id"],))]
+            for receipt in imports:
+                receipt["summary"].pop("replay", None)
             runs = [dict(r) | {"source_manifest": None} for r in conn.execute(
                 "SELECT run_id, label, created_at, revision, is_current, has_imports FROM runs ORDER BY created_at DESC")]
         reassigned = {a["consult_id"]: a for a in actions if a["kind"] == "reassignment"}
@@ -410,7 +412,8 @@ class Service:
             _, by_id = self._events(conn, run)
         return validate_batch(rows, self.ref, by_id).summary()
 
-    def import_events(self, conn, run, ident: Identity, text: str, filename: str, advance_clock: bool) -> dict:
+    def import_events(self, conn, run, ident: Identity, text: str, filename: str, advance_clock: bool,
+                      input_sha256: str | None = None) -> dict:
         require_role(ident, "coordinator")
         rows, header_errors = read_csv_text(text)
         if header_errors:
@@ -422,6 +425,12 @@ class Service:
         if not batch.ok:
             raise ApiError(422, "invalid_batch", f"{len(batch.errors)} invalid row(s); nothing was imported",
                            summary=batch.summary())
+        # Keep full membership, including duplicate-only uploads, for recorded replay.
+        # The public summary stays small; this metadata is read only by replay capture.
+        receipt_metadata = {
+            "event_ids": list(dict.fromkeys(event_from_row(row).event_id for row in rows)),
+            "input_sha256": input_sha256 or hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        }
         import_id = _new_id("IMP")
         clock = self._clock(run)
         summary = batch.summary()
@@ -429,7 +438,8 @@ class Service:
         if not batch.accepted:
             # Pure retry: record the receipt, change nothing else.
             conn.execute("INSERT INTO imports VALUES (?,?,?,?,?,?,?)",
-                         (import_id, run["run_id"], utc_now(), ident.username, filename, dumps(summary), run["revision"]))
+                         (import_id, run["run_id"], utc_now(), ident.username, filename,
+                          dumps(summary | {"replay": receipt_metadata}), run["revision"]))
             self._audit(conn, run["run_id"], run["revision"], clock.isoformat(), ident, "import_duplicate_only",
                         import_id, summary)
             return {"import_id": import_id, **summary}
@@ -456,7 +466,8 @@ class Service:
         not_visible = sum(1 for e in batch.accepted if e.ingested_at > clock or e.event_time > clock)
         summary["not_yet_visible"] = not_visible
         conn.execute("INSERT INTO imports VALUES (?,?,?,?,?,?,?)",
-                     (import_id, run["run_id"], utc_now(), ident.username, filename, dumps(summary), rev))
+                     (import_id, run["run_id"], utc_now(), ident.username, filename,
+                      dumps(summary | {"replay": receipt_metadata}), rev))
         self._audit(conn, run["run_id"], rev, clock.isoformat(), ident, "events_imported", import_id,
                     {**summary, "event_ids": [e.event_id for e in batch.accepted][:200]})
         return {"import_id": import_id, **summary}

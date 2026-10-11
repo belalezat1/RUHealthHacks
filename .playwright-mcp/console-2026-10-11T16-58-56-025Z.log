@@ -1,0 +1,94 @@
+[     135ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:20100
+[     177ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://127.0.0.1:5180/api/v1/session:0
+[     178ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://127.0.0.1:5180/api/v1/session:0
+[  269091ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:5180/src/components/shell/AppShell.tsx?t=1791738205079:0
+[  269092ms] [ERROR] [vite] Failed to reload /src/components/shell/AppShell.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://127.0.0.1:5180/@vite/client:808
+[  269141ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:5180/src/components/shell/AppShell.tsx?t=1791738205082:0
+[  269142ms] [ERROR] [vite] Failed to reload /src/components/shell/AppShell.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://127.0.0.1:5180/@vite/client:808
+[  458322ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:20100
+[  458348ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:5180/api/v1/session:0
+[  458348ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:5180/api/v1/session:0
+[  621291ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:20100
+[  621379ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://127.0.0.1:5180/node_modules/.vite/deps/recharts.js?v=0905a1ef:7541
+[  621379ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://127.0.0.1:5180/node_modules/.vite/deps/recharts.js?v=0905a1ef:7541
+[  762966ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://127.0.0.1:5180/node_modules/.vite/deps/recharts.js?v=0905a1ef:7541
+[  762966ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://127.0.0.1:5180/node_modules/.vite/deps/recharts.js?v=0905a1ef:7541
+[ 1943687ms] Error: Operations session is required
+    at useOperations (http://127.0.0.1:5180/src/operations.tsx:16:21)
+    at ConnectedShell (http://127.0.0.1:5180/src/components/shell/AppShell.tsx?t=1791738716858:13:59)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:18507:20)
+    at renderWithHooks (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:5652:24)
+    at updateFunctionComponent (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:7473:21)
+    at beginWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:8523:20)
+    at runWithFiberInDEV (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:995:72)
+    at performUnitOfWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12559:98)
+    at workLoopSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12422:43)
+    at renderRootSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12406:13)
+[ 1943685ms] [WARNING] %s
+
+%s
+ An error occurred in the <ConnectedShell> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:6963
+[ 1943739ms] Error: Operations session is required
+    at useOperations (http://127.0.0.1:5180/src/operations.tsx:16:21)
+    at Desk (http://127.0.0.1:5180/src/pages/Desk.tsx?t=1791738716960:24:49)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:18507:20)
+    at renderWithHooks (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:5652:24)
+    at updateFunctionComponent (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:7473:21)
+    at beginWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:8523:20)
+    at runWithFiberInDEV (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:995:72)
+    at performUnitOfWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12559:98)
+    at workLoopSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12422:43)
+    at renderRootSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12406:13)
+[ 1943739ms] [WARNING] %s
+
+%s
+ An error occurred in the <Desk> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:6963
+[ 2057490ms] Error: Operations session is required
+    at useOperations (http://127.0.0.1:5180/src/operations.tsx?t=1791739879569:16:21)
+    at Desk (http://127.0.0.1:5180/src/pages/Desk.tsx?t=1791739879569:26:56)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:18507:20)
+    at renderWithHooks (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:5652:24)
+    at updateFunctionComponent (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:7473:21)
+    at beginWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:8523:20)
+    at runWithFiberInDEV (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:995:72)
+    at performUnitOfWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12559:98)
+    at workLoopSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12422:43)
+    at renderRootSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12406:13)
+[ 2057488ms] [WARNING] %s
+
+%s
+ An error occurred in the <Desk> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:6963
+[ 2197996ms] Error: RecordedReplayProvider is required
+    at useRecordedReplay (http://127.0.0.1:5180/src/recordedReplay.tsx?t=1791739993455:18:21)
+    at ConnectedShell (http://127.0.0.1:5180/src/components/shell/AppShell.tsx?t=1791739993455:18:44)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:18507:20)
+    at renderWithHooks (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:5652:24)
+    at updateFunctionComponent (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:7473:21)
+    at beginWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:8523:20)
+    at runWithFiberInDEV (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:995:72)
+    at performUnitOfWork (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12559:98)
+    at workLoopSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12422:43)
+    at renderRootSync (http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:12406:13)
+[ 2197996ms] [WARNING] %s
+
+%s
+ An error occurred in the <ConnectedShell> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:6963
+[ 2452543ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:20100
+[ 2908179ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5180/@vite/client:864
+[ 2908784ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5180/node_modules/.vite/deps/react-dom_client.js?v=d16790fe:20100

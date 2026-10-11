@@ -42,6 +42,10 @@ class RunBody(BaseModel):
     label: str = Field(default="Fresh original fixture", max_length=120)
 
 
+class ReplayFrameBody(BaseModel):
+    index: int = Field(ge=-1)
+
+
 class ProposeBody(BaseModel):
     decision_id: str | None = Field(default=None, max_length=120)
     physician_ids: list[str] | None = None
@@ -84,6 +88,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.decision_engine = engine
         service.startup()
         app.state.service = service
+        from .recorded_replay import RecordedReplay
+        app.state.recorded_replay = RecordedReplay(service, engine)
         app.state.store = store
         log.info("ready release=%s mode=%s store=%s", settings.release_sha, settings.mode, "postgresql" if store.postgres else "isolated-test-sqlite")
         yield
@@ -255,6 +261,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # ------------------------------------------------------------------ writes
     H = Header
 
+    @app.post("/api/v1/replays/latest")
+    async def latest_replay(request: Request, ident: Identity = Depends(writer)):
+        svc(request)
+        return {"data": await request.app.state.recorded_replay.latest(ident),
+                "request_id": request.state.request_id}
+
+    @app.post("/api/v1/replays/{replay_id}/frames")
+    async def replay_frame(request: Request, replay_id: str, body: ReplayFrameBody,
+                           ident: Identity = Depends(writer)):
+        svc(request)
+        return {"data": await request.app.state.recorded_replay.frame(ident, replay_id, body.index),
+                "request_id": request.state.request_id}
+
     @app.post("/api/v1/events/validate")
     async def validate_events(request: Request, ident: Identity = Depends(writer)):
         raw = await request.body()
@@ -275,7 +294,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         text = raw.decode("utf-8-sig", errors="replace")
         service = svc(request)
         return mutation(request, service, ident, "events/import",
-                        lambda c, r: service.import_events(c, r, ident, text, filename[:120], advance_clock),
+                        lambda c, r: service.import_events(c, r, ident, text, filename[:120], advance_clock,
+                                                           hashlib.sha256(raw).hexdigest()),
                         idem, run, rev)
 
     @app.post("/api/v1/clock")

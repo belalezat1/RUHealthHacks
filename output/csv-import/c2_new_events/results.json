@@ -1,0 +1,926 @@
+{
+  "file": "c2_new_events.csv",
+  "validation": {
+    "rows_read": 9,
+    "accepted": 8,
+    "duplicates": 1,
+    "duplicate_ids": [
+      "EVT-01165"
+    ],
+    "errors": [],
+    "error_count": 0,
+    "ok": true
+  },
+  "import_result": {
+    "import_id": "IMP-131211-77004B",
+    "rows_read": 9,
+    "accepted": 8,
+    "duplicates": 1,
+    "duplicate_ids": [
+      "EVT-01165"
+    ],
+    "errors": [],
+    "error_count": 0,
+    "ok": true,
+    "clock_advanced_to": "2026-03-17T18:26:57-04:00",
+    "expired_offers": [],
+    "not_yet_visible": 0
+  },
+  "before": {
+    "as_of": "2026-03-17T18:20:00-04:00",
+    "counts": {
+      "events_applied": 1163,
+      "events_not_yet_visible": 0,
+      "open_consults": 18,
+      "orphan_events": 0
+    }
+  },
+  "after": {
+    "as_of": "2026-03-17T18:26:57-04:00",
+    "counts": {
+      "events_applied": 1171,
+      "events_not_yet_visible": 0,
+      "open_consults": 19,
+      "orphan_events": 0
+    },
+    "staffing": {
+      "target": {
+        "hospital_id": "SYN-005",
+        "hospital_name": "Suncrest Medical Pavilion",
+        "reason": "demand spike with projected coverage gap",
+        "deficit_minutes": 95,
+        "peak_deficit": 2,
+        "trailing_observed": 6,
+        "p90": 1
+      },
+      "offer_window": {
+        "start": "2026-03-17T18:26:57-04:00",
+        "end": "2026-03-17T20:26:57-04:00",
+        "hours": 2
+      },
+      "gap_hospitals": [
+        "SYN-005"
+      ],
+      "slots": 2,
+      "candidates": [
+        {
+          "physician_id": "PHY-009",
+          "name": "Dr. Grace Okafor",
+          "role": "Day",
+          "eligible": true,
+          "eligibility_status": "eligible",
+          "eligibility": {
+            "status": "eligible",
+            "policy_version": "sevaro-challenge-v2",
+            "evidence_as_of": "2026-03-17T18:20:00-04:00",
+            "missing_evidence": [],
+            "reason_codes": []
+          },
+          "policy_version": "sevaro-challenge-v2",
+          "evidence_as_of": "2026-03-17T18:20:00-04:00",
+          "missing_evidence": [],
+          "provenance": "organizer credentialing proxy",
+          "workload": {
+            "baseline_hours": 36,
+            "incremental_hours": 2,
+            "conservative_total_hours": 38,
+            "accounting": "union_after_reference_snapshot"
+          },
+          "rules": [
+            {
+              "rule": "opt_in",
+              "label": "Opted in to split-shift offers",
+              "passed": true,
+              "detail": "Opted in"
+            },
+            {
+              "rule": "credentialed",
+              "label": "Credentialed at a gap hospital",
+              "passed": true,
+              "detail": "Credentialed at SYN-005"
+            },
+            {
+              "rule": "current_activity",
+              "label": "No current conflicting work or unavailable status",
+              "passed": true,
+              "detail": "No supplied blocking activity"
+            },
+            {
+              "rule": "availability_evidence",
+              "label": "Availability signals do not conflict",
+              "passed": true,
+              "detail": "No conflicting source signals"
+            },
+            {
+              "rule": "rest",
+              "label": "At least 10h since last shift (at offer start)",
+              "passed": true,
+              "detail": "11h26m rest"
+            },
+            {
+              "rule": "weekly_hours",
+              "label": "Trailing 7-day hours + offer <= 60",
+              "passed": true,
+              "detail": "36h supplied baseline + 2h new reserved/observed work = 38h (conservative: undated baseline work is not aged out)"
+            },
+            {
+              "rule": "no_schedule_overlap",
+              "label": "No overlap with a scheduled shift",
+              "passed": true,
+              "detail": "No overlap"
+            },
+            {
+              "rule": "duration",
+              "label": "Offer at least 2h",
+              "passed": true,
+              "detail": "2h offered; 15 min to online leaves 105 min of coverage"
+            },
+            {
+              "rule": "no_accepted_overlap",
+              "label": "No overlapping accepted or conservatively retained commitment",
+              "passed": true,
+              "detail": "None"
+            },
+            {
+              "rule": "one_open_offer",
+              "label": "No other open offer",
+              "passed": true,
+              "detail": "None open"
+            },
+            {
+              "rule": "weekly_offer_limit",
+              "label": "Fewer than 3 offers sent this calendar week",
+              "passed": true,
+              "detail": "0 sent this week (no historical offer counts in dataset; run starts at 0)"
+            }
+          ],
+          "failed_rules": [],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "minutes_to_online": 15,
+          "online_at": "2026-03-17T18:41:57-04:00",
+          "effective_minutes": 105,
+          "paid_hours": 2,
+          "preferred_channel": "app_push",
+          "deficit_minutes_removed": 45,
+          "rank": 1,
+          "selected": true
+        },
+        {
+          "physician_id": "PHY-010",
+          "name": "Dr. Ben Alvarez",
+          "role": "Float",
+          "eligible": false,
+          "eligibility_status": "ineligible",
+          "eligibility": {
+            "status": "ineligible",
+            "policy_version": "sevaro-challenge-v2",
+            "evidence_as_of": "2026-03-17T18:20:00-04:00",
+            "missing_evidence": [],
+            "reason_codes": [
+              "credentialed"
+            ]
+          },
+          "policy_version": "sevaro-challenge-v2",
+          "evidence_as_of": "2026-03-17T18:20:00-04:00",
+          "missing_evidence": [],
+          "provenance": "organizer credentialing proxy",
+          "workload": {
+            "baseline_hours": 24,
+            "incremental_hours": 2,
+            "conservative_total_hours": 26,
+            "accounting": "union_after_reference_snapshot"
+          },
+          "rules": [
+            {
+              "rule": "opt_in",
+              "label": "Opted in to split-shift offers",
+              "passed": true,
+              "detail": "Opted in"
+            },
+            {
+              "rule": "credentialed",
+              "label": "Credentialed at a gap hospital",
+              "passed": false,
+              "detail": "Not credentialed at SYN-005"
+            },
+            {
+              "rule": "current_activity",
+              "label": "No current conflicting work or unavailable status",
+              "passed": true,
+              "detail": "No supplied blocking activity"
+            },
+            {
+              "rule": "availability_evidence",
+              "label": "Availability signals do not conflict",
+              "passed": true,
+              "detail": "No conflicting source signals"
+            },
+            {
+              "rule": "rest",
+              "label": "At least 10h since last shift (at offer start)",
+              "passed": true,
+              "detail": "22h26m rest"
+            },
+            {
+              "rule": "weekly_hours",
+              "label": "Trailing 7-day hours + offer <= 60",
+              "passed": true,
+              "detail": "24h supplied baseline + 2h new reserved/observed work = 26h (conservative: undated baseline work is not aged out)"
+            },
+            {
+              "rule": "no_schedule_overlap",
+              "label": "No overlap with a scheduled shift",
+              "passed": true,
+              "detail": "No overlap"
+            },
+            {
+              "rule": "duration",
+              "label": "Offer at least 2h",
+              "passed": true,
+              "detail": "2h offered; 10 min to online leaves 110 min of coverage"
+            },
+            {
+              "rule": "no_accepted_overlap",
+              "label": "No overlapping accepted or conservatively retained commitment",
+              "passed": true,
+              "detail": "None"
+            },
+            {
+              "rule": "one_open_offer",
+              "label": "No other open offer",
+              "passed": true,
+              "detail": "None open"
+            },
+            {
+              "rule": "weekly_offer_limit",
+              "label": "Fewer than 3 offers sent this calendar week",
+              "passed": true,
+              "detail": "0 sent this week (no historical offer counts in dataset; run starts at 0)"
+            }
+          ],
+          "failed_rules": [
+            "Credentialed at a gap hospital"
+          ],
+          "offer_hospitals": [],
+          "minutes_to_online": 10,
+          "online_at": "2026-03-17T18:36:57-04:00",
+          "effective_minutes": 110,
+          "paid_hours": 2,
+          "preferred_channel": "sms",
+          "rank": null,
+          "selected": false
+        },
+        {
+          "physician_id": "PHY-011",
+          "name": "Dr. Hannah Cho",
+          "role": "Night",
+          "eligible": false,
+          "eligibility_status": "ineligible",
+          "eligibility": {
+            "status": "ineligible",
+            "policy_version": "sevaro-challenge-v2",
+            "evidence_as_of": "2026-03-17T18:20:00-04:00",
+            "missing_evidence": [],
+            "reason_codes": [
+              "no_schedule_overlap"
+            ]
+          },
+          "policy_version": "sevaro-challenge-v2",
+          "evidence_as_of": "2026-03-17T18:20:00-04:00",
+          "missing_evidence": [],
+          "provenance": "organizer credentialing proxy",
+          "workload": {
+            "baseline_hours": 48,
+            "incremental_hours": 2,
+            "conservative_total_hours": 50,
+            "accounting": "union_after_reference_snapshot"
+          },
+          "rules": [
+            {
+              "rule": "opt_in",
+              "label": "Opted in to split-shift offers",
+              "passed": true,
+              "detail": "Opted in"
+            },
+            {
+              "rule": "credentialed",
+              "label": "Credentialed at a gap hospital",
+              "passed": true,
+              "detail": "Credentialed at SYN-005"
+            },
+            {
+              "rule": "current_activity",
+              "label": "No current conflicting work or unavailable status",
+              "passed": true,
+              "detail": "No supplied blocking activity"
+            },
+            {
+              "rule": "availability_evidence",
+              "label": "Availability signals do not conflict",
+              "passed": true,
+              "detail": "No conflicting source signals"
+            },
+            {
+              "rule": "rest",
+              "label": "At least 10h since last shift (at offer start)",
+              "passed": true,
+              "detail": "11h26m rest"
+            },
+            {
+              "rule": "weekly_hours",
+              "label": "Trailing 7-day hours + offer <= 60",
+              "passed": true,
+              "detail": "48h supplied baseline + 2h new reserved/observed work = 50h (conservative: undated baseline work is not aged out)"
+            },
+            {
+              "rule": "no_schedule_overlap",
+              "label": "No overlap with a scheduled shift",
+              "passed": false,
+              "detail": "Overlaps scheduled shift starting 03-17 19:00"
+            },
+            {
+              "rule": "duration",
+              "label": "Offer at least 2h",
+              "passed": true,
+              "detail": "2h offered; 0 min to online leaves 120 min of coverage"
+            },
+            {
+              "rule": "no_accepted_overlap",
+              "label": "No overlapping accepted or conservatively retained commitment",
+              "passed": true,
+              "detail": "None"
+            },
+            {
+              "rule": "one_open_offer",
+              "label": "No other open offer",
+              "passed": true,
+              "detail": "None open"
+            },
+            {
+              "rule": "weekly_offer_limit",
+              "label": "Fewer than 3 offers sent this calendar week",
+              "passed": true,
+              "detail": "0 sent this week (no historical offer counts in dataset; run starts at 0)"
+            }
+          ],
+          "failed_rules": [
+            "No overlap with a scheduled shift"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "minutes_to_online": 0,
+          "online_at": "2026-03-17T18:26:57-04:00",
+          "effective_minutes": 120,
+          "paid_hours": 2,
+          "preferred_channel": "app_push",
+          "rank": null,
+          "selected": false
+        },
+        {
+          "physician_id": "PHY-012",
+          "name": "Dr. Omar Haddad",
+          "role": "Night",
+          "eligible": false,
+          "eligibility_status": "ineligible",
+          "eligibility": {
+            "status": "ineligible",
+            "policy_version": "sevaro-challenge-v2",
+            "evidence_as_of": "2026-03-17T18:20:00-04:00",
+            "missing_evidence": [],
+            "reason_codes": [
+              "opt_in",
+              "credentialed",
+              "no_schedule_overlap"
+            ]
+          },
+          "policy_version": "sevaro-challenge-v2",
+          "evidence_as_of": "2026-03-17T18:20:00-04:00",
+          "missing_evidence": [],
+          "provenance": "organizer credentialing proxy",
+          "workload": {
+            "baseline_hours": 36,
+            "incremental_hours": 2,
+            "conservative_total_hours": 38,
+            "accounting": "union_after_reference_snapshot"
+          },
+          "rules": [
+            {
+              "rule": "opt_in",
+              "label": "Opted in to split-shift offers",
+              "passed": false,
+              "detail": "Not opted in"
+            },
+            {
+              "rule": "credentialed",
+              "label": "Credentialed at a gap hospital",
+              "passed": false,
+              "detail": "Not credentialed at SYN-005"
+            },
+            {
+              "rule": "current_activity",
+              "label": "No current conflicting work or unavailable status",
+              "passed": true,
+              "detail": "No supplied blocking activity"
+            },
+            {
+              "rule": "availability_evidence",
+              "label": "Availability signals do not conflict",
+              "passed": true,
+              "detail": "No conflicting source signals"
+            },
+            {
+              "rule": "rest",
+              "label": "At least 10h since last shift (at offer start)",
+              "passed": true,
+              "detail": "34h26m rest"
+            },
+            {
+              "rule": "weekly_hours",
+              "label": "Trailing 7-day hours + offer <= 60",
+              "passed": true,
+              "detail": "36h supplied baseline + 2h new reserved/observed work = 38h (conservative: undated baseline work is not aged out)"
+            },
+            {
+              "rule": "no_schedule_overlap",
+              "label": "No overlap with a scheduled shift",
+              "passed": false,
+              "detail": "Overlaps scheduled shift starting 03-17 20:00"
+            },
+            {
+              "rule": "duration",
+              "label": "Offer at least 2h",
+              "passed": true,
+              "detail": "2h offered; 0 min to online leaves 120 min of coverage"
+            },
+            {
+              "rule": "no_accepted_overlap",
+              "label": "No overlapping accepted or conservatively retained commitment",
+              "passed": true,
+              "detail": "None"
+            },
+            {
+              "rule": "one_open_offer",
+              "label": "No other open offer",
+              "passed": true,
+              "detail": "None open"
+            },
+            {
+              "rule": "weekly_offer_limit",
+              "label": "Fewer than 3 offers sent this calendar week",
+              "passed": true,
+              "detail": "0 sent this week (no historical offer counts in dataset; run starts at 0)"
+            }
+          ],
+          "failed_rules": [
+            "Opted in to split-shift offers",
+            "Credentialed at a gap hospital",
+            "No overlap with a scheduled shift"
+          ],
+          "offer_hospitals": [],
+          "minutes_to_online": 0,
+          "online_at": "2026-03-17T18:26:57-04:00",
+          "effective_minutes": 120,
+          "paid_hours": 2,
+          "preferred_channel": "app_push",
+          "rank": null,
+          "selected": false
+        },
+        {
+          "physician_id": "PHY-013",
+          "name": "Dr. Lucy Brennan",
+          "role": "Day",
+          "eligible": false,
+          "eligibility_status": "ineligible",
+          "eligibility": {
+            "status": "ineligible",
+            "policy_version": "sevaro-challenge-v2",
+            "evidence_as_of": "2026-03-17T18:20:00-04:00",
+            "missing_evidence": [],
+            "reason_codes": [
+              "opt_in"
+            ]
+          },
+          "policy_version": "sevaro-challenge-v2",
+          "evidence_as_of": "2026-03-17T18:20:00-04:00",
+          "missing_evidence": [],
+          "provenance": "organizer credentialing proxy",
+          "workload": {
+            "baseline_hours": 48,
+            "incremental_hours": 2,
+            "conservative_total_hours": 50,
+            "accounting": "union_after_reference_snapshot"
+          },
+          "rules": [
+            {
+              "rule": "opt_in",
+              "label": "Opted in to split-shift offers",
+              "passed": false,
+              "detail": "Not opted in"
+            },
+            {
+              "rule": "credentialed",
+              "label": "Credentialed at a gap hospital",
+              "passed": true,
+              "detail": "Credentialed at SYN-005"
+            },
+            {
+              "rule": "current_activity",
+              "label": "No current conflicting work or unavailable status",
+              "passed": true,
+              "detail": "No supplied blocking activity"
+            },
+            {
+              "rule": "availability_evidence",
+              "label": "Availability signals do not conflict",
+              "passed": true,
+              "detail": "No conflicting source signals"
+            },
+            {
+              "rule": "rest",
+              "label": "At least 10h since last shift (at offer start)",
+              "passed": true,
+              "detail": "22h26m rest"
+            },
+            {
+              "rule": "weekly_hours",
+              "label": "Trailing 7-day hours + offer <= 60",
+              "passed": true,
+              "detail": "48h supplied baseline + 2h new reserved/observed work = 50h (conservative: undated baseline work is not aged out)"
+            },
+            {
+              "rule": "no_schedule_overlap",
+              "label": "No overlap with a scheduled shift",
+              "passed": true,
+              "detail": "No overlap"
+            },
+            {
+              "rule": "duration",
+              "label": "Offer at least 2h",
+              "passed": true,
+              "detail": "2h offered; 20 min to online leaves 100 min of coverage"
+            },
+            {
+              "rule": "no_accepted_overlap",
+              "label": "No overlapping accepted or conservatively retained commitment",
+              "passed": true,
+              "detail": "None"
+            },
+            {
+              "rule": "one_open_offer",
+              "label": "No other open offer",
+              "passed": true,
+              "detail": "None open"
+            },
+            {
+              "rule": "weekly_offer_limit",
+              "label": "Fewer than 3 offers sent this calendar week",
+              "passed": true,
+              "detail": "0 sent this week (no historical offer counts in dataset; run starts at 0)"
+            }
+          ],
+          "failed_rules": [
+            "Opted in to split-shift offers"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "minutes_to_online": 20,
+          "online_at": "2026-03-17T18:46:57-04:00",
+          "effective_minutes": 100,
+          "paid_hours": 2,
+          "preferred_channel": "sms",
+          "rank": null,
+          "selected": false
+        },
+        {
+          "physician_id": "PHY-014",
+          "name": "Dr. Ravi Menon",
+          "role": "Float",
+          "eligible": false,
+          "eligibility_status": "ineligible",
+          "eligibility": {
+            "status": "ineligible",
+            "policy_version": "sevaro-challenge-v2",
+            "evidence_as_of": "2026-03-17T18:20:00-04:00",
+            "missing_evidence": [],
+            "reason_codes": [
+              "weekly_hours"
+            ]
+          },
+          "policy_version": "sevaro-challenge-v2",
+          "evidence_as_of": "2026-03-17T18:20:00-04:00",
+          "missing_evidence": [],
+          "provenance": "organizer credentialing proxy",
+          "workload": {
+            "baseline_hours": 59,
+            "incremental_hours": 2,
+            "conservative_total_hours": 61,
+            "accounting": "union_after_reference_snapshot"
+          },
+          "rules": [
+            {
+              "rule": "opt_in",
+              "label": "Opted in to split-shift offers",
+              "passed": true,
+              "detail": "Opted in"
+            },
+            {
+              "rule": "credentialed",
+              "label": "Credentialed at a gap hospital",
+              "passed": true,
+              "detail": "Credentialed at SYN-005"
+            },
+            {
+              "rule": "current_activity",
+              "label": "No current conflicting work or unavailable status",
+              "passed": true,
+              "detail": "No supplied blocking activity"
+            },
+            {
+              "rule": "availability_evidence",
+              "label": "Availability signals do not conflict",
+              "passed": true,
+              "detail": "No conflicting source signals"
+            },
+            {
+              "rule": "rest",
+              "label": "At least 10h since last shift (at offer start)",
+              "passed": true,
+              "detail": "22h26m rest"
+            },
+            {
+              "rule": "weekly_hours",
+              "label": "Trailing 7-day hours + offer <= 60",
+              "passed": false,
+              "detail": "59h supplied baseline + 2h new reserved/observed work = 61h (conservative: undated baseline work is not aged out)"
+            },
+            {
+              "rule": "no_schedule_overlap",
+              "label": "No overlap with a scheduled shift",
+              "passed": true,
+              "detail": "No overlap"
+            },
+            {
+              "rule": "duration",
+              "label": "Offer at least 2h",
+              "passed": true,
+              "detail": "2h offered; 40 min to online leaves 80 min of coverage"
+            },
+            {
+              "rule": "no_accepted_overlap",
+              "label": "No overlapping accepted or conservatively retained commitment",
+              "passed": true,
+              "detail": "None"
+            },
+            {
+              "rule": "one_open_offer",
+              "label": "No other open offer",
+              "passed": true,
+              "detail": "None open"
+            },
+            {
+              "rule": "weekly_offer_limit",
+              "label": "Fewer than 3 offers sent this calendar week",
+              "passed": true,
+              "detail": "0 sent this week (no historical offer counts in dataset; run starts at 0)"
+            }
+          ],
+          "failed_rules": [
+            "Trailing 7-day hours + offer <= 60"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "minutes_to_online": 40,
+          "online_at": "2026-03-17T19:06:57-04:00",
+          "effective_minutes": 80,
+          "paid_hours": 2,
+          "preferred_channel": "sms",
+          "rank": null,
+          "selected": false
+        }
+      ],
+      "selected": [
+        "PHY-009"
+      ],
+      "baseline_deficit_minutes": 95,
+      "projected_deficit_minutes": 50,
+      "deficit_minutes_removed": 45,
+      "residual_peak_deficit": 2,
+      "objective": "maximize target deficit minutes removed, then minimize paid hours/cost, then time to online",
+      "search_note": null,
+      "message": null
+    },
+    "consults": [
+      {
+        "consult_id": "CON-2120",
+        "hospital_id": "SYN-005",
+        "hospital_name": "Suncrest Medical Pavilion",
+        "physician_id": "Unassigned",
+        "consult_type": "Stroke",
+        "current_stage": "Triaged",
+        "stage_entered_at": "18:23:10",
+        "minutes_in_stage": 3,
+        "minutes_since_received": 4,
+        "received_at": "2026-03-17T18:22:00-04:00",
+        "routing_failures": 1,
+        "next_retry_at": "2026-03-17T18:28:15-04:00",
+        "retry_basis": "policy schedule only; no future observed retry event is generated",
+        "receipt_event_ids": [
+          "EVT-01164"
+        ],
+        "repeat_receipts": 0,
+        "evidence_event_ids": [
+          "EVT-01164",
+          "EVT-01165",
+          "EVT-01166"
+        ],
+        "conflicting_hospital_ids": [],
+        "consult_type_verified": true,
+        "explicit_urgency": null,
+        "ringing_physician": null,
+        "phone_only": false,
+        "documentation_clock_min": null,
+        "documentation_standard": null,
+        "waiting_for_assignment": true,
+        "modeled_reassignment": null
+      },
+      {
+        "consult_id": "CON-2105",
+        "hospital_id": "SYN-010",
+        "hospital_name": "Oak Valley Medical",
+        "physician_id": "PHY-008",
+        "consult_type": "Stroke",
+        "current_stage": "Provider Contacted",
+        "stage_entered_at": "18:26:55",
+        "minutes_in_stage": 0,
+        "minutes_since_received": 19,
+        "received_at": "2026-03-17T18:07:30-04:00",
+        "routing_failures": 4,
+        "next_retry_at": "2026-03-17T18:29:10-04:00",
+        "retry_basis": "policy schedule only; no future observed retry event is generated",
+        "receipt_event_ids": [
+          "EVT-01142"
+        ],
+        "repeat_receipts": 0,
+        "evidence_event_ids": [
+          "EVT-01142",
+          "EVT-01143",
+          "EVT-01144",
+          "EVT-01155",
+          "EVT-01162",
+          "EVT-01167",
+          "EVT-01170",
+          "EVT-01171"
+        ],
+        "conflicting_hospital_ids": [],
+        "consult_type_verified": true,
+        "explicit_urgency": null,
+        "ringing_physician": null,
+        "phone_only": false,
+        "documentation_clock_min": null,
+        "documentation_standard": null,
+        "waiting_for_assignment": false,
+        "modeled_reassignment": null
+      }
+    ],
+    "physicians": [
+      {
+        "physician_id": "PHY-001",
+        "name": "Dr. Maya Patel",
+        "shift_et": "08:00-20:00",
+        "self_reported_status": "Available",
+        "desktop_agent": "Online",
+        "derived_state": "Available",
+        "consults_this_shift": 12,
+        "calls_this_shift": 13,
+        "open_consults": 1,
+        "minutes_to_shift_end": 93,
+        "on_roster_shift": true,
+        "role": "Day",
+        "routable": true,
+        "busy": false,
+        "ringing_consult": null,
+        "in_cooldown": false,
+        "presence_verified": true,
+        "presence_verification_basis": "imported operational participation (shift/call/video start), challenge presence assumption until heartbeat loss; not a live desktop heartbeat",
+        "desktop_presence_basis": "challenge assumes agent online until supplied heartbeat loss",
+        "workload_verified": true,
+        "workload_basis": "recorded events since imported shift start",
+        "online_evidence_event_ids": [
+          "EVT-00020",
+          "EVT-00067",
+          "EVT-00074",
+          "EVT-00105",
+          "EVT-00122",
+          "EVT-00149",
+          "EVT-00212",
+          "EVT-00240",
+          "EVT-00329",
+          "EVT-00368",
+          "EVT-00421",
+          "EVT-00479",
+          "EVT-00488",
+          "EVT-00519",
+          "EVT-00541",
+          "EVT-00621",
+          "EVT-00637",
+          "EVT-00694",
+          "EVT-00730",
+          "EVT-00890",
+          "EVT-00914",
+          "EVT-00990",
+          "EVT-01010",
+          "EVT-01058",
+          "EVT-01078"
+        ],
+        "conflicting_signal_event_ids": [],
+        "flags": [],
+        "credentials": [
+          "SYN-001",
+          "SYN-004",
+          "SYN-006",
+          "SYN-008",
+          "SYN-009",
+          "SYN-011",
+          "SYN-012"
+        ],
+        "open_consult_ids": [
+          "CON-2116"
+        ],
+        "active_call": null,
+        "active_video": null,
+        "planned_capacity": null
+      },
+      {
+        "physician_id": "PHY-008",
+        "name": "Dr. Noah Williams",
+        "shift_et": "08:00-20:00",
+        "self_reported_status": "Available",
+        "desktop_agent": "Online",
+        "derived_state": "Incoming Hospital Call",
+        "consults_this_shift": 11,
+        "calls_this_shift": 12,
+        "open_consults": 2,
+        "minutes_to_shift_end": 93,
+        "on_roster_shift": true,
+        "role": "Day",
+        "routable": false,
+        "busy": true,
+        "ringing_consult": null,
+        "in_cooldown": false,
+        "presence_verified": true,
+        "presence_verification_basis": "imported operational participation (shift/call/video start), challenge presence assumption until heartbeat loss; not a live desktop heartbeat",
+        "desktop_presence_basis": "challenge assumes agent online until supplied heartbeat loss",
+        "workload_verified": true,
+        "workload_basis": "recorded events since imported shift start",
+        "online_evidence_event_ids": [
+          "EVT-00022",
+          "EVT-00087",
+          "EVT-00106",
+          "EVT-00138",
+          "EVT-00143",
+          "EVT-00169",
+          "EVT-00189",
+          "EVT-00286",
+          "EVT-00301",
+          "EVT-00304",
+          "EVT-00354",
+          "EVT-00386",
+          "EVT-00400",
+          "EVT-00430",
+          "EVT-00470",
+          "EVT-00651",
+          "EVT-00681",
+          "EVT-00697",
+          "EVT-00723",
+          "EVT-00774",
+          "EVT-01171"
+        ],
+        "conflicting_signal_event_ids": [],
+        "flags": [],
+        "credentials": [
+          "SYN-006",
+          "SYN-007",
+          "SYN-010",
+          "SYN-011"
+        ],
+        "open_consult_ids": [
+          "CON-2110",
+          "CON-2105"
+        ],
+        "active_call": {
+          "kind": "incoming",
+          "consult_id": "CON-2105"
+        },
+        "active_video": null,
+        "planned_capacity": null
+      }
+    ]
+  },
+  "isolation": "Captured from the actual local UI against a temporary database seeded with the official challenge dataset. User-provided CSV imported unchanged. Main application run unchanged. Forecasts are modeled, not observed clinical outcomes.",
+  "input_sha256": "c163d8f661bbc3c44cf4f85b6e94ce77418607a44a9aa837f9a6747fcb665002"
+}

@@ -1,0 +1,2525 @@
+{
+  "source": "Actual application, disposable PostgreSQL, official reference data and unchanged supplied CSV",
+  "provider": "Disabled only in this isolated browser run; Jev success/failure paths tested separately with HTTP fault injection",
+  "filename": "c2_new_events.csv",
+  "input_sha256": "c163d8f661bbc3c44cf4f85b6e94ce77418607a44a9aa837f9a6747fcb665002",
+  "summary": {
+    "rows_read": 9,
+    "accepted": 8,
+    "duplicates": 1,
+    "duplicate_ids": [
+      "EVT-01165"
+    ],
+    "errors": [],
+    "error_count": 0,
+    "ok": true,
+    "clock_advanced_to": "2026-03-17T18:26:57-04:00",
+    "expired_offers": [],
+    "not_yet_visible": 0
+  },
+  "operational_state_unchanged": true,
+  "browser_errors": [],
+  "frames": [
+    {
+      "index": -1,
+      "as_of": "2026-03-17T18:22:01.999999-04:00",
+      "counts": {
+        "events_applied": 1163,
+        "events_not_yet_visible": 8,
+        "open_consults": 18,
+        "orphan_events": 0
+      },
+      "next_consult": null,
+      "decision": {
+        "decision_id": "RPLDEC-9e305cee5bae422aec145f26",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:22:01.999999-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "74f5b1af3d24af56d8cb3828b2d899e36a60ee173631fb47382592ba1532b8a7",
+        "status": "ready",
+        "selected_action_id": "ACT-614c6112ffe72a8401c922c3",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:22:01.999999-04:00",
+          "window_end": "2026-03-17T20:22:01.999999-04:00",
+          "action_id": "ACT-614c6112ffe72a8401c922c3",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 40
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:22:01.999999-04:00",
+            "window_end": "2026-03-17T20:22:01.999999-04:00",
+            "action_id": "ACT-614c6112ffe72a8401c922c3",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 40
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:22:01.999999-04:00",
+            "window_end": "2026-03-17T20:22:01.999999-04:00",
+            "action_id": "ACT-614c6112ffe72a8401c922c3",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 40
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-614c6112ffe72a8401c922c3",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 0,
+      "as_of": "2026-03-17T18:22:02-04:00",
+      "counts": {
+        "events_applied": 1164,
+        "events_not_yet_visible": 7,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": null,
+      "decision": {
+        "decision_id": "RPLDEC-47ff10b41ccdaa52d0246ec6",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:22:02-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "acbdb712a16204ab337c1b3031bd7abd97c8dda315a8894fab79f779dde87d82",
+        "status": "ready",
+        "selected_action_id": "ACT-daaac5caa0c1c8daa41afb3f",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:22:02-04:00",
+          "window_end": "2026-03-17T20:22:02-04:00",
+          "action_id": "ACT-daaac5caa0c1c8daa41afb3f",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:22:02-04:00",
+            "window_end": "2026-03-17T20:22:02-04:00",
+            "action_id": "ACT-daaac5caa0c1c8daa41afb3f",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:22:02-04:00",
+            "window_end": "2026-03-17T20:22:02-04:00",
+            "action_id": "ACT-daaac5caa0c1c8daa41afb3f",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-daaac5caa0c1c8daa41afb3f",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 1,
+      "as_of": "2026-03-17T18:23:12-04:00",
+      "counts": {
+        "events_applied": 1165,
+        "events_not_yet_visible": 6,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": null,
+      "decision": {
+        "decision_id": "RPLDEC-57b8ab8788e5d212386ef3de",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:23:12-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "de92c420cd45d683e218218ee7e2944973563532f468d52df7c3cdf9a23eeb3c",
+        "status": "ready",
+        "selected_action_id": "ACT-157bc78ef4b004ad60ebd935",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:23:12-04:00",
+          "window_end": "2026-03-17T20:23:12-04:00",
+          "action_id": "ACT-157bc78ef4b004ad60ebd935",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:23:12-04:00",
+            "window_end": "2026-03-17T20:23:12-04:00",
+            "action_id": "ACT-157bc78ef4b004ad60ebd935",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:23:12-04:00",
+            "window_end": "2026-03-17T20:23:12-04:00",
+            "action_id": "ACT-157bc78ef4b004ad60ebd935",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-157bc78ef4b004ad60ebd935",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 2,
+      "as_of": "2026-03-17T18:23:17-04:00",
+      "counts": {
+        "events_applied": 1166,
+        "events_not_yet_visible": 5,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": null,
+      "decision": {
+        "decision_id": "RPLDEC-3c2c22dfbc4d80f0b52a9452",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:23:17-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "448cfdbf2632a30fd1d2e6bff614073ce71c9390fa9bbc406759571538d05d24",
+        "status": "ready",
+        "selected_action_id": "ACT-57cc34b8748fcc5b21a9231a",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:23:17-04:00",
+          "window_end": "2026-03-17T20:23:17-04:00",
+          "action_id": "ACT-57cc34b8748fcc5b21a9231a",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:23:17-04:00",
+            "window_end": "2026-03-17T20:23:17-04:00",
+            "action_id": "ACT-57cc34b8748fcc5b21a9231a",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:23:17-04:00",
+            "window_end": "2026-03-17T20:23:17-04:00",
+            "action_id": "ACT-57cc34b8748fcc5b21a9231a",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-57cc34b8748fcc5b21a9231a",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 3,
+      "as_of": "2026-03-17T18:24:12-04:00",
+      "counts": {
+        "events_applied": 1167,
+        "events_not_yet_visible": 4,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": null,
+      "decision": {
+        "decision_id": "RPLDEC-80d63dbe90fe679bf3d3375b",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:24:12-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "9939ddf7493d9d4d1dd5c5c1301de7e7b34d8d90d55ceb70f524078a75fcb87d",
+        "status": "ready",
+        "selected_action_id": "ACT-ef6d40b884d32e4ab2fd05e7",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:24:12-04:00",
+          "window_end": "2026-03-17T20:24:12-04:00",
+          "action_id": "ACT-ef6d40b884d32e4ab2fd05e7",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:24:12-04:00",
+            "window_end": "2026-03-17T20:24:12-04:00",
+            "action_id": "ACT-ef6d40b884d32e4ab2fd05e7",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:24:12-04:00",
+            "window_end": "2026-03-17T20:24:12-04:00",
+            "action_id": "ACT-ef6d40b884d32e4ab2fd05e7",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-ef6d40b884d32e4ab2fd05e7",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 4,
+      "as_of": "2026-03-17T18:25:40-04:00",
+      "counts": {
+        "events_applied": 1168,
+        "events_not_yet_visible": 3,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": null,
+      "decision": {
+        "decision_id": "RPLDEC-7fb234bd6e6dd383083cffa5",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:25:40-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "123b704081d8d2c3dad1831cf3535717fdf700da7ea5004386a27b19ae8f7e47",
+        "status": "ready",
+        "selected_action_id": "ACT-9ce17a898a3d72d362a04ad9",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:25:40-04:00",
+          "window_end": "2026-03-17T20:25:40-04:00",
+          "action_id": "ACT-9ce17a898a3d72d362a04ad9",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:25:40-04:00",
+            "window_end": "2026-03-17T20:25:40-04:00",
+            "action_id": "ACT-9ce17a898a3d72d362a04ad9",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:25:40-04:00",
+            "window_end": "2026-03-17T20:25:40-04:00",
+            "action_id": "ACT-9ce17a898a3d72d362a04ad9",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-9ce17a898a3d72d362a04ad9",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 5,
+      "as_of": "2026-03-17T18:26:01-04:00",
+      "counts": {
+        "events_applied": 1169,
+        "events_not_yet_visible": 2,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": {
+        "physician_id": "PHY-008",
+        "name": "Dr. Noah Williams",
+        "consults_this_shift": 10,
+        "low_volume_priority": false,
+        "last_answered_at": "2026-03-17T13:48:31-04:00",
+        "source": "on shift",
+        "presence_verified": true,
+        "online_evidence_event_ids": [
+          "EVT-00022",
+          "EVT-00087",
+          "EVT-00106",
+          "EVT-00138",
+          "EVT-00143",
+          "EVT-00169",
+          "EVT-00189",
+          "EVT-00286",
+          "EVT-00301",
+          "EVT-00304",
+          "EVT-00354",
+          "EVT-00386",
+          "EVT-00400",
+          "EVT-00430",
+          "EVT-00470",
+          "EVT-00651",
+          "EVT-00681",
+          "EVT-00697",
+          "EVT-00723",
+          "EVT-00774"
+        ],
+        "preview_only": false
+      },
+      "decision": {
+        "decision_id": "RPLDEC-e82e95a8be653d87386b9bd0",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:26:01-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "d850cf3efdeb87b4a78c250d41d6d857dc89f60fc45a46695328758f00dac117",
+        "status": "ready",
+        "selected_action_id": "ACT-2c3b1c9d13d832f3c2873ffa",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:26:01-04:00",
+          "window_end": "2026-03-17T20:26:01-04:00",
+          "action_id": "ACT-2c3b1c9d13d832f3c2873ffa",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:26:01-04:00",
+            "window_end": "2026-03-17T20:26:01-04:00",
+            "action_id": "ACT-2c3b1c9d13d832f3c2873ffa",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:26:01-04:00",
+            "window_end": "2026-03-17T20:26:01-04:00",
+            "action_id": "ACT-2c3b1c9d13d832f3c2873ffa",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-2c3b1c9d13d832f3c2873ffa",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 6,
+      "as_of": "2026-03-17T18:26:42-04:00",
+      "counts": {
+        "events_applied": 1170,
+        "events_not_yet_visible": 1,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": {
+        "physician_id": "PHY-008",
+        "name": "Dr. Noah Williams",
+        "consults_this_shift": 11,
+        "low_volume_priority": false,
+        "last_answered_at": "2026-03-17T13:48:31-04:00",
+        "source": "on shift",
+        "presence_verified": true,
+        "online_evidence_event_ids": [
+          "EVT-00022",
+          "EVT-00087",
+          "EVT-00106",
+          "EVT-00138",
+          "EVT-00143",
+          "EVT-00169",
+          "EVT-00189",
+          "EVT-00286",
+          "EVT-00301",
+          "EVT-00304",
+          "EVT-00354",
+          "EVT-00386",
+          "EVT-00400",
+          "EVT-00430",
+          "EVT-00470",
+          "EVT-00651",
+          "EVT-00681",
+          "EVT-00697",
+          "EVT-00723",
+          "EVT-00774"
+        ],
+        "preview_only": false
+      },
+      "decision": {
+        "decision_id": "RPLDEC-90ed9f5ba47b48a4b0ff7364",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:26:42-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "dcb5cde492909827fa6d2d6bf24bfe8ed8d762729b80d3036638ac8af2ea4ad9",
+        "status": "ready",
+        "selected_action_id": "ACT-ff4c8d52c58c9cbe3d38b31f",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:26:42-04:00",
+          "window_end": "2026-03-17T20:26:42-04:00",
+          "action_id": "ACT-ff4c8d52c58c9cbe3d38b31f",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:26:42-04:00",
+            "window_end": "2026-03-17T20:26:42-04:00",
+            "action_id": "ACT-ff4c8d52c58c9cbe3d38b31f",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:26:42-04:00",
+            "window_end": "2026-03-17T20:26:42-04:00",
+            "action_id": "ACT-ff4c8d52c58c9cbe3d38b31f",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-ff4c8d52c58c9cbe3d38b31f",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    },
+    {
+      "index": 7,
+      "as_of": "2026-03-17T18:26:57-04:00",
+      "counts": {
+        "events_applied": 1171,
+        "events_not_yet_visible": 0,
+        "open_consults": 19,
+        "orphan_events": 0
+      },
+      "next_consult": null,
+      "decision": {
+        "decision_id": "RPLDEC-1a81b56e97e2c6d18900299f",
+        "scope": "staffing",
+        "run_id": "RUN-134210-3A5865",
+        "revision": 2,
+        "as_of": "2026-03-17T18:26:57-04:00",
+        "policy_version": "challenge-2-v2.1",
+        "input_hash": "2de2f2e188db4d60c01fc0b8c191c3fb5c12010680869e81643913b39a8b0464",
+        "status": "ready",
+        "selected_action_id": "ACT-2e93c34ab25a48cbe1c502ec",
+        "selected_action": {
+          "kind": "scoped_split_shift",
+          "physician_ids": [
+            "PHY-009"
+          ],
+          "offer_hospitals": [
+            "SYN-005"
+          ],
+          "window_start": "2026-03-17T18:26:57-04:00",
+          "window_end": "2026-03-17T20:26:57-04:00",
+          "action_id": "ACT-2e93c34ab25a48cbe1c502ec",
+          "physician_id": "PHY-009",
+          "requires_clinical_lead_approval": true,
+          "priority_tier": "canonical_staffing_target",
+          "eligibility_checks": {
+            "PHY-009": [
+              {
+                "rule": "opt_in",
+                "passed": true
+              },
+              {
+                "rule": "credentialed",
+                "passed": true
+              },
+              {
+                "rule": "current_activity",
+                "passed": true
+              },
+              {
+                "rule": "availability_evidence",
+                "passed": true
+              },
+              {
+                "rule": "rest",
+                "passed": true
+              },
+              {
+                "rule": "weekly_hours",
+                "passed": true
+              },
+              {
+                "rule": "no_schedule_overlap",
+                "passed": true
+              },
+              {
+                "rule": "duration",
+                "passed": true
+              },
+              {
+                "rule": "no_accepted_overlap",
+                "passed": true
+              },
+              {
+                "rule": "one_open_offer",
+                "passed": true
+              },
+              {
+                "rule": "weekly_offer_limit",
+                "passed": true
+              }
+            ]
+          },
+          "minutes_to_online": 15,
+          "effective_minutes": 105,
+          "offer_hours": 2,
+          "projected_deficit_minutes_removed": 45
+        },
+        "selected_physician_ids": [
+          "PHY-009"
+        ],
+        "actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:26:57-04:00",
+            "window_end": "2026-03-17T20:26:57-04:00",
+            "action_id": "ACT-2e93c34ab25a48cbe1c502ec",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "feasible_actions": [
+          {
+            "kind": "scoped_split_shift",
+            "physician_ids": [
+              "PHY-009"
+            ],
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "window_start": "2026-03-17T18:26:57-04:00",
+            "window_end": "2026-03-17T20:26:57-04:00",
+            "action_id": "ACT-2e93c34ab25a48cbe1c502ec",
+            "physician_id": "PHY-009",
+            "requires_clinical_lead_approval": true,
+            "priority_tier": "canonical_staffing_target",
+            "eligibility_checks": {
+              "PHY-009": [
+                {
+                  "rule": "opt_in",
+                  "passed": true
+                },
+                {
+                  "rule": "credentialed",
+                  "passed": true
+                },
+                {
+                  "rule": "current_activity",
+                  "passed": true
+                },
+                {
+                  "rule": "availability_evidence",
+                  "passed": true
+                },
+                {
+                  "rule": "rest",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_hours",
+                  "passed": true
+                },
+                {
+                  "rule": "no_schedule_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "duration",
+                  "passed": true
+                },
+                {
+                  "rule": "no_accepted_overlap",
+                  "passed": true
+                },
+                {
+                  "rule": "one_open_offer",
+                  "passed": true
+                },
+                {
+                  "rule": "weekly_offer_limit",
+                  "passed": true
+                }
+              ]
+            },
+            "minutes_to_online": 15,
+            "effective_minutes": 105,
+            "offer_hours": 2,
+            "projected_deficit_minutes_removed": 45
+          },
+          {
+            "action_id": "ACT-90ac36b68c9e74f6f9e73cf8",
+            "kind": "escalate",
+            "physician_ids": [],
+            "physician_id": null,
+            "offer_hospitals": [
+              "SYN-005"
+            ],
+            "requires_clinical_lead_approval": true,
+            "reason": "Clinical-lead review: no suitable action or operational ambiguity"
+          }
+        ],
+        "baseline_action_id": "ACT-2e93c34ab25a48cbe1c502ec",
+        "source": "deterministic_fallback",
+        "fallback_reason": "provider_disabled",
+        "provider": {
+          "status": "disabled",
+          "requested_model": "jev-latest",
+          "model": null,
+          "confidence": null,
+          "probabilities": {},
+          "usage": null,
+          "latency_ms": 0,
+          "confidence_threshold": 0.75
+        },
+        "model": null,
+        "confidence": null,
+        "latency_ms": 0,
+        "requires_clinical_lead_approval": true,
+        "confidence_note": "Distribution concentration, not clinical safety or authorization",
+        "preview_only": true
+      }
+    }
+  ]
+}

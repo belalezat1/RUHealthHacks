@@ -1,6 +1,6 @@
 # Canonical API contract
 
-One frontend client (`frontend/src/api.ts`) calls `/api/v1`; its interfaces live in `frontend/src/types.ts`. These interfaces are maintained alongside the server and exercised by TypeScript builds and actual browser calls; they are not auto-generated OpenAPI response models. Request models and routes are available at `/api/openapi.json` locally. Database schema version is 2.
+One frontend client (`frontend/src/backendClient.ts`) calls `/api/v1`; its interfaces live in `frontend/src/backendTypes.ts`, with playback types in `frontend/src/recordedReplay.tsx`. These interfaces are maintained alongside the server and exercised by TypeScript builds and actual browser calls; they are not auto-generated OpenAPI response models. Request models and routes are available at `/api/openapi.json` locally. Database schema version is 2.
 
 The authenticated session uses an HTTP-only SameSite=Strict cookie; hosted cookies require HTTPS. Session creation returns a CSRF token held in browser memory. Provisioning happens only through the local admin CLI. Physician users cannot read the staff report or another physician's offers.
 
@@ -13,6 +13,8 @@ Reads return `{request_id,schema_version,run_id,revision,as_of,release_sha,timin
 | GET `/me/offers` | Physician's own sent/responded offers, no patient details |
 | POST `/events/validate` | Coordinator-only validation; CSRF, max 5 MB; no import |
 | POST `/events/import?filename=...&advance_clock=true` | Coordinator-only atomic import; exact eight-column header; validation failure imports nothing |
+| POST `/replays/latest` | Coordinator/lead, CSRF; `{data,request_id}` contains private replay ID, latest filename/import ID, input hash, unique-ingestion timeline, default hospital and baseline frame; no operational writes |
+| POST `/replays/{id}/frames` | Coordinator/lead, CSRF; `{index}` (-1 for baseline), returns `{data,request_id}` with report, per-hospital routing evidence and preview-only Jev/fallback decision; owner-bound 30-minute memory cache |
 | POST `/clock` | Coordinator/lead; `{minutes}` or `{to:offset_timestamp}`; forward-only, within supplied schedule |
 | POST `/runs` | Coordinator; `{label}` creates another run from the supplied dataset and preserves earlier history |
 | POST `/decisions/preview` | Staff; persistent bounded Jev/fallback decision for current revision; no offer or outreach |
@@ -29,6 +31,8 @@ Reads return `{request_id,schema_version,run_id,revision,as_of,release_sha,timin
 | GET `/health/live`, `/health/ready` | Process/database readiness; database outage makes readiness fail |
 
 `Decision.source` is `jev`, `deterministic_fallback` or `escalation`; the output carries actual provider model, probabilities, confidence, time and reason. Preview does not change the operational revision; creating an offer does. A stale decision cannot create an offer. The fallback is computed before I/O; provider I/O occurs outside database transactions.
+
+Recorded replay POSTs perform read-only computation and require CSRF but not operational idempotency/revision headers. Snapshots pin the current run/revision and latest import ID, including duplicate-only receipts; changed state fails 409. Unknown/expired/other-owner sessions fail 404. Incomplete legacy import membership fails 422 with a reimport instruction. New import receipts retain complete deduplicated membership and the received CSV SHA-256 inside their existing JSON metadata, without a database migration. Replay excludes manual offer commitments, makes no clinical events or assignments, and never persists its `RPLDEC-` decisions as executable offers. Each unique frame is cached under an asynchronous lock so repeated requests do not repeat provider calls.
 
 Coverage separates confirmed, assumed/unverified, planned and future scheduled IDs. Confirmed presence is imported operational participation evidence under the challenge semantics; it does not certify independent desktop heartbeat or real clinical availability. Workload counters describe supplied events and disclose missing completeness. Coverage projections freeze unresolved current activity, use 19 five-minute samples and never invent completion events.
 

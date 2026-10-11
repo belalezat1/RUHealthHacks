@@ -1,370 +1,163 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, useLocation, useSearchParams } from "react-router-dom";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { useEffect } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { RelayMark } from "../RelayMark";
-import {
-  IconArrowLeft,
-  IconBell,
-  IconBolt,
-  IconDesk,
-  IconMenu,
-  IconSearch,
-  IconX,
-} from "../Icons";
-import { EASE, Scrim, useExitSafe } from "../ui";
-import { ConfirmationToast } from "./ConfirmationToast";
-import { useDemo } from "../../demo/store";
-import { usePressRipple } from "../../lib/ripple";
-import { clock } from "../../lib/format";
-import { brand } from "../../brand";
 import { ThemeToggle, useTheme } from "../../theme";
-
-export const DESK_SECTIONS = [
-  { id: "queue", label: "Intervention queue" },
-  { id: "forecast", label: "Coverage forecast" },
-  { id: "physicians", label: "Physicians" },
-  { id: "consults", label: "Consult queue" },
-  { id: "interventions", label: "Interventions" },
-] as const;
-
-/** Highlights the desk section currently in view. */
-function useActiveSection(enabled: boolean) {
-  const [active, setActive] = useState<string>("forecast");
-  useEffect(() => {
-    if (!enabled) return;
-    const els = DESK_SECTIONS.map((s) => document.getElementById(s.id)).filter(
-      (el): el is HTMLElement => el != null,
-    );
-    if (!els.length) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActive(visible[0].target.id);
-      },
-      { rootMargin: "-30% 0px -55% 0px" },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, [enabled]);
-  return active;
-}
-
-function useScrolled(threshold = 4) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > threshold);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [threshold]);
-  return scrolled;
-}
-
-function greeting(iso: string) {
-  const hour = Number(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/New_York",
-      hour: "numeric",
-      hour12: false,
-    }).format(new Date(iso)),
-  );
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
-
-function SearchField() {
-  const [params, setParams] = useSearchParams();
-  const q = params.get("q") ?? "";
-  const set = (value: string) => {
-    const next = new URLSearchParams(params);
-    if (value) next.set("q", value);
-    else next.delete("q");
-    setParams(next, { replace: true });
-  };
-  return (
-    <div className="rx-search" role="search">
-      <IconSearch size={17} />
-      <input
-        type="search"
-        value={q}
-        onChange={(e) => set(e.target.value)}
-        placeholder="Search physicians, hospitals, consults…"
-        aria-label="Filter physicians and consults"
-      />
-      {q ? (
-        <button type="button" className="rx-search-clear" aria-label="Clear search" onClick={() => set("")}>
-          <IconX size={15} />
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-function ActivityPopover({
-  events,
-  unread,
-}: {
-  events: { id: string; at: string; text: string }[];
-  unread: number;
-}) {
-  const reduce = useReducedMotion();
-  const safe = useExitSafe();
-  return (
-    <motion.div
-      className="rx-popover"
-      role="dialog"
-      aria-label="Recent activity"
-      style={safe}
-      initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: -4 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: -4 }}
-      transition={{ duration: 0.18, ease: EASE }}
-    >
-      <div className="rx-popover-head">
-        Activity <span>{events.length} events</span>
-      </div>
-      <ul className="rx-popover-list">
-        {events.slice(0, 8).map((e, i) => (
-          <li key={e.id} className={i < unread ? "is-new" : ""}>
-            <i aria-hidden />
-            <span>{e.text}</span>
-            <time dateTime={e.at}>{clock(e.at)}</time>
-          </li>
-        ))}
-      </ul>
-    </motion.div>
-  );
-}
-
-function Notifications() {
-  const { events } = useDemo();
-  const reduce = useReducedMotion();
-  const [open, setOpen] = useState(false);
-  const [seen, setSeen] = useState(events.length);
-  const ref = useRef<HTMLDivElement>(null);
-  const unread = Math.max(0, events.length - seen);
-
-  useEffect(() => {
-    if (!open) return;
-    setSeen(events.length);
-    const onDown = (e: PointerEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("pointerdown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, events.length]);
-
-  return (
-    <div className="rx-popover-anchor" ref={ref}>
-      <button
-        type="button"
-        className="rx-icon-btn"
-        aria-label={unread ? `Activity, ${unread} new` : "Activity"}
-        aria-expanded={open}
-        aria-haspopup="dialog"
-        onClick={() => setOpen((o) => !o)}
-      >
-        <IconBell size={18} />
-        <AnimatePresence>
-          {unread ? (
-            <motion.span
-              className="rx-badge-dot"
-              initial={reduce ? false : { scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              transition={{ duration: 0.2, ease: EASE }}
-            >
-              {unread}
-            </motion.span>
-          ) : null}
-        </AnimatePresence>
-      </button>
-      <AnimatePresence>
-        {open ? (
-          <ActivityPopover key="activity" events={events} unread={unread} />
-        ) : null}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-export function AppShell() {
+import { OperationsProvider, useOperations } from "../../operations";
+import { brand } from "../../brand";
+import { Avatar, Pill } from "../ui";
+import { IconDesk, IconBolt, IconClock, IconArrowLeft } from "../Icons";
+import {
+  RecordedReplayProvider,
+  useRecordedReplay,
+} from "../../recordedReplay";
+function ConnectedShell() {
+  const { user, error, refresh, signOut, busy } = useOperations();
+  const { report, active: replayActive } = useRecordedReplay();
   const { theme } = useTheme();
-  const { dashboard, queue } = useDemo();
-  const location = useLocation();
-  const reduce = useReducedMotion();
-  const isLab = location.pathname.startsWith("/app/lab");
-  const scrolled = useScrolled();
-  const active = useActiveSection(!isLab);
-  const [navOpen, setNavOpen] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 260, damping: 34, mass: 0.3 });
-  usePressRipple();
-
-  useEffect(() => setNavOpen(false), [location.pathname]);
+  const isLab = useLocation().pathname.startsWith("/app/lab");
   useEffect(() => {
-    if (!navOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setNavOpen(false);
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [navOpen]);
-
-  const scrollTo = (id: string) => {
-    setNavOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  };
-
-
+    document.title = `${brand.name} — ${isLab ? brand.labLabel : user.role === "physician" ? "Your shift offers" : brand.deskLabel}`;
+  }, [isLab, user.role]);
+  const scenarioTime = report
+    ? new Date(report.as_of).toLocaleString("en-US", {
+        timeZone: "America/New_York",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : null;
   return (
     <div className="rx" data-theme={theme}>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-
-      <aside className={`rx-side${navOpen ? " is-open" : ""}`} aria-label="Sidebar">
+      <aside className="rx-side" aria-label="Workspace sidebar">
         <div className="rx-side-brand">
           <RelayMark size="nav" href="/" />
+          <span className="ops-brand-caption">Clinical operations</span>
         </div>
-
-        <div className="rx-operator">
-          <span className="rx-avatar h0" aria-hidden>
-            HO
-          </span>
-          <div>
-            <strong>Harbor operations</strong>
-            <span>Ops coordinator · synthetic demo</span>
-          </div>
-        </div>
-
         <nav className="rx-nav" aria-label="Primary">
-          <NavLink to="/app" end className={({ isActive }) => `rx-nav-item${isActive ? " is-active" : ""}`}>
-            {({ isActive }) => (
-              <>
-                {isActive ? (
-                  <motion.span
-                    layoutId={reduce ? undefined : "rx-nav-pill"}
-                    className="rx-nav-pill"
-                    transition={{ duration: 0.3, ease: EASE }}
-                  />
-                ) : null}
-                <IconDesk size={18} />
-                {brand.deskLabel}
-                {queue.length ? (
-                  <span className="rx-nav-count num" aria-label={`${queue.length} open risks`}>
-                    {queue.length}
-                  </span>
-                ) : null}
-              </>
-            )}
+          <NavLink
+            to="/app"
+            end
+            className={({ isActive }) =>
+              `rx-nav-item${isActive ? " is-active" : ""}`
+            }
+          >
+            <IconDesk size={20} />
+            <span>{brand.deskLabel}</span>
           </NavLink>
-          <AnimatePresence initial={false}>
-            {!isLab ? (
-              <motion.div
-                className="rx-nav-sub"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: EASE }}
-              >
-                {DESK_SECTIONS.filter((s) => s.id !== "queue" || queue.length > 1).map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={`rx-nav-subitem${active === s.id ? " is-current" : ""}`}
-                    aria-current={active === s.id ? "location" : undefined}
-                    onClick={() => scrollTo(s.id)}
-                  >
-                    <i aria-hidden />
-                    {s.label}
-                  </button>
-                ))}
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-          <NavLink to="/app/lab" className={({ isActive }) => `rx-nav-item${isActive ? " is-active" : ""}`}>
-            {({ isActive }) => (
-              <>
-                {isActive ? (
-                  <motion.span
-                    layoutId={reduce ? undefined : "rx-nav-pill"}
-                    className="rx-nav-pill"
-                    transition={{ duration: 0.3, ease: EASE }}
-                  />
-                ) : null}
-                <IconBolt size={18} />
-                {brand.labLabel}
-              </>
-            )}
-          </NavLink>
+          {user.role !== "physician" && (
+            <NavLink
+              to="/app/lab"
+              className={({ isActive }) =>
+                `rx-nav-item${isActive ? " is-active" : ""}`
+              }
+            >
+              <IconBolt size={20} />
+              <span>{brand.labLabel}</span>
+            </NavLink>
+          )}
         </nav>
-
+        {user.role !== "physician" && !isLab && (
+          <nav className="ops-section-nav" aria-label="Desk sections">
+            <span>IN THIS WORKSPACE</span>
+            <a href="#forecast">Coverage forecast</a>
+            <a href="#interventions">Staffing & eligibility</a>
+            <a href="#offers">Approval & offers</a>
+            <a href="#queue">Risk queue</a>
+            <a href="#people">Physicians & consults</a>
+          </nav>
+        )}
+        <div className="ops-side-note">
+          <span className="ops-status-dot" /> Backend updates
+          <p>
+            Recorded CSV events
+            <br />
+            Refreshes every 5 seconds
+          </p>
+        </div>
         <div className="rx-side-foot">
-          <div className="rx-theme-row">
-            {theme === "light" ? "Light mode" : "Dark mode"}
-            <ThemeToggle className="rx-icon-btn-sm" />
+          <div className="rx-operator">
+            <Avatar name={user.display_name} />
+            <div>
+              <strong>{user.display_name}</strong>
+              <span>{user.role.replaceAll("_", " ")}</span>
+            </div>
           </div>
-          <Link to="/" className="rx-nav-item">
-            <IconArrowLeft size={18} />
-            Back to site
-          </Link>
+          <div className="ops-account-actions">
+            <ThemeToggle />
+            <button
+              className="rx-btn rx-btn-secondary"
+              disabled={busy}
+              onClick={() => void signOut().catch(() => {})}
+            >
+              <IconArrowLeft size={16} />
+              Sign out
+            </button>
+          </div>
         </div>
       </aside>
-
-      <AnimatePresence>
-        {navOpen ? <Scrim key="nav-scrim" label="Close navigation" zIndex={65} onClose={() => setNavOpen(false)} /> : null}
-      </AnimatePresence>
-
       <div className="rx-main">
-        <header className={`rx-header${scrolled ? " is-scrolled" : ""}`}>
-          <button
-            type="button"
-            className="rx-icon-btn rx-menu-btn"
-            aria-label="Open navigation"
-            aria-expanded={navOpen}
-            onClick={() => setNavOpen(true)}
-          >
-            <IconMenu size={18} />
-          </button>
+        <header className="rx-header">
           <div className="rx-header-title">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={isLab ? "lab" : "desk"}
-                initial={reduce ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -6 }}
-                transition={{ duration: 0.2, ease: EASE }}
-              >
-                <h1>{isLab ? brand.labLabel : `${greeting(dashboard.as_of)}, Harbor ops`}</h1>
-              </motion.div>
-            </AnimatePresence>
+            <div className="ops-breadcrumb">
+              Workspace <span>/</span>{" "}
+              {isLab ? "Scenario lab" : "Coverage desk"}
+            </div>
+            <h1>
+              {isLab
+                ? "Scenario lab"
+                : user.role === "physician"
+                  ? "Your shift offers"
+                  : "Coverage desk"}
+            </h1>
+            <p>
+              {isLab
+                ? "Import recorded events. See what changes."
+                : "See coverage risk, review your options, and act."}
+            </p>
           </div>
-          <div className="rx-header-actions">
-            {!isLab ? <SearchField /> : null}
-            <Notifications />
-            <ThemeToggle />
+          <div className="ops-header-actions">
+            {scenarioTime && (
+              <span className="ops-scenario-time">
+                <IconClock size={16} />
+                <span>
+                  {scenarioTime} ET<small>Scenario time</small>
+                </span>
+              </span>
+            )}
+            <Pill tone="accent">
+              {replayActive ? "Recorded replay" : "Recorded data"}
+            </Pill>
+            <button
+              className="rx-btn rx-btn-secondary"
+              disabled={busy || replayActive}
+              onClick={() => void refresh().catch(() => {})}
+            >
+              Refresh data
+            </button>
           </div>
-          {scrolled ? <motion.div className="rx-scroll-progress" style={{ scaleX: progress }} aria-hidden /> : null}
         </header>
-
-        <motion.main
-          id="main"
-          key={location.pathname}
-          initial={reduce ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: EASE }}
-        >
+        <main id="main">
+          {error && (
+            <p className="real-error" role="alert">
+              {error}
+            </p>
+          )}
           <Outlet />
-        </motion.main>
-        <ConfirmationToast />
+        </main>
       </div>
     </div>
+  );
+}
+export function AppShell() {
+  return (
+    <OperationsProvider>
+      <RecordedReplayProvider>
+        <ConnectedShell />
+      </RecordedReplayProvider>
+    </OperationsProvider>
   );
 }

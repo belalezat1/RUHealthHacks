@@ -7,7 +7,7 @@ export const brand = {
   cycle: ["Detect.", "Decide.", "Act."] as const,
   pill: "Sevaro Challenge 2 · Rutgers Health Hack 2026",
   disclaimer:
-    "Synthetic demo data. No patient information. Human approval before every offer.",
+    "Official challenge records. Forecasts are modeled. Human approval before every offer.",
   heroVideo: "/hero/relay-hero.mp4",
   /**
    * Hero visual when no hero video is present: "product" (theme-aware desk

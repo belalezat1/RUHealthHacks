@@ -1,19 +1,22 @@
 # A clear two-minute demo
 
-Use the provisioned accounts for the coordinator, clinical lead, and the selected physician. Separate browser windows avoid repeated sign-in. No shared/default password is supplied by the app.
+Use provisioned coordinator, clinical-lead, and physician accounts. Separate browser windows avoid repeated sign-in. There is no shared/default password.
 
-1. **Coordinator · Coverage desk:** explain that supplied events reveal clinical alerts and forecast staffing gaps over the next 90 minutes. Point to the hospital needing backup. A doctor-minute is one doctor missing for one minute; it is not a patient wait metric.
-2. **Coordinator · Choose eligible backup:** click **Review recommendation**. Show the selected doctor by name and expand their credentials, rest, weekly-hour and overlap checks. Jev only selects among actions that passed the server's rules. Click **Propose selected offer**.
-3. **Clinical lead · Offers:** review the proposed shift and click **Approve offer**. The coordinator cannot approve their own proposal.
-4. **Coordinator · Offers:** click **Send simulated offer**. No real text or email is delivered. The physician has ten scenario minutes to respond.
-5. **Named physician · Your shift offers:** click **Accept offer** or **Decline offer**. Return to the coordinator view to show the persisted result and audit history.
+## Watch recorded data change the physician pick
 
-Acceptance reserves planned coverage; it does not prove the doctor is online or that a patient outcome improved. Only imported participation evidence confirms online capacity. For ingestion, use **Data & ActionLab**, validate and import the supplied eight-column CSV, then show the readable accepted/duplicate/error counts. Re-uploading existing rows correctly adds no new events.
+1. Open **Scenario lab**, choose the supplied `c2_new_events.csv`, click **Validate CSV**, then **Import validated CSV**. Show eight imported events, one skipped duplicate, and zero errors.
+2. Return to **Coverage desk**. In **Play imported data**, select **Oak Valley Medical** as the routing hospital and press **Play**.
+3. Watch the scenario clock and progress. **Next consult physician** becomes **Dr. Noah Williams** at 18:26:01 ET, then returns to **No eligible physician** when his recorded hospital call starts at 18:26:57. Expand the routing evidence to show credentials, availability, cooldown, workload, and tie-break rules.
+4. **Backup staffing physician** is a separate recommendation for the modeled coverage gap. It can remain **Dr. Grace Okafor**. The card labels Jev, deterministic fallback, or escalation and shows the provider reason and latency.
+5. Use **Pause** and **Next** to explain a single point, **Restart** to revisit the beginning, and **Return to current state** before taking an operational action.
 
-The guide highlights the next stage using actual server state. It never performs an approval, send, or physician response automatically. No synthetic financial values or clinical events are added.
+Playback uses the most recent CSV, deduplicates its event IDs, and advances at unique ingestion timestamps. The camera event occurred earlier but arrives at 18:25:40; it cannot influence decisions before arrival. Official and previously imported records supply historical context. No synthetic records are added, no assignments are made, and manual offer commitments are excluded from this preview. Operational time, revision, offers and audit history remain unchanged. Selections need not change at every point. Older receipts with incomplete membership require reimporting the same CSV; this does not duplicate events.
 
-## Event injection panel
+## Review and approve a staffing offer
 
-Open **Data & ActionLab** and load the supplied file or paste its CSV. **Replay file** selects every row; **Availability outage**, **Consult arrivals**, and **Late signal** select matching existing rows. Hospital scope further limits the selection; network-wide signals are included only with all hospitals selected. The selected-row count explains empty filters.
+1. **Coordinator · Coverage desk:** exit playback, examine coverage and eligibility, then click **Review decision**. Show the actual Jev/fallback source and the physician's rule evidence. Click **Propose offer for approval**.
+2. **Clinical lead · Approval & offer tracking:** review the proposed shift and click **Approve offer**. The coordinator cannot approve it.
+3. **Coordinator:** click **Send approved offer**. Sending is simulated; no real text or email is delivered. The physician has ten scenario minutes to respond.
+4. **Named physician · Your shift offers:** click **Accept offer** or **Decline offer**, then show the persisted result and audit history.
 
-Click **Validate CSV**, then **Inject supplied events**. The server retains its own deduplication, clock and risk calculations. Existing records report duplicates; unseen supplied records update the same run. Click **Review coverage and alerts** to return to the desk. Presets do not create event IDs, timestamps, priority scores, or uncovered-minute estimates.
+Acceptance reserves planned coverage; it does not prove online presence or improved patient outcomes. Imported participation evidence confirms presence under the challenge rules. Forecast physician-minutes measure modeled coverage gaps, not patient waiting time. Financial results are unavailable because verified financial inputs were not supplied.

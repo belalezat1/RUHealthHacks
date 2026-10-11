@@ -77,7 +77,7 @@ export function GetStarted() {
               </span>
               <span>
                 <strong>{brand.labLabel}</strong>
-                <small>Inject edge cases, audit decisions</small>
+                <small>Import official CSV records and audit decisions</small>
               </span>
             </Link>
           </motion.div>
