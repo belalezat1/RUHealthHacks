@@ -1,0 +1,20 @@
+# Runtime dependencies (pinned). Python 3.12 in the container; also tested locally on 3.14.
+fastapi==0.143.0
+starlette==1.7.0
+pydantic==2.14.0
+pydantic_core==2.50.0
+uvicorn==0.54.0
+h11==0.16.0
+anyio==4.15.1
+idna==3.20
+click==8.5.0
+annotated-types==0.8.0
+annotated-doc==0.0.5
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+tzdata==2026.5
+httpx==0.28.1
+psycopg[binary]==3.3.2
+SQLAlchemy==2.0.43
+alembic==1.16.5
+python-dotenv==1.1.1

@@ -1,0 +1,18 @@
+.env
+.env.*
+!.env.example
+
+# Integrated application local artifacts
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+node_modules/
+dist/
+*.tsbuildinfo
+state/
+playwright-report/
+test-results/
+*.sqlite3*
+.local/

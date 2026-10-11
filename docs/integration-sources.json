@@ -1,0 +1,273 @@
+{
+  "starting_branch": "belal",
+  "starting_head": "fb87fbd88080262f92963352d7f3f2889d2982ec",
+  "source_refs": {
+    "HEAD": "fb87fbd88080262f92963352d7f3f2889d2982ec",
+    "origin/main": "fb87fbd88080262f92963352d7f3f2889d2982ec",
+    "origin/yassin": "29f0b6042f6ac86553c3d45edea22bb3926ff713",
+    "origin/ray": "ae6bdff862a57507b73d0a73e4d1a21112369fc6",
+    "origin/frontend": "8806f782a602521e601b7ddc4196887f378027c3",
+    "origin/backend": "daf4dbc773faee66add34ddbf3267f42db839e38",
+    "origin/henry": "558cbc7915b9771629e17d4e7731058de5ce113a"
+  },
+  "backup_ref": "backup/belal-pre-integration-20261011-fb87fbd",
+  "untracked_before": "?? .agents/\n?? .env.example\n?? .gitignore\n?? AGENTS.md\n?? output/\n?? skills-lock.json\n",
+  "imported": [
+    {
+      "source": "origin/yassin",
+      "path": "backend/Dockerfile"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/__init__.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/api/__init__.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/api/auth.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/api/config.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/api/main.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/api/service.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/api/store.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/__init__.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/coverage.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/data.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/events.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/replay.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/report.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/risks.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/routing.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/staffing.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/core/verify.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/requirements-dev.txt"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/requirements.txt"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/tests/test_api.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "backend/tests/test_engine.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/MANIFEST.sha256"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/baseline_hourly_volume.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/coverage_requirements.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/credentialing_matrix.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/event_stream.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/hospitals.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/physicians_off_shift_roster.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/physicians_on_shift.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/snapshot_open_consults_1820.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "data/original/snapshot_physicians_1820.csv"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "scripts/backup.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "scripts/bench.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "scripts/restore_check.py"
+    },
+    {
+      "source": "origin/yassin",
+      "path": "scripts/source_manifest.py"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/index.html"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/package-lock.json"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/package.json"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/anakin.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/aws.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/cigna.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/green-ring.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/jnj.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/microsoft.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/rutgers-r.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/partners/tech-sponsors.png"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/rutgers-health-hack-dark.svg"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/rutgers-health-hack.svg"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/rutgers-mono.svg"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/sevaro-light.svg"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/sevaro-mono.svg"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/brand/sevaro.svg"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/hero/.gitkeep"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/public/hero/README.md"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/src/brand.ts"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/src/components/Icons.tsx"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/src/components/RelayMark.tsx"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/src/lib/ripple.ts"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/src/styles.css"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/tsconfig.app.json"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/tsconfig.json"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/tsconfig.node.json"
+    },
+    {
+      "source": "origin/frontend",
+      "path": "frontend/vite.config.ts"
+    }
+  ]
+}
