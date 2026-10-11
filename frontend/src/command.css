@@ -71,3 +71,13 @@ input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; back
 @media (max-width: 700px) { .demo-steps { grid-template-columns: 1fr; } .demo-next { align-items: flex-start; flex-direction: column; } .demo-guide .section-title { align-items: flex-start; flex-wrap: wrap; } }
 
 .command-shell .btn-primary { background: #08735a; color: #fff; }
+
+.injection-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+.injection-preset { padding: 14px; text-align: left; border: 1px solid var(--line, #dce4ed); border-radius: 10px; background: var(--surface); color: var(--text); cursor: pointer; }
+.injection-preset strong { display: block; font-size: 14px; }
+.injection-preset small { line-height: 1.5; }
+.injection-preset.is-selected { border-color: var(--accent); background: var(--accent-dim); }
+.injection-preset:disabled { opacity: .55; cursor: default; }
+.command-content textarea, .command-content select { display: block; width: 100%; max-width: 100%; min-width: 0; margin-top: 8px; padding: 12px; border: 1px solid var(--line, #dce4ed); border-radius: 8px; background: var(--surface); color: var(--text); }
+.command-content textarea { font-family: var(--font-mono, monospace); font-size: 12px; }
+@media (max-width: 700px) { .injection-presets { grid-template-columns: 1fr; } }

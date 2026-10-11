@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, describeError, get, login, logout, mutate, rememberState, setCsrf, validateCsv } from "./api";
 import { RelayMark } from "./components/RelayMark";
+import { selectSuppliedEvents, suppliedRowCount, type EventPreset } from "./suppliedEvents";
 import type { ActionLab, Candidate, Decision, Envelope, ImportSummary, LiveState, Offer, PhysicianOffer, Report, Risk, User } from "./types";
 
 const time = (value: string | null | undefined) => value ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(value)) : "—";
@@ -168,7 +169,7 @@ export default function App() {
               <h3>Lead escalations</h3>{report.actions.filter(a => a.kind === "escalation").map(a => <article className="history-row" key={a.action_id}><strong>{a.risk_id} · {a.status}</strong><p>{a.note || "Coordinator requested clinical-lead review."}</p>{a.status === "open" && user.role === "clinical_lead" && <button className="btn btn-sm" disabled={busy || stale} onClick={() => void act(() => mutate(`/api/v1/actions/${a.action_id}/acknowledge`, { decision: "Reviewed by clinical lead; external clinical actions require the existing care workflow." }), "Lead review recorded.")}>Acknowledge escalation</button>}</article>)}
               <h3>Accepted gap reservations</h3>{report.gaps.map(g => <p key={g.gap_id}>{g.hospitals.join(", ")} · {g.claims.length}/{g.slots} slots reserved · {g.status}</p>)}
             </section>}
-            {tab === "data" && <DataLab report={report} busy={busy || stale} act={act} lab={lab} setLab={setLab} />}
+            {tab === "data" && <DataLab report={report} busy={busy || stale} act={act} lab={lab} setLab={setLab} onDesk={() => setTab("desk")} />}
             {tab === "audit" && <section className="panel"><div className="section-title"><h2>Persistent action history</h2><a className="btn btn-sm" href="/api/v1/audit.csv">Export audit CSV</a></div>
               {report.audit_tail.map(a => <article className="history-row" key={a.seq}><strong>{readable(a.kind)}</strong><p>{a.actor} · {readable(a.role)} · {time(a.scenario_time)} ET</p><details><summary>Evidence · revision {a.revision}</summary><pre>{JSON.stringify(a.detail, null, 2)}</pre></details></article>)}
               <h3>Source evidence and limitations</h3><p>{report.evidence.finance.note}</p><ul>{report.assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul>
@@ -250,19 +251,32 @@ function OfferCard({ offer: o, user, busy, act }: { offer: Offer; user: User; bu
   </article>;
 }
 
-function DataLab({ report, busy, act, lab, setLab }: { report: Report; busy: boolean; act: ActionRunner; lab: ActionLab | null; setLab: (value: ActionLab) => void }) {
+function DataLab({ report, busy, act, lab, setLab, onDesk }: { report: Report; busy: boolean; act: ActionRunner; lab: ActionLab | null; setLab: (value: ActionLab) => void; onDesk: () => void }) {
   const [csv, setCsv] = useState("");
+  const [sourceCsv, setSourceCsv] = useState("");
+  const [preset, setPreset] = useState<EventPreset>("all");
+  const [hospital, setHospital] = useState("");
   const [filename, setFilename] = useState("judge.csv");
   const [validation, setValidation] = useState<ImportSummary | null>(null);
-  return <div className="command-grid"><section className="panel"><h2>Live judge CSV import</h2><p>Add the supplied eight-column event CSV to this run. State and scenario time update without a restart.</p>
-    <label>Event CSV<input type="file" accept=".csv,text/csv" disabled={busy} onChange={async e => { const file = e.target.files?.[0]; if (file) { setCsv(await file.text()); setFilename(file.name); setValidation(null); } }} /></label>
-    {csv && <p>{filename} · {csv.split(/\r?\n/).filter(Boolean).length - 1} data rows</p>}
+  const [injected, setInjected] = useState(false);
+  const select = (kind: EventPreset, scope: string) => { setPreset(kind); setHospital(scope); setCsv(selectSuppliedEvents(sourceCsv, kind, scope)); setValidation(null); setInjected(false); };
+  const load = (text: string) => { setSourceCsv(text); setCsv(text); setPreset("all"); setHospital(""); setValidation(null); setInjected(false); };
+  return <div className="command-grid"><section className="panel"><h2>Inject supplied events</h2><p>1. Load the judge’s event file. 2. Choose records to replay. 3. Validate, then inject. The backend recalculates alerts and coverage without a restart.</p>
+    <label>Event CSV<input type="file" accept=".csv,text/csv" disabled={busy} onChange={async e => { const file = e.target.files?.[0]; if (file) { load(await file.text()); setFilename(file.name); } }} /></label>
+    <details><summary>Or paste the supplied event CSV</summary><label>Supplied CSV text<textarea rows={6} value={sourceCsv} disabled={busy} onChange={e => { load(e.target.value); setFilename("pasted-supplied-events.csv"); }} placeholder="Paste the eight-column header and supplied event rows" /></label></details>
+    <div className="injection-presets" role="group" aria-label="Event injection presets">
+      {([{ kind: "all", title: "Replay file", detail: "All supplied rows · safe duplicate handling" }, { kind: "outage", title: "Availability outage", detail: "Recorded offline or unavailable signals" }, { kind: "arrivals", title: "Consult arrivals", detail: "Recorded receipts · demand is computed" }, { kind: "late", title: "Late signal", detail: "Recorded signals received after event time" }] as const).map(p => <button type="button" className={`injection-preset ${preset === p.kind ? "is-selected" : ""}`} key={p.kind} disabled={busy || !sourceCsv} aria-pressed={preset === p.kind} onClick={() => select(p.kind, hospital)}><strong>{p.title}</strong><small>{p.detail}</small></button>)}
+    </div>
+    <label>Hospital scope<select value={hospital} disabled={busy || !sourceCsv} onChange={e => select(preset, e.target.value)}><option value="">All hospitals and network-wide signals</option>{report.coverage.hospitals.map(h => <option key={h.hospital_id} value={h.hospital_id}>{h.hospital_name}</option>)}</select></label>
+    {sourceCsv && <p role="status">{filename} · {suppliedRowCount(csv)} of {suppliedRowCount(sourceCsv)} supplied rows selected{!csv ? " · no matching records; choose another preset or hospital" : ""}.</p>}
+    <p className="muted">Presets preserve the file’s IDs, timestamps and descriptions. Priority and coverage gaps are calculated by the server. Replaying existing IDs adds no new events.</p>
     <div className="action-row"><button className="btn" disabled={busy || !csv} onClick={() => void act(async () => { const result = await validateCsv(csv); setValidation(result.data); }, "Validation complete; no records were imported.")}>Validate CSV</button>
-      <button className="btn btn-primary" disabled={busy || !csv} onClick={() => void act(async () => { const result = await mutate<ImportSummary>(`/api/v1/events/import?filename=${encodeURIComponent(filename)}&advance_clock=true`, undefined, { csv }); setValidation(result.result); }, "CSV imported. The same run is updated; scenario time follows supplied ingestion timestamps.")}>Import CSV</button></div>
+      <button className="btn btn-primary" disabled={busy || !csv} onClick={() => void act(async () => { const result = await mutate<ImportSummary>(`/api/v1/events/import?filename=${encodeURIComponent(filename)}&advance_clock=true`, undefined, { csv }); setValidation(result.result); setInjected(true); }, "Supplied events injected. Alerts and coverage refreshed from server evidence.")}>Inject supplied events</button></div>
     {validation && <div aria-label="Import summary"><p><strong>{validation.ok === false || (validation.error_count ?? 0) > 0 ? "CSV needs corrections" : "CSV check complete"}</strong></p><p>{validation.accepted ?? 0} accepted rows · {validation.duplicates ?? 0} duplicates skipped · {validation.error_count ?? validation.errors?.length ?? 0} errors.</p>
       {validation.clock_advanced_to && <p>Scenario time updated to {time(validation.clock_advanced_to)} ET.</p>}
       {validation.errors?.slice(0, 5).map((e, i) => <p key={i}>Row {e.row}: {e.error}</p>)}
       <details><summary>Technical import details</summary><pre>{JSON.stringify(validation, null, 2)}</pre></details></div>}
+    {injected && <button className="btn btn-primary" onClick={onDesk}>Review coverage and alerts</button>}
     <h3>Scenario replay clock</h3><p>Advancing time expires offers and recalculates elapsed limits; it creates no operational events.</p><button className="btn" disabled={busy} onClick={() => void act(() => mutate("/api/v1/clock", { minutes: 5 }), "Scenario clock advanced by five minutes.")}>Advance 5 minutes</button>
     <h3>Imported batches</h3>{report.imports.map(i => <p key={i.import_id}>{i.filename} · {i.summary.accepted} accepted · {i.summary.duplicates} duplicates</p>)}
   </section><section className="panel"><h2>ActionLab · recorded replay</h2><p>Compare recommendations from the same recorded state. Observed outcomes are shared evidence; future clinical events and policy-specific outcome improvements are not generated.</p>

@@ -11,3 +11,9 @@ Use the provisioned accounts for the coordinator, clinical lead, and the selecte
 Acceptance reserves planned coverage; it does not prove the doctor is online or that a patient outcome improved. Only imported participation evidence confirms online capacity. For ingestion, use **Data & ActionLab**, validate and import the supplied eight-column CSV, then show the readable accepted/duplicate/error counts. Re-uploading existing rows correctly adds no new events.
 
 The guide highlights the next stage using actual server state. It never performs an approval, send, or physician response automatically. No synthetic financial values or clinical events are added.
+
+## Event injection panel
+
+Open **Data & ActionLab** and load the supplied file or paste its CSV. **Replay file** selects every row; **Availability outage**, **Consult arrivals**, and **Late signal** select matching existing rows. Hospital scope further limits the selection; network-wide signals are included only with all hospitals selected. The selected-row count explains empty filters.
+
+Click **Validate CSV**, then **Inject supplied events**. The server retains its own deduplication, clock and risk calculations. Existing records report duplicates; unseen supplied records update the same run. Click **Review coverage and alerts** to return to the desk. Presets do not create event IDs, timestamps, priority scores, or uncovered-minute estimates.

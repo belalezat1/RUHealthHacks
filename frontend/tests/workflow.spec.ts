@@ -64,8 +64,16 @@ test("official data, role approval, physician response, reload and CSV replay", 
   // Re-upload authentic organizer records to prove live, idempotent ingestion.
   // Distinct judge-like late records are tested in isolated backend regressions.
   await coordinator.getByLabel("Event CSV", { exact: true }).setInputFiles(resolve("../data/original/event_stream.csv"));
+  await coordinator.getByRole("button", { name: "Availability outage", exact: false }).click();
+  const validated = coordinator.waitForResponse(r => r.url().includes("/events/validate") && r.request().method() === "POST");
+  await coordinator.getByRole("button", { name: "Validate CSV", exact: true }).click();
+  const outage = (await (await validated).json()).data;
+  expect(outage.ok).toBe(true);
+  expect(outage.duplicates).toBeGreaterThan(0);
+  expect(outage.accepted).toBe(0);
+  await coordinator.getByRole("button", { name: "Replay file", exact: false }).click();
   const imported = coordinator.waitForResponse(r => r.url().includes("/events/import") && r.request().method() === "POST");
-  await coordinator.getByRole("button", { name: "Import CSV", exact: true }).click();
+  await coordinator.getByRole("button", { name: "Inject supplied events", exact: true }).click();
   const result = (await (await imported).json()).result;
   expect(result.accepted).toBe(0); expect(result.duplicates).toBeGreaterThan(1000);
   await coordinator.getByRole("button", { name: "Compare recorded policies", exact: true }).click();
@@ -75,6 +83,7 @@ test("official data, role approval, physician response, reload and CSV replay", 
   expect(await coordinator.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await coordinator.screenshot({ path: "../docs/evidence/integrated-mobile.png", fullPage: true });
   await coordinator.setViewportSize({ width: 1440, height: 1000 });
+  await coordinator.evaluate(() => window.scrollTo(0, 0));
   await coordinator.getByRole("button", { name: "Coverage desk", exact: true }).click();
   await coordinator.screenshot({ path: "../docs/evidence/integrated-desk.png", fullPage: true });
   for (const context of contexts) await context.close();
@@ -104,7 +113,7 @@ test("new supplied CSV rows advance the scenario without a restart", async ({ pa
   await page.getByRole("button", { name: "Data & ActionLab", exact: true }).click();
   await page.getByLabel("Event CSV", { exact: true }).setInputFiles(resolve("../data/original/event_stream.csv"));
   const imported = page.waitForResponse(r => r.url().includes("/events/import") && r.request().method() === "POST");
-  await page.getByRole("button", { name: "Import CSV", exact: true }).click();
+  await page.getByRole("button", { name: "Inject supplied events", exact: true }).click();
   const response = await (await imported).json();
   expect(response.result.accepted).toBe(withheld);
   expect(response.run_id).toBe(start.run_id);
