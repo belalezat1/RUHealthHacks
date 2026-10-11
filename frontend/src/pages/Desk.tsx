@@ -1,12 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ConsultBoard } from "../components/ConsultBoard";
 import { CoverageHorizon } from "../components/CoverageHorizon";
 import { EligibilityMatrix } from "../components/EligibilityMatrix";
 import { NetworkVisual } from "../components/NetworkVisual";
 import { OfferLoop } from "../components/OfferLoop";
-import { IconPin } from "../components/Icons";
+import { IconAlert, IconClock } from "../components/Icons";
 import { useDemo } from "../demo/store";
-import { hospitalName, severityTone } from "../lib/format";
+import {
+  clock,
+  clockDate,
+  hospitalName,
+  minutesUntil,
+  severityTone,
+} from "../lib/format";
 
 export default function Desk() {
   const demo = useDemo();
@@ -14,9 +21,6 @@ export default function Desk() {
     demo;
   const topRisk = dashboard.forecast.risks[0];
   const filled = offerStep === "filled";
-  const [focusHospital, setFocusHospital] = useState(
-    topRisk?.hospital_id ?? dashboard.hospitals[0]?.id,
-  );
 
   useEffect(() => {
     if (sessionStorage.getItem("sevaro-open-decide") === "1") {
@@ -27,244 +31,176 @@ export default function Desk() {
 
   const waiting = dashboard.consultations.filter((c) => c.status === "waiting").length;
   const onCall = dashboard.physicians.filter((p) => p.availability.on_shift).length;
-  const strokeish = dashboard.consultations.filter(
-    (c) => c.priority === "urgent",
+  const urgent = dashboard.consultations.filter(
+    (c) => c.priority === "urgent" || c.priority === "stroke",
+  ).length;
+  const synapseLive = dashboard.consultations.filter(
+    (c) => c.status === "in_progress" || c.status === "waiting",
   ).length;
 
+  const gapMins = topRisk?.start_at
+    ? Math.max(1, Math.min(90, minutesUntil(String(topRisk.start_at), dashboard.as_of)))
+    : null;
+
   return (
-    <>
-      <aside className="rd-mission" aria-label="Mission panel">
-        <div className="location-chip">
-          <span style={{ color: "var(--signal)" }}>
-            <IconPin />
-          </span>
-          <div>
-            <div style={{ fontSize: 12, color: "var(--ink-muted)", fontWeight: 500 }}>
-              Network focus
-            </div>
-            {hospitalName(String(focusHospital), dashboard.hospitals)}
-          </div>
-          <span className="dot-live" aria-label="Live" />
-        </div>
-
-        <div className="card-soft">
-          <div style={{ fontWeight: 700, marginBottom: 10 }}>Intervention in work</div>
-          <div style={{ fontSize: 12, color: "var(--ink-muted)", marginBottom: 10 }}>
-            {recommendation.id} · {recommendation.status}
-          </div>
-          <button
-            type="button"
-            className="asset-card selected"
-            onClick={openDecide}
-          >
-            <div className="asset-avatar">MV</div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 13 }}>Dr. Morgan Vale</div>
-              <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>
-                Split-shift · gap hospitals only
-              </div>
-            </div>
-            <span className="pill pill-signal">Select</span>
-          </button>
-          <div style={{ height: 8 }} />
-          <button
-            type="button"
-            className="asset-card"
-            onClick={openDecide}
-          >
-            <div className="asset-avatar">PC</div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 13 }}>Dr. Priya Chen</div>
-              <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>
-                Alternative · longer online time
-              </div>
-            </div>
-          </button>
-        </div>
-
-        <div className="card-soft">
-          <div style={{ fontWeight: 700, marginBottom: 8 }}>Physicians</div>
-          {dashboard.physicians.slice(0, 5).map((p) => (
-            <div className="rail-row" key={p.id}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                <strong style={{ fontSize: 13 }}>{p.name}</strong>
-                <span className="pill pill-muted">{p.availability.status}</span>
-              </div>
-              <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>
-                {p.availability.on_shift ? "On shift" : "Off shift"}
-                {p.availability.conflicts?.length ? " · signal conflict" : ""}
-                {p.availability.stale ? " · unverified" : ""}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <button type="button" className="btn btn-primary" onClick={openDecide}>
-          Review intervention
-        </button>
-      </aside>
-
-      <section className="rd-stage">
-        {filled ? (
-          <motion.div
-            className="success-banner"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            role="status"
-          >
-            <strong>Coverage restored at Riverfront</strong>
-            <p style={{ margin: "8px 0 0", color: "var(--ink-muted)" }}>
-              Gap filled — offers stopped. Projected capacity meets the minimum for
-              the next 90 minutes.
+    <div className="desk">
+      {filled ? (
+        <motion.div
+          className="success-banner"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          role="status"
+        >
+          <strong>Coverage restored at Riverfront</strong>
+          <p style={{ margin: "8px 0 0", color: "var(--text-soft)" }}>
+            Gap filled. Offers stopped. Projected capacity meets the minimum for
+            the next 90 minutes.
+          </p>
+        </motion.div>
+      ) : (
+        <section className="insight insight-solo" aria-labelledby="insight-title">
+          <div className="insight-copy">
+            <p className="insight-kicker">NEEDS ATTENTION</p>
+            <h1 id="insight-title">
+              {topRisk && gapMins != null
+                ? `Coverage gap in ${gapMins} min at ${hospitalName(topRisk.hospital_id, dashboard.hospitals)}`
+                : "Network stable for the next 90 minutes"}
+            </h1>
+            <p>{topRisk?.reason ?? "No ranked coverage risks in the forecast horizon."}</p>
+            <p className="insight-next">
+              Next: review eligibility, then approve a split-shift offer.
             </p>
-          </motion.div>
-        ) : (
-          <section className="insight-banner" aria-labelledby="insight-title">
+            <span className="neuro-badge">Tele-neurology · stroke-priority</span>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => openDecide()}
+          >
+            Review intervention
+          </button>
+        </section>
+      )}
+
+      <div className="stat-strip" aria-label="Live stats">
+        <div className="stat-tile">
+          <div className="n tabular">{onCall}</div>
+          <div className="l">Neurologists on call</div>
+        </div>
+        <div className="stat-tile">
+          <div className="n tabular">{waiting}</div>
+          <div className="l">Consults waiting</div>
+        </div>
+        <div className="stat-tile stat-tile-accent">
+          <div className="n tabular">{urgent}</div>
+          <div className="l">Stroke-priority</div>
+        </div>
+        <div className="stat-tile">
+          <div className="n tabular">{synapseLive}</div>
+          <div className="l">Synapse pathways</div>
+        </div>
+      </div>
+
+      <section className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>Next 90 minutes</h2>
+            <p>Credentialed neurology capacity vs consult demand · 15-minute slots</p>
+          </div>
+        </div>
+        <CoverageHorizon forecast={dashboard.forecast} />
+      </section>
+
+      <div className="desk-grid">
+        <section className="panel">
+          <div className="panel-head">
             <div>
-              <p className="insight-kicker">NEEDS ATTENTION</p>
-              <h1 id="insight-title">
-                {topRisk
-                  ? `Coverage gap in ${Math.max(
-                      1,
-                      Math.round(
-                        (new Date(String(topRisk.start_at)).getTime() -
-                          new Date(dashboard.as_of).getTime()) /
-                          60000,
-                      ),
-                    )} min at ${hospitalName(topRisk.hospital_id, dashboard.hospitals)}`
-                  : "Network stable for the next 90 minutes"}
-              </h1>
-              <p style={{ margin: 0, color: "var(--ink-muted)", maxWidth: "54ch" }}>
-                {topRisk?.reason ??
-                  "No ranked coverage risks in the forecast horizon."}
-              </p>
+              <h2>Consult board</h2>
+              <p>Stroke vs routine · wait time · Synapse session</p>
             </div>
-            <button type="button" className="btn btn-signal" onClick={openDecide}>
-              Review intervention
-            </button>
-          </section>
-        )}
+          </div>
+          <ConsultBoard
+            consultations={dashboard.consultations}
+            hospitals={dashboard.hospitals}
+            asOf={dashboard.as_of}
+          />
+        </section>
 
-        <div className="stat-strip" aria-label="Today and live stats">
-          <div className="stat-tile">
-            <div className="n tabular">{onCall}</div>
-            <div className="l">Providers on call</div>
-          </div>
-          <div className="stat-tile">
-            <div className="n tabular">{waiting}</div>
-            <div className="l">Consults waiting</div>
-          </div>
-          <div className="stat-tile">
-            <div className="n tabular">{strokeish}</div>
-            <div className="l">Urgent / stroke-priority</div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 12,
-              gap: 12,
-            }}
-          >
+        <section className="panel">
+          <div className="panel-head">
             <div>
-              <strong>Time-to-coverage proxies</strong>
-              <div style={{ color: "var(--ink-muted)", fontSize: 13 }}>
-                Honest rings from current horizon pressure — not marketing TSP theater
-              </div>
+              <h2>Ranked risks</h2>
+              <p>Plain-language coverage reasons</p>
             </div>
-          </div>
-          <div className="rings">
-            <div
-              className="ring"
-              style={{ ["--p" as string]: "50%", ["--ring-color" as string]: "#e11d48" }}
-            >
-              <span className="tabular">50%</span>
-            </div>
-            <div
-              className="ring"
-              style={{ ["--p" as string]: "70%", ["--ring-color" as string]: "#6366f1" }}
-            >
-              <span className="tabular">70%</span>
-            </div>
-            <div
-              className="ring"
-              style={{ ["--p" as string]: "82%", ["--ring-color" as string]: "#2f9e8f" }}
-            >
-              <span className="tabular">82%</span>
-            </div>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3,1fr)",
-              gap: 8,
-              marginTop: 8,
-              fontSize: 11,
-              color: "var(--ink-muted)",
-              textAlign: "center",
-            }}
-          >
-            <div>&lt; 20 min pressure</div>
-            <div>&lt; 40 min pressure</div>
-            <div>&lt; 60 min covered</div>
-          </div>
-        </div>
-
-        <NetworkVisual filled={filled} schematic />
-
-        <div className="card">
-          <div style={{ marginBottom: 12 }}>
-            <strong>Next 90 minutes</strong>
-            <div style={{ color: "var(--ink-muted)", fontSize: 13 }}>
-              Required vs available credentialed capacity · 15-minute slots
-            </div>
-          </div>
-          <CoverageHorizon forecast={dashboard.forecast} />
-        </div>
-
-        <div className="card">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 8,
-            }}
-          >
-            <strong>Ranked risks</strong>
             <span className="pill pill-caution">
               {dashboard.forecast.risks.length} active
             </span>
           </div>
           {dashboard.forecast.risks.map((risk) => (
-            <button
-              type="button"
+            <div
               className="risk-row"
               key={risk.id ?? risk.hospital_id + String(risk.reason)}
-              onClick={() => setFocusHospital(risk.hospital_id)}
-              style={{
-                width: "100%",
-                background: "transparent",
-                border: 0,
-                textAlign: "left",
-                cursor: "pointer",
-              }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                <strong>{hospitalName(risk.hospital_id, dashboard.hospitals)}</strong>
+                <strong>
+                  {hospitalName(risk.hospital_id, dashboard.hospitals)}
+                </strong>
                 <span className={`pill pill-${severityTone(risk.severity)}`}>
-                  {risk.severity}
+                  <IconAlert size={12} /> {risk.severity}
                 </span>
               </div>
-              <div style={{ color: "var(--ink-muted)", fontSize: 13 }}>
+              <div className="risk-when">
+                <IconClock size={12} />
+                <span className="tabular">{clock(risk.start_at)}</span>
+                <span>·</span>
+                <span>{clockDate(risk.start_at)}</span>
+              </div>
+              <div className="risk-copy">
                 {risk.reason ?? risk.explanation}
               </div>
-            </button>
+            </div>
           ))}
-        </div>
-      </section>
+        </section>
+      </div>
+
+      <div className="desk-grid">
+        <section className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>Physicians</h2>
+              <p>Neurology specialty · shift state · Synapse readiness</p>
+            </div>
+          </div>
+          {dashboard.physicians.slice(0, 6).map((p) => (
+            <div className="rail-row" key={p.id}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <strong>{p.name}</strong>
+                <span className="pill pill-muted">{p.availability.status}</span>
+              </div>
+              <div className="rail-specialty">
+                {(p.specialties ?? ["neurology"]).join(", ")}
+              </div>
+              <div className="rail-meta">
+                {p.availability.on_shift ? "On shift" : "Off shift"}
+                {p.availability.conflicts?.length
+                  ? " · camera/Synapse conflict"
+                  : ""}
+                {p.availability.stale ? " · unverified signal" : ""}
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <section className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>Coverage map</h2>
+              <p>Hospital nodes and physician capacity</p>
+            </div>
+          </div>
+          <NetworkVisual filled={filled} schematic />
+        </section>
+      </div>
 
       <AnimatePresence>
         {panel !== "none" ? (
@@ -286,19 +222,19 @@ export default function Desk() {
               initial={{ x: 40, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 40, opacity: 0 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                 <div>
-                  <h2 id="decide-title" style={{ margin: 0, letterSpacing: "-0.02em" }}>
+                  <h2 id="decide-title" className="drawer-title">
                     {panel === "act" ? "Act on the offer" : "Decide"}
                   </h2>
-                  <p style={{ margin: "6px 0 0", color: "var(--ink-muted)" }}>
-                    Eligibility first, ranking second, explanation third.
+                  <p className="drawer-sub">
+                    Eligibility first. Human approval before any offer.
                   </p>
                 </div>
                 <button
-                  className="btn btn-ghost"
+                  className="btn btn-ghost btn-sm"
                   type="button"
                   onClick={() => setPanel("none")}
                 >
@@ -309,9 +245,7 @@ export default function Desk() {
                 <OfferLoop />
               </div>
               <div style={{ marginTop: 28 }}>
-                <h3 style={{ margin: "0 0 12px", fontSize: 16 }}>
-                  Off-shift eligibility
-                </h3>
+                <h3 className="drawer-section-title">Off-shift eligibility</h3>
                 <EligibilityMatrix
                   recommendation={recommendation}
                   physicians={dashboard.physicians}
@@ -321,6 +255,6 @@ export default function Desk() {
           </>
         ) : null}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

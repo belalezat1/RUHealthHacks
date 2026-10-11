@@ -22,7 +22,7 @@ export function CoverageHorizon({ forecast }: { forecast: Forecast }) {
             <div className="t tabular">{clock(String(bin.start_at))}</div>
             <div className="cap tabular">
               {avail}
-              <span style={{ color: "var(--ink-faint)", fontWeight: 500 }}>
+              <span style={{ color: "var(--text-faint)", fontWeight: 500 }}>
                 /{req}
               </span>
             </div>

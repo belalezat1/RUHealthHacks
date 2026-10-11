@@ -1,4 +1,4 @@
-/** Screen ship checklist — run mentally before declaring a view done. */
+/** Screen ship checklist: run mentally before declaring a view done. */
 export const SHIP_CHECKLIST = [
   "Purpose stateable in 3 seconds?",
   "Exactly one primary action?",

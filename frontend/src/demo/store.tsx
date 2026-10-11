@@ -188,7 +188,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         {
           id: crypto.randomUUID(),
           at: new Date().toISOString(),
-          text: "Physician accepted · projected coverage updated · gap filled — offers stopped",
+          text: "Physician accepted · projected coverage updated · gap filled. Offers stopped",
         },
         ...prev,
       ]);

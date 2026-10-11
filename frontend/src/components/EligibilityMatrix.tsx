@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Recommendation } from "../api/types";
 import { physicianName } from "../lib/format";
 
@@ -32,7 +33,23 @@ function Rules({ rules }: { rules?: LooseRule[] }) {
   );
 }
 
+function outcomeLabel(outcome?: string, kind?: string) {
+  const raw = (outcome ?? kind ?? "").toLowerCase();
+  if (raw.includes("ineligible") || raw === "rejected" || raw === "excluded") {
+    return { label: "Ineligible", tone: "fail" as const };
+  }
+  if (raw.includes("eligible") || raw === "recommended" || raw === "alternative") {
+    return { label: "Eligible", tone: "pass" as const };
+  }
+  if (raw.includes("unverified")) {
+    return { label: "Unverified", tone: "warn" as const };
+  }
+  return { label: outcome ?? kind ?? "Review", tone: "warn" as const };
+}
+
 export function EligibilityMatrix({ recommendation, physicians }: Props) {
+  const [openIdx, setOpenIdx] = useState<number | null>(0);
+
   const rows: {
     kind: "recommended" | "alternative" | "rejected";
     physician_id: string;
@@ -68,54 +85,47 @@ export function EligibilityMatrix({ recommendation, physicians }: Props) {
   ];
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
-      <div
-        style={{
-          padding: 14,
-          borderRadius: 10,
-          background: "var(--caution-soft)",
-          border: "1px solid rgba(196,122,26,0.25)",
-        }}
-      >
+    <div className="eligibility-matrix">
+      <div className="eligibility-trap">
         <strong>Split-shift trap</strong>
-        <p style={{ margin: "6px 0 0", color: "var(--ink-muted)", fontSize: 14 }}>
+        <p>
           A physician joining mid-shift at zero consults would absorb nearly every
           call. We seed workload and limit offers to gap hospitals so the imbalance
           is fixed, not moved.
         </p>
       </div>
-      {rows.map((row, idx) => (
-        <section key={idx}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 8,
-              gap: 8,
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600 }}>
-                {physicianName(row.physician_id, physicians)}
+      {rows.map((row, idx) => {
+        const status = outcomeLabel(row.outcome, row.kind);
+        const open = openIdx === idx;
+        return (
+          <section className={`eligibility-card${open ? " open" : ""}`} key={idx}>
+            <div className="eligibility-card-head">
+              <div>
+                <div className="eligibility-name">
+                  {physicianName(row.physician_id, physicians)}
+                </div>
+                <div className="eligibility-meta">
+                  {row.kind === "recommended"
+                    ? "Recommended"
+                    : row.kind === "alternative"
+                      ? "Alternative"
+                      : "Excluded"}
+                  {row.explanation ? ` · ${row.explanation}` : ""}
+                </div>
               </div>
-              <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>
-                {row.kind === "recommended"
-                  ? "Recommended"
-                  : row.kind === "alternative"
-                    ? "Alternative"
-                    : "Excluded"}
-                {row.explanation ? ` · ${row.explanation}` : ""}
-              </div>
+              <button
+                type="button"
+                className={`eligibility-status-btn ${status.tone}`}
+                aria-pressed={open}
+                onClick={() => setOpenIdx(open ? null : idx)}
+              >
+                {status.label}
+              </button>
             </div>
-            <span
-              className={`pill pill-${row.kind === "rejected" ? "critical" : "signal"}`}
-            >
-              {row.outcome ?? row.kind}
-            </span>
-          </div>
-          <Rules rules={row.rules} />
-        </section>
-      ))}
+            {open ? <Rules rules={row.rules} /> : null}
+          </section>
+        );
+      })}
     </div>
   );
 }

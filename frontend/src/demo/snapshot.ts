@@ -90,7 +90,7 @@ export const demoRecommendation = {
     {
       physician_id: "phy-rivera",
       reason:
-        "Would absorb nearly all Riverfront + Lakeside calls at zero consult seed — split-shift trap.",
+        "Would absorb nearly all Riverfront + Lakeside calls at zero consult seed. Split-shift trap.",
       eligibility: rules("phy-rivera", "split_shift_offer", "ineligible", [
         ...RULE_SET.map((r) =>
           r.code === "hours_60" ? { ...r, pass: false } : r,
@@ -374,7 +374,7 @@ export function buildDemoDashboard(): Dashboard {
           hospital_id: "hosp-lake",
           severity: "medium",
           reason:
-            "Dr. Park shows camera-active without a Synapse session — availability is flagged as conflicted.",
+            "Dr. Park shows camera-active without a Synapse session. Availability is flagged as conflicted.",
           explanation:
             "Signal conflict: treat as busy until reconciled. Lakeside has thin backup.",
           start_at: DEMO_NOW,

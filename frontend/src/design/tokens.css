@@ -1,31 +1,65 @@
-:root {
-  --ink: #1a1f2c;
-  --ink-muted: #6b7280;
-  --ink-faint: #9ca3af;
-  --paper: #f4f5f7;
-  --surface: #ffffff;
-  --surface-2: #f9fafb;
-  --line: rgba(26, 31, 44, 0.06);
-  --line-strong: rgba(26, 31, 44, 0.12);
-  --signal: #2f9e8f;
-  --signal-soft: #e7f6f3;
-  --path: #7ec8b8;
-  --select: #3b82f6;
-  --select-soft: #eff6ff;
-  --caution: #e8a317;
-  --caution-soft: #fff8e8;
-  --critical: #e11d48;
-  --critical-soft: #fff1f2;
-  --action: #1f2937;
-  --shadow: 0 1px 2px rgba(26, 31, 44, 0.04), 0 10px 28px rgba(26, 31, 44, 0.06);
-  --shadow-sm: 0 1px 2px rgba(26, 31, 44, 0.05);
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration: 280ms;
+:root,
+[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #161616;
+  --surface-3: #1c1c1c;
+  --line: #2a2a2a;
+  --line-strong: #3a3a3a;
+  --text: #f5f5f5;
+  --text-soft: #a3a3a3;
+  --text-faint: #737373;
+  --accent: #12a37a;
+  --accent-deep: #0f8a6a;
+  --accent-dim: rgba(18, 163, 122, 0.18);
+  --warn: #d4a017;
+  --warn-soft: rgba(212, 160, 23, 0.15);
+  --danger: #e11d48;
+  --danger-soft: rgba(225, 29, 72, 0.15);
+  --ok: #2dd4a8;
   --radius: 16px;
-  --radius-sm: 12px;
+  --radius-sm: 10px;
   --radius-pill: 999px;
-  --font: "IBM Plex Sans", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, monospace;
-  --rail: 72px;
-  --panel: 340px;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-ui: "DM Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --sidebar: 248px;
+  --content: 1080px;
+
+  --black: var(--bg);
+  --teal: var(--accent);
+  --teal-dim: var(--accent-dim);
+  --muted: var(--text-soft);
+  --muted-soft: var(--text-faint);
+  --ink: var(--text);
+  --ink-muted: var(--text-soft);
+  --ink-faint: var(--text-faint);
+  --hairline: var(--line);
+  --canvas: var(--surface-2);
+  --caution-soft: var(--warn-soft);
+}
+
+[data-theme="light"] {
+  --bg: #f3f6f4;
+  --surface: #ffffff;
+  --surface-2: #eef2ef;
+  --surface-3: #e2e8e4;
+  --line: #d5ddd8;
+  --line-strong: #b8c4bc;
+  --text: #101614;
+  --text-soft: #3f4a45;
+  --text-faint: #6b7871;
+  --accent: #0f8a6a;
+  --accent-deep: #0b6f56;
+  --accent-dim: rgba(15, 138, 106, 0.12);
+  --warn: #b45309;
+  --warn-soft: rgba(180, 83, 9, 0.12);
+  --danger: #be123c;
+  --danger-soft: rgba(190, 18, 60, 0.1);
+  --ok: #0f8a6a;
+  --shadow: 0 18px 44px rgba(16, 22, 20, 0.1);
+  --shadow-soft: 0 10px 24px rgba(16, 22, 20, 0.07);
 }

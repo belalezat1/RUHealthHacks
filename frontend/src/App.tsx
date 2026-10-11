@@ -1,78 +1,78 @@
-import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Desk from "./pages/Desk";
 import Lab from "./pages/Lab";
+import { RelayMark } from "./components/RelayMark";
+import { IconBolt, IconDesk } from "./components/Icons";
 import { useDemo } from "./demo/store";
-import { clock } from "./lib/format";
-import {
-  IconFlask,
-  IconGrid,
-  IconMap,
-  IconPlus,
-  IconSearch,
-} from "./components/Icons";
+import { clock, clockDate } from "./lib/format";
+import { brand } from "./brand";
 
-function Shell({ children }: { children: React.ReactNode }) {
+function AppShell({ children }: { children: React.ReactNode }) {
   const { dashboard, openDecide } = useDemo();
   const navigate = useNavigate();
-  const label =
-    (dashboard as { label?: string }).label ??
-    dashboard.dataset_id ??
-    "Synthetic demo";
+  const location = useLocation();
+  const isLab = location.pathname.includes("/lab");
 
   return (
-    <div className="rd-shell">
+    <div className="app-shell">
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <header className="rd-top">
-        <div className="logo-pixel">
-          sevaro<em>.</em>
-        </div>
-        <label className="rd-search">
-          <IconSearch />
-          <input
-            placeholder="Search hospitals, physicians, consults, interventions"
-            aria-label="Search operations"
-          />
-        </label>
-        <div className="rd-top-actions">
-          <div style={{ textAlign: "right", fontSize: 12, color: "var(--ink-muted)" }}>
-            <div className="tabular">Now {clock(dashboard.as_of)} ET</div>
-            <div>{label}</div>
+      <aside className="app-aside">
+        <div className="app-aside-top">
+          <RelayMark size="nav" href="/" />
+          <div className="app-workspace">
+            <strong>Harbor network</strong>
+            <span>Live ops · synthetic demo</span>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              navigate("/app");
-              openDecide();
-            }}
-          >
-            <IconPlus />
-            Review intervention
-          </button>
         </div>
-      </header>
-
-      <div className="rd-body">
-        <nav className="rd-rail" aria-label="Primary">
-          <NavLink to="/app" end title="Command desk">
-            <IconGrid />
+        <nav className="app-nav" aria-label="Primary">
+          <NavLink to="/app" end>
+            <IconDesk size={17} />
+            {brand.deskLabel}
           </NavLink>
-          <NavLink to="/app" end title="Coverage map">
-            <IconMap />
-          </NavLink>
-          <NavLink to="/app/lab" title="Simulation lab">
-            <IconFlask />
-          </NavLink>
-          <NavLink to="/" title="Story landing" style={{ marginTop: "auto" }}>
-            <span style={{ fontSize: 11, fontWeight: 700 }}>SC</span>
+          <NavLink to="/app/lab">
+            <IconBolt size={17} />
+            {brand.labLabel}
           </NavLink>
         </nav>
-        <div id="main" style={{ display: "contents" }}>
-          {children}
+        <div className="app-aside-foot">
+          <div className="aside-now">
+            <span className="aside-now-label">Now</span>
+            <span className="aside-now-time tabular">{clock(dashboard.as_of)} ET</span>
+          </div>
+          <div className="aside-date tabular">{clockDate(dashboard.as_of)}</div>
         </div>
+      </aside>
+      <div className="app-main">
+        <header className="app-topbar">
+          <div className="app-topbar-title">
+            <h1>{isLab ? brand.labLabel : brand.deskLabel}</h1>
+            <p className="app-topbar-sub">
+              {isLab
+                ? "Inject edge cases · audit trail · safety constraints"
+                : "Stroke-priority coverage · Synapse · human approval"}
+            </p>
+          </div>
+          <div className="app-topbar-actions">
+            {!isLab ? (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  navigate("/app");
+                  openDecide();
+                }}
+              >
+                Review intervention
+              </button>
+            ) : null}
+          </div>
+        </header>
+        <main id="main" className="page-enter route-fade" key={location.pathname}>
+          {children}
+        </main>
       </div>
     </div>
   );
@@ -85,17 +85,17 @@ export default function App() {
       <Route
         path="/app"
         element={
-          <Shell>
+          <AppShell>
             <Desk />
-          </Shell>
+          </AppShell>
         }
       />
       <Route
         path="/app/lab"
         element={
-          <Shell>
+          <AppShell>
             <Lab />
-          </Shell>
+          </AppShell>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
