@@ -1,8 +1,38 @@
-import { useId, useRef, type KeyboardEvent, type ReactNode } from "react";
+import { useId, useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { Reveal } from "./Reveal";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useIsPresent, useReducedMotion } from "framer-motion";
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
+
+/* Overlays ---------------------------------------------------------------- */
+
+/**
+ * AnimatePresence keeps an element in the DOM until its exit animation ends.
+ * Call this inside the exiting component so it stops catching clicks the
+ * moment it starts to leave, even if the exit animation stalls.
+ */
+export function useExitSafe(): CSSProperties | undefined {
+  const present = useIsPresent();
+  return present ? undefined : { pointerEvents: "none" };
+}
+
+/** Full-screen backdrop for panels; render as a direct child of AnimatePresence. */
+export function Scrim({ onClose, label, zIndex }: { onClose: () => void; label: string; zIndex?: number }) {
+  const safe = useExitSafe();
+  return (
+    <motion.button
+      type="button"
+      className="rx-scrim"
+      aria-label={label}
+      style={{ zIndex, ...safe }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+    />
+  );
+}
 
 /* Card ------------------------------------------------------------------ */
 

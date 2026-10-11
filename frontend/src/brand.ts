@@ -1,6 +1,5 @@
 export const brand = {
   name: "Relay",
-  nameLower: "relay",
   product: "Coverage desk",
   slogan: "See the gap. Fill it before the consult waits.",
   support:

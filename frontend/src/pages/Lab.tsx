@@ -1,17 +1,65 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { IconAlert, IconBolt, IconCheck, IconClock, IconLink, IconShield } from "../components/Icons";
-import { Card, EASE } from "../components/ui";
+import { Card, EASE, Segmented } from "../components/ui";
+import { InterventionQueue } from "../components/desk/InterventionQueue";
 import { Reveal } from "../components/Reveal";
-import { useDemo } from "../demo/store";
+import { useDemo, type InjectInput } from "../demo/store";
 import { clock } from "../lib/format";
 
-const PRESETS = [
-  { kind: "Outage", icon: IconAlert, text: "Physician unavailable: Lakeside backup offline" },
-  { kind: "Demand spike", icon: IconBolt, text: "Demand spike: Bayview 3 consults in 12 minutes" },
-  { kind: "Replay", icon: IconLink, text: "Duplicate event replayed (idempotent)" },
-  { kind: "Late signal", icon: IconClock, text: "Late-arriving camera signal for Dr. Park" },
+type Priority = InjectInput["priority"];
+
+const PRESETS: {
+  kind: string;
+  icon: typeof IconAlert;
+  text: string;
+  hospitalId: string;
+  priority: Priority;
+  minutes: number;
+}[] = [
+  {
+    kind: "Outage",
+    icon: IconAlert,
+    text: "Physician unavailable: Lakeside backup offline",
+    hospitalId: "hosp-lake",
+    priority: "high",
+    minutes: 30,
+  },
+  {
+    kind: "Demand spike",
+    icon: IconBolt,
+    text: "Demand spike: Bayview 3 consults in 12 minutes",
+    hospitalId: "hosp-bay",
+    priority: "critical",
+    minutes: 30,
+  },
+  {
+    kind: "Replay",
+    icon: IconLink,
+    text: "Duplicate event replayed (idempotent)",
+    hospitalId: "hosp-cedar",
+    priority: "info",
+    minutes: 15,
+  },
+  {
+    kind: "Late signal",
+    icon: IconClock,
+    text: "Late-arriving camera signal for Dr. Park",
+    hospitalId: "hosp-lake",
+    priority: "medium",
+    minutes: 15,
+  },
 ];
+
+const PRIORITIES: { value: Priority; label: string }[] = [
+  { value: "critical", label: "Critical" },
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "info", label: "Log only" },
+];
+
+const MINUTES = [15, 30, 45, 60];
 
 const SAFETY = [
   "No patient information in notifications",
@@ -27,7 +75,12 @@ const MAX = 160;
 export default function Lab() {
   const demo = useDemo();
   const reduce = useReducedMotion();
+  const navigate = useNavigate();
   const [text, setText] = useState(PRESETS[0].text);
+  const [hospitalId, setHospitalId] = useState(PRESETS[0].hospitalId);
+  const [priority, setPriority] = useState<Priority>(PRESETS[0].priority);
+  const [minutes, setMinutes] = useState(PRESETS[0].minutes);
+  const [lastRisk, setLastRisk] = useState<{ id: string | null; text: string } | null>(null);
   const [touched, setTouched] = useState(false);
   const [justInjected, setJustInjected] = useState(false);
   const trimmed = text.trim();
@@ -42,7 +95,8 @@ export default function Lab() {
   const inject = () => {
     setTouched(true);
     if (!trimmed) return;
-    demo.injectEvent(trimmed);
+    const id = demo.injectEvent({ text: trimmed, hospitalId, priority, unmetMinutes: minutes });
+    setLastRisk({ id, text: trimmed });
     setJustInjected(true);
   };
 
@@ -65,6 +119,9 @@ export default function Lab() {
                 aria-pressed={on}
                 onClick={() => {
                   setText(p.text);
+                  setHospitalId(p.hospitalId);
+                  setPriority(p.priority);
+                  setMinutes(p.minutes);
                   setTouched(false);
                 }}
               >
@@ -96,6 +153,43 @@ export default function Lab() {
           </span>
         </label>
 
+        <div className="rx-inject-fields">
+          <label className="rx-field rx-field-inline">
+            Hospital
+            <select value={hospitalId} onChange={(e) => setHospitalId(e.target.value)}>
+              {demo.dashboard.hospitals.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {h.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="rx-field rx-field-inline">
+            <span id="lab-priority">Priority</span>
+            <Segmented<Priority>
+              idBase="lab-priority"
+              label="Priority"
+              options={PRIORITIES}
+              value={priority}
+              onChange={setPriority}
+            />
+          </div>
+          <label className="rx-field rx-field-inline">
+            Uncovered minutes
+            <select
+              value={minutes}
+              disabled={priority === "info"}
+              onChange={(e) => setMinutes(Number(e.target.value))}
+            >
+              {MINUTES.map((m) => (
+                <option key={m} value={m}>
+                  {m} min
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         <div className="rx-lab-actions">
           <button
             type="button"
@@ -120,9 +214,44 @@ export default function Lab() {
           <button type="button" className="rx-btn rx-btn-secondary" onClick={() => demo.resetFlow()}>
             Reset demo snapshot
           </button>
-          <span className="rx-note">Lands in Ranked risks on the Coverage desk.</span>
         </div>
+
+        <AnimatePresence initial={false}>
+          {lastRisk ? (
+            <motion.div
+              key={lastRisk.id ?? lastRisk.text}
+              className={`rx-inject-result${lastRisk.id ? "" : " is-info"}`}
+              role="status"
+              initial={reduce ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: EASE }}
+            >
+              <div>
+                <strong>{lastRisk.id ? "Risk queued for intervention" : "Logged without a new risk"}</strong>
+                <span>{lastRisk.text}</span>
+              </div>
+              {lastRisk.id && demo.queue.some((q) => q.risk.id === lastRisk.id) ? (
+                <button
+                  type="button"
+                  className="rx-btn rx-btn-primary rx-btn-sm"
+                  onClick={() => {
+                    demo.openIntervention(lastRisk.id as string);
+                    navigate("/app");
+                  }}
+                >
+                  Find backup
+                  <span className="rx-btn-arrow" aria-hidden>
+                    →
+                  </span>
+                </button>
+              ) : null}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </Card>
+
+      <InterventionQueue goToDesk index={1} />
 
       <div className="rx-grid-2">
         <Card

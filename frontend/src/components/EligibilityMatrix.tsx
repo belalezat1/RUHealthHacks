@@ -70,15 +70,15 @@ export function EligibilityMatrix({ recommendation, physicians, order }: Props) 
     explanation?: string;
     rules?: LooseRule[];
   }[] = [
-    {
-      kind: "recommended",
+    ...(recommendation.candidate ? [{
+      kind: "recommended" as const,
       physician_id: recommendation.candidate.physician_id,
       outcome: recommendation.candidate.eligibility?.outcome,
       explanation: Array.isArray(recommendation.candidate.explanation)
         ? recommendation.candidate.explanation.join(" ")
         : recommendation.candidate.explanation,
       rules: recommendation.candidate.eligibility?.rules as LooseRule[] | undefined,
-    },
+    }] : []),
     ...recommendation.alternatives.map((a) => ({
       kind: "alternative" as const,
       physician_id: a.physician_id,

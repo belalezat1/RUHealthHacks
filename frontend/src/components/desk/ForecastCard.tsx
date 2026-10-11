@@ -224,8 +224,8 @@ function Forecast() {
 }
 
 function Risks() {
-  const { dashboard } = useDemo();
-  const risks = dashboard.forecast.risks;
+  const { dashboard, queue, openIntervention } = useDemo();
+  const risks = queue.map((q) => q.risk);
   if (!risks.length) {
     return (
       <div className="rx-empty">
@@ -253,6 +253,18 @@ function Risks() {
               {risk.unmet_minutes ? ` · ${risk.unmet_minutes} min at risk` : ""}
             </div>
             <p>{risk.reason ?? risk.explanation}</p>
+            <div className="rx-risk-action">
+              <button
+                type="button"
+                className="rx-btn rx-btn-secondary rx-btn-sm"
+                onClick={() => openIntervention(String(risk.id))}
+              >
+                Find backup
+                <span className="rx-btn-arrow" aria-hidden>
+                  →
+                </span>
+              </button>
+            </div>
           </li>
         );
       })}

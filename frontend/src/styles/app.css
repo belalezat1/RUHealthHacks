@@ -35,13 +35,14 @@
   --rx-slow: 320ms;
 
   /* Logo */
-  --logo: #3fe6be;
-  --logo-node: #92f6dd;
+  --logo-node-a: #1fcf8d;
 }
 
 /* Light: cool clinical neutrals, teal carries action. */
 :is(.rx, .rx-site)[data-theme="light"] {
   color-scheme: light;
+  --logo-stroke: #0f4339;
+  --logo-node-b: #087a68;
   --rx-bg: oklch(0.972 0.006 215);
   --rx-side-bg: oklch(1 0 0);
   --rx-surface: oklch(1 0 0);
@@ -84,6 +85,8 @@
 /* Dark: the same roles, tuned for low ambient light. */
 :is(.rx, .rx-site)[data-theme="dark"] {
   color-scheme: dark;
+  --logo-stroke: #cdeee3;
+  --logo-node-b: #2fb79c;
   --rx-bg: oklch(0.165 0.008 215);
   --rx-side-bg: oklch(0.19 0.009 215);
   --rx-surface: oklch(0.205 0.009 215);
@@ -2516,17 +2519,20 @@ html.rv-on .rx-table-item.rv:not(.is-in) {
 /* -------------------------------------------------------------------------
    Confirmation (lead approval, physician acceptance)
    ------------------------------------------------------------------------- */
+/* Bottom-left of the work area: never on top of the side panel's controls. */
 .rx-confirm-layer {
   position: fixed;
-  top: 20px;
-  right: 24px;
+  bottom: 24px;
+  left: calc(var(--rx-side) + 24px);
   z-index: 90;
-  width: min(460px, calc(100vw - 32px));
+  width: min(440px, calc(100vw - var(--rx-side) - 48px));
   pointer-events: none;
 }
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
   .rx-confirm-layer {
-    right: 16px;
+    left: 16px;
+    bottom: 16px;
+    width: min(440px, calc(100vw - 32px));
   }
 }
 .rx-confirm {
@@ -2643,5 +2649,231 @@ html.rv-on .rx-table-item.rv:not(.is-in) {
 @media (prefers-reduced-motion: reduce) {
   .rx-confirm-timer {
     display: none;
+  }
+}
+
+/* Selectable intervention rows (radio group) */
+.rx-ladder-row {
+  position: relative;
+  padding-right: 52px;
+}
+.rx-ladder-row.is-selectable {
+  cursor: pointer;
+}
+.rx-ladder-row.is-selectable:hover:not(.is-primary) {
+  border-color: var(--rx-accent-line);
+  background: var(--rx-surface-2);
+}
+.rx-ladder-row.is-selectable:active {
+  transform: scale(0.995);
+}
+.rx-ladder-row:focus-visible {
+  outline: 2px solid var(--rx-focus);
+  outline-offset: 2px;
+}
+.rx-radio {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rx-line-strong);
+  background: var(--rx-surface);
+  transition: border-color var(--rx-base) var(--rx-ease), box-shadow var(--rx-base) var(--rx-ease);
+}
+.rx-ladder-row.is-selectable:hover .rx-radio {
+  border-color: var(--rx-accent);
+}
+.rx-ladder-row[aria-checked="true"] .rx-radio {
+  border-color: var(--rx-accent);
+  box-shadow: inset 0 0 0 4px var(--rx-surface), inset 0 0 0 10px var(--rx-accent);
+}
+.rx-ladder-row.is-declined .rx-radio,
+.rx-ladder[aria-disabled="true"] .rx-ladder-row:not([aria-checked="true"]) .rx-radio {
+  opacity: 0.4;
+}
+.rx-econ.is-compact .rx-radio {
+  top: 22px;
+  margin-top: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Intervention queue
+   ------------------------------------------------------------------------- */
+.rx-queue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.rx-queue-item {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--rx-line);
+  border-radius: var(--rx-r-md);
+  background: var(--rx-surface);
+  overflow: hidden;
+  transition: border-color var(--rx-base) var(--rx-ease), background-color var(--rx-base) var(--rx-ease);
+}
+.rx-queue-item:hover {
+  border-color: var(--rx-line-strong);
+}
+.rx-queue-item.is-active {
+  border-color: var(--rx-accent-line);
+  background: var(--rx-accent-soft);
+}
+.rx-queue-rank {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--rx-r-sm);
+  background: var(--rx-surface-2);
+  color: var(--rx-text-2);
+  font-size: var(--rx-fs-sm);
+  font-weight: 700;
+}
+.rx-queue-item:first-child .rx-queue-rank {
+  background: var(--rx-danger-soft);
+  color: var(--rx-danger-ink);
+}
+.rx-queue-main {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.rx-queue-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.rx-queue-head strong {
+  font-weight: 600;
+}
+.rx-queue-main p {
+  font-size: var(--rx-fs-sm);
+  color: var(--rx-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rx-queue-meta {
+  font-size: var(--rx-fs-xs);
+  color: var(--rx-text-3);
+}
+.rx-queue-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rx-queue-status {
+  font-size: var(--rx-fs-xs);
+  font-weight: 600;
+  color: var(--rx-text-3);
+  white-space: nowrap;
+}
+.rx-queue-status.is-needs_backup {
+  color: var(--rx-danger-ink);
+}
+.rx-queue-status.is-in_progress {
+  color: var(--rx-accent-ink);
+}
+.rx-queue-status.is-partial {
+  color: var(--rx-warn-ink);
+}
+.rx-nav-count {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--rx-r-pill);
+  background: var(--rx-danger);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 22px;
+  text-align: center;
+}
+.rx-risk-action {
+  grid-column: 2;
+  margin-top: 6px;
+}
+
+/* Lab: inject fields and result */
+.rx-inject-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 0.8fr);
+  gap: 16px;
+  align-items: end;
+}
+.rx-field-inline {
+  margin-top: 16px;
+}
+.rx-field select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--rx-line-strong);
+  border-radius: var(--rx-r-md);
+  background: var(--rx-surface);
+  color: var(--rx-text);
+  font: inherit;
+  font-size: var(--rx-fs-md);
+  font-weight: 400;
+}
+.rx-field select:focus {
+  outline: none;
+  border-color: var(--rx-accent);
+  box-shadow: 0 0 0 3px var(--rx-accent-soft);
+}
+.rx-field select:disabled {
+  opacity: 0.5;
+}
+.rx-inject-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 14px 14px 14px 18px;
+  border: 1px solid var(--rx-accent-line);
+  border-radius: var(--rx-r-md);
+  background: var(--rx-accent-soft);
+}
+.rx-inject-result.is-info {
+  border-color: var(--rx-line);
+  background: var(--rx-surface-2);
+}
+.rx-inject-result strong {
+  display: block;
+  font-weight: 600;
+}
+.rx-inject-result span {
+  display: block;
+  font-size: var(--rx-fs-sm);
+  color: var(--rx-text-2);
+}
+@media (max-width: 760px) {
+  .rx-queue-item {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+  .rx-queue-side {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+  }
+  .rx-inject-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .rx-inject-result {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

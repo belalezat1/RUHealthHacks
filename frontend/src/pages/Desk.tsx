@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { ForecastCard } from "../components/desk/ForecastCard";
 import { OfferDrawer } from "../components/desk/OfferDrawer";
 import { PriorityAlert } from "../components/desk/PriorityAlert";
+import { InterventionQueue } from "../components/desk/InterventionQueue";
 import { IndicatorsCard, ShiftCard } from "../components/desk/RailCards";
 import { ConsultQueue, PhysicianTable } from "../components/desk/Tables";
 import { IconRoute } from "../components/Icons";
@@ -14,7 +15,7 @@ import { useDemo } from "../demo/store";
  * (who can cover, at what cost) and Act (the approval side panel).
  */
 export default function Desk() {
-  const { openDecide, offerStep } = useDemo();
+  const { openDecide, offerStep, queue } = useDemo();
 
   useEffect(() => {
     if (sessionStorage.getItem("sevaro-open-decide") === "1") {
@@ -26,6 +27,8 @@ export default function Desk() {
   return (
     <div className="rx-page">
       <PriorityAlert />
+
+      {queue.length > 1 ? <InterventionQueue index={0} /> : null}
 
       <div className="rx-grid-main">
         <ForecastCard />

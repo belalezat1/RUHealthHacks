@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useDemo } from "../../demo/store";
 import { flowStage } from "../../lib/workflow";
@@ -6,12 +6,44 @@ import { EligibilityMatrix } from "../EligibilityMatrix";
 import { IconX } from "../Icons";
 import { OfferEconomics } from "../OfferEconomics";
 import { OfferLoop } from "../OfferLoop";
-import { EASE, WorkflowSteps } from "../ui";
+import { EASE, Scrim, useExitSafe, WorkflowSteps } from "../ui";
+
+function DrawerSurface({
+  surfaceRef,
+  reduce,
+  children,
+}: {
+  surfaceRef: RefObject<HTMLElement | null>;
+  reduce: boolean;
+  children: ReactNode;
+}) {
+  const safe = useExitSafe();
+  return (
+    <motion.aside
+      ref={surfaceRef}
+      tabIndex={-1}
+      className="rx-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rx-drawer-title"
+      style={safe}
+      initial={reduce ? { opacity: 0 } : { x: "100%" }}
+      animate={reduce ? { opacity: 1 } : { x: 0 }}
+      exit={reduce ? { opacity: 0 } : { x: "100%" }}
+      transition={{ duration: 0.34, ease: EASE }}
+    >
+      {children}
+    </motion.aside>
+  );
+}
 
 /** Decide → Act side panel. Traps the reader's attention, not their keyboard. */
 export function OfferDrawer() {
   const demo = useDemo();
-  const { panel, setPanel, recommendation, dashboard, offerStep } = demo;
+  const { panel, setPanel, recommendation, dashboard, offerStep, activeHospitalId } = demo;
+  const where = activeHospitalId
+    ? (dashboard.hospitals.find((h) => h.id === activeHospitalId)?.name.split(" ")[0] ?? "")
+    : "";
   const reduce = useReducedMotion();
   const open = panel !== "none";
   const ref = useRef<HTMLElement>(null);
@@ -37,34 +69,15 @@ export function OfferDrawer() {
     <AnimatePresence>
       {open ? (
         <>
-          <motion.button
-            key="scrim"
-            type="button"
-            aria-label="Close panel"
-            className="rx-scrim"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setPanel("none")}
-          />
-          <motion.aside
-            key="drawer"
-            ref={ref}
-            tabIndex={-1}
-            className="rx-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="rx-drawer-title"
-            initial={reduce ? { opacity: 0 } : { x: "100%" }}
-            animate={reduce ? { opacity: 1 } : { x: 0 }}
-            exit={reduce ? { opacity: 0 } : { x: "100%" }}
-            transition={{ duration: 0.34, ease: EASE }}
-          >
+          <Scrim key="scrim" label="Close panel" onClose={() => setPanel("none")} />
+          <DrawerSurface key="drawer" surfaceRef={ref} reduce={Boolean(reduce)}>
             <header className="rx-drawer-head">
               <div className="rx-drawer-top">
                 <div>
-                  <h2 id="rx-drawer-title">{panel === "act" ? "Act on the offer" : "Decide on an intervention"}</h2>
+                  <h2 id="rx-drawer-title">
+                    {panel === "act" ? "Act on the offer" : "Find backup"}
+                    {where ? ` · ${where}` : ""}
+                  </h2>
                 </div>
                 <button
                   type="button"
@@ -94,7 +107,7 @@ export function OfferDrawer() {
                 />
               </section>
             </div>
-          </motion.aside>
+          </DrawerSurface>
         </>
       ) : null}
     </AnimatePresence>

@@ -7,41 +7,27 @@ import { IconBolt, IconDesk } from "./Icons";
 export function GetStarted() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const closeTimer = useRef<number | null>(null);
 
-  const clearClose = () => {
-    if (closeTimer.current) {
-      window.clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-  };
-
-  const scheduleClose = () => {
-    clearClose();
-    closeTimer.current = window.setTimeout(() => setOpen(false), 140);
-  };
-
-  useEffect(() => () => clearClose(), []);
-
+  // Click to open, click outside or Escape to close. (Hover-to-open made the
+  // first click close the menu it had just opened.)
   useEffect(() => {
     if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
+    document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
-    <div
-      className="lp-menu-wrap"
-      ref={ref}
-      onMouseEnter={() => {
-        clearClose();
-        setOpen(true);
-      }}
-      onMouseLeave={scheduleClose}
-    >
+    <div className="lp-menu-wrap" ref={ref}>
       <button
         type="button"
         className="rx-btn rx-btn-primary"

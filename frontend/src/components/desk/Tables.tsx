@@ -8,6 +8,7 @@ import { consultPriority, hospitalName, minutesSince, minutesUntil, physicianNam
 import { IconChevron, IconLink, IconQueue, IconUsers } from "../Icons";
 import { Avatar, Card, EASE, Pill, sentence, type Tone } from "../ui";
 import { Reveal } from "../Reveal";
+import { eligibleOf } from "../../demo/interventions";
 
 function useQuery() {
   const [params] = useSearchParams();
@@ -39,15 +40,13 @@ function signal(p: Physician): { label: string; tone: Tone } {
 }
 
 export function PhysicianTable() {
-  const { dashboard, recommendation } = useDemo();
+  const { dashboard, recommendation, activeHospitalId } = useDemo();
+  const gapHospital = activeHospitalId ? hospitalName(activeHospitalId, dashboard.hospitals) : "this gap";
   const q = useQuery();
   const reduce = useReducedMotion();
   const [open, setOpen] = useState<string | null>(null);
 
-  const eligibleIds = new Set([
-    recommendation.candidate.physician_id,
-    ...recommendation.alternatives.map((a) => a.physician_id),
-  ]);
+  const eligibleIds = new Set(eligibleOf(recommendation).map((c) => c.physician_id));
   const rejected = new Map(recommendation.rejected.map((r) => [String(r.physician_id), r.reason]));
 
   const rows = dashboard.physicians.filter((p) => {
@@ -81,7 +80,7 @@ export function PhysicianTable() {
               const isOpen = open === p.id;
               const sig = signal(p);
               const elig = eligibleIds.has(p.id)
-                ? "Eligible for the Riverfront split shift"
+                ? `Eligible for the ${gapHospital} split shift`
                 : rejected.has(p.id)
                   ? `Excluded: ${rejected.get(p.id)}`
                   : p.availability.on_shift

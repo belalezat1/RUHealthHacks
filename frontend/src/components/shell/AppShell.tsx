@@ -11,7 +11,7 @@ import {
   IconSearch,
   IconX,
 } from "../Icons";
-import { EASE } from "../ui";
+import { EASE, Scrim, useExitSafe } from "../ui";
 import { ConfirmationToast } from "./ConfirmationToast";
 import { useDemo } from "../../demo/store";
 import { usePressRipple } from "../../lib/ripple";
@@ -20,6 +20,7 @@ import { brand } from "../../brand";
 import { ThemeToggle, useTheme } from "../../theme";
 
 export const DESK_SECTIONS = [
+  { id: "queue", label: "Intervention queue" },
   { id: "forecast", label: "Coverage forecast" },
   { id: "physicians", label: "Physicians" },
   { id: "consults", label: "Consult queue" },
@@ -28,7 +29,7 @@ export const DESK_SECTIONS = [
 
 /** Highlights the desk section currently in view. */
 function useActiveSection(enabled: boolean) {
-  const [active, setActive] = useState<string>(DESK_SECTIONS[0].id);
+  const [active, setActive] = useState<string>("forecast");
   useEffect(() => {
     if (!enabled) return;
     const els = DESK_SECTIONS.map((s) => document.getElementById(s.id)).filter(
@@ -102,6 +103,42 @@ function SearchField() {
   );
 }
 
+function ActivityPopover({
+  events,
+  unread,
+}: {
+  events: { id: string; at: string; text: string }[];
+  unread: number;
+}) {
+  const reduce = useReducedMotion();
+  const safe = useExitSafe();
+  return (
+    <motion.div
+      className="rx-popover"
+      role="dialog"
+      aria-label="Recent activity"
+      style={safe}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: -4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: -4 }}
+      transition={{ duration: 0.18, ease: EASE }}
+    >
+      <div className="rx-popover-head">
+        Activity <span>{events.length} events</span>
+      </div>
+      <ul className="rx-popover-list">
+        {events.slice(0, 8).map((e, i) => (
+          <li key={e.id} className={i < unread ? "is-new" : ""}>
+            <i aria-hidden />
+            <span>{e.text}</span>
+            <time dateTime={e.at}>{clock(e.at)}</time>
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+  );
+}
+
 function Notifications() {
   const { events } = useDemo();
   const reduce = useReducedMotion();
@@ -152,28 +189,7 @@ function Notifications() {
       </button>
       <AnimatePresence>
         {open ? (
-          <motion.div
-            className="rx-popover"
-            role="dialog"
-            aria-label="Recent activity"
-            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: -4 }}
-            transition={{ duration: 0.18, ease: EASE }}
-          >
-            <div className="rx-popover-head">
-              Activity <span>{events.length} events</span>
-            </div>
-            <ul className="rx-popover-list">
-              {events.slice(0, 8).map((e, i) => (
-                <li key={e.id} className={i < unread ? "is-new" : ""}>
-                  <i aria-hidden />
-                  <span>{e.text}</span>
-                  <time dateTime={e.at}>{clock(e.at)}</time>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+          <ActivityPopover key="activity" events={events} unread={unread} />
         ) : null}
       </AnimatePresence>
     </div>
@@ -182,7 +198,7 @@ function Notifications() {
 
 export function AppShell() {
   const { theme } = useTheme();
-  const { dashboard } = useDemo();
+  const { dashboard, queue } = useDemo();
   const location = useLocation();
   const reduce = useReducedMotion();
   const isLab = location.pathname.startsWith("/app/lab");
@@ -241,6 +257,11 @@ export function AppShell() {
                 ) : null}
                 <IconDesk size={18} />
                 {brand.deskLabel}
+                {queue.length ? (
+                  <span className="rx-nav-count num" aria-label={`${queue.length} open risks`}>
+                    {queue.length}
+                  </span>
+                ) : null}
               </>
             )}
           </NavLink>
@@ -253,7 +274,7 @@ export function AppShell() {
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.25, ease: EASE }}
               >
-                {DESK_SECTIONS.map((s) => (
+                {DESK_SECTIONS.filter((s) => s.id !== "queue" || queue.length > 1).map((s) => (
                   <button
                     key={s.id}
                     type="button"
@@ -298,18 +319,7 @@ export function AppShell() {
       </aside>
 
       <AnimatePresence>
-        {navOpen ? (
-          <motion.button
-            type="button"
-            className="rx-scrim"
-            style={{ zIndex: 65 }}
-            aria-label="Close navigation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setNavOpen(false)}
-          />
-        ) : null}
+        {navOpen ? <Scrim key="nav-scrim" label="Close navigation" zIndex={65} onClose={() => setNavOpen(false)} /> : null}
       </AnimatePresence>
 
       <div className="rx-main">

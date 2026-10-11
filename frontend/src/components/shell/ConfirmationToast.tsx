@@ -1,10 +1,47 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useDemo } from "../../demo/store";
 import { IconX } from "../Icons";
-import { EASE } from "../ui";
+import { EASE, useExitSafe } from "../ui";
 
 const DURATION = 5200;
+
+function ConfirmCard({
+  className,
+  reduce,
+  children,
+  onMouseEnter,
+  onMouseLeave,
+  onFocus,
+  onBlur,
+}: {
+  className: string;
+  reduce: boolean;
+  children: ReactNode;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onFocus: () => void;
+  onBlur: () => void;
+}) {
+  const safe = useExitSafe();
+  return (
+    <motion.div
+      className={className}
+      role="status"
+      style={safe}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.94 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={reduce ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.97 }}
+      transition={{ duration: 0.42, ease: EASE }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 /**
  * Celebrates each human "yes" in the offer loop: the clinical lead's approval
@@ -43,18 +80,14 @@ export function ConfirmationToast() {
     <div className="rx-confirm-layer" aria-live="polite">
       <AnimatePresence>
         {confirmation ? (
-          <motion.div
+          <ConfirmCard
             key={confirmation.id}
             className={`rx-confirm is-${confirmation.kind}${paused ? " is-paused" : ""}`}
-            role="status"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             onFocus={() => setPaused(true)}
             onBlur={() => setPaused(false)}
-            initial={reduce ? { opacity: 0 } : { opacity: 0, y: -24, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.97 }}
-            transition={{ duration: 0.42, ease: EASE }}
+            reduce={Boolean(reduce)}
           >
             <div className="rx-confirm-badge" aria-hidden>
               {!reduce ? (
@@ -119,7 +152,7 @@ export function ConfirmationToast() {
             <span className="rx-confirm-timer" aria-hidden>
               <i style={{ animationDuration: `${DURATION}ms` }} />
             </span>
-          </motion.div>
+          </ConfirmCard>
         ) : null}
       </AnimatePresence>
     </div>

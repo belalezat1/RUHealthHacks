@@ -38,7 +38,7 @@ export function OfferLoop() {
   const deciding = demo.offerStep === "idle" || demo.offerStep === "ready" || busy;
 
   return (
-    <div>
+    <div style={{ position: "relative" }}>
       <ol className="rx-steps" aria-label="Offer progress">
         {STEPS.map((s, i) => {
           const state = i < idx ? "is-done" : i === idx ? "is-current" : "";
@@ -57,7 +57,7 @@ export function OfferLoop() {
         })}
       </ol>
 
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={demo.offerStep === "checking" ? "ready" : demo.offerStep}
           initial={reduce ? false : { opacity: 0, y: 6 }}

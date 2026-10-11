@@ -224,16 +224,6 @@ a {
     animation: none !important;
   }
 }
-/* —— Dark narrative polish —— */
-.relay-mark-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  border: 1px solid rgba(18, 163, 122, 0.45);
-  background: rgba(18, 163, 122, 0.08);
-  box-shadow: 0 0 0 1px rgba(18, 163, 122, 0.12), 0 0 24px rgba(18, 163, 122, 0.12);
-}
 .pill {
   align-items: center;
   gap: 4px;
@@ -405,8 +395,9 @@ a {
    Solid fills only on app surfaces; colour carries state, not decoration.
    ========================================================================== */
 :root {
-  --logo: #3fe6be;
-  --logo-node: #92f6dd;
+  --logo-stroke: #0f4339;
+  --logo-node-a: #1fcf8d;
+  --logo-node-b: #087a68;
   --on-accent: #031d15;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -419,20 +410,15 @@ a {
 .relay-mark {
   display: inline-flex;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   color: var(--text);
 }
 .relay-mark-icon {
-  border-radius: 11px;
-  border: 1px solid rgba(63, 230, 190, 0.22);
-  background: #03100c;
-  box-shadow: none;
-  transition: border-color 0.25s var(--ease-out);
+  display: inline-flex;
+  align-items: center;
 }
 .relay-glyph {
   overflow: visible;
-  filter: drop-shadow(0 0 2.5px rgba(63, 230, 190, 0.5));
-  transition: filter 0.3s var(--ease-out);
 }
 .relay-node {
   transform-box: fill-box;
@@ -441,17 +427,11 @@ a {
 .relay-wordmark {
   font-family: var(--font-ui);
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   line-height: 1;
 }
-.relay-mark-link:hover .relay-mark-icon {
-  border-color: rgba(63, 230, 190, 0.5);
-}
-.relay-mark-link:hover .relay-glyph {
-  filter: drop-shadow(0 0 5px rgba(63, 230, 190, 0.75));
-}
 .relay-mark-link:hover .relay-node {
-  transform: scale(1.14);
+  transform: scale(1.12);
 }
 /* Buttons */
 .btn {
