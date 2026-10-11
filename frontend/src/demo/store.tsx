@@ -7,7 +7,9 @@ import {
   type ReactNode,
 } from "react";
 import type { Dashboard, Recommendation } from "../api/types";
+import { physicianName } from "../lib/format";
 import { buildDemoDashboard, demoRecommendation } from "./snapshot";
+import { rankCandidates, type CostedCandidate, type RankBy } from "./economics";
 
 export type OfferStep =
   | "idle"
@@ -18,6 +20,12 @@ export type OfferStep =
   | "accepted"
   | "declined"
   | "filled";
+
+export type FillResult = {
+  physicianId: string;
+  minutesClosed: number;
+  gapMinutes: number;
+};
 
 type DemoContextValue = {
   mode: "demo" | "live";
@@ -34,9 +42,19 @@ type DemoContextValue = {
   approve: () => void;
   sendOffer: () => void;
   physicianRespond: (accepted: boolean) => void;
+  proposeNext: () => void;
   resetFlow: () => void;
   panel: "none" | "decide" | "act";
   setPanel: (p: "none" | "decide" | "act") => void;
+  rankBy: RankBy;
+  setRankBy: (r: RankBy) => void;
+  /** Eligible candidates in offer order (declined ones stay listed, flagged). */
+  ranked: CostedCandidate[];
+  declinedIds: string[];
+  /** The candidate the next offer goes to, or null when the ladder is exhausted. */
+  primary: CostedCandidate | null;
+  gapMinutes: number;
+  lastFill: FillResult | null;
 };
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -48,6 +66,8 @@ const LABOR = [
   "Guarding against the split-shift trap…",
 ];
 
+const GAP_RISK_ID = "risk-river-shift-end";
+
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<"demo" | "live">("demo");
   const [dashboard, setDashboard] = useState<Dashboard>(() =>
@@ -58,6 +78,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const [offerStep, setOfferStep] = useState<OfferStep>("idle");
   const [laborIndex, setLaborIndex] = useState(-1);
   const [panel, setPanel] = useState<"none" | "decide" | "act">("none");
+  const [rankBy, setRankBy] = useState<RankBy>("cost");
+  const [declinedIds, setDeclinedIds] = useState<string[]>([]);
+  const [lastFill, setLastFill] = useState<FillResult | null>(null);
   const [events, setEvents] = useState<
     { id: string; at: string; text: string }[]
   >([
@@ -68,12 +91,36 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     },
   ]);
 
-  const injectEvent = useCallback((text: string) => {
-    const at = new Date().toISOString();
+  const ranked = useMemo(
+    () =>
+      rankCandidates(
+        [recommendation.candidate, ...recommendation.alternatives],
+        rankBy,
+      ),
+    [recommendation.candidate, recommendation.alternatives, rankBy],
+  );
+  const primary =
+    ranked.find((c) => !declinedIds.includes(c.candidate.physician_id)) ?? null;
+  const gapMinutes = useMemo(() => {
+    const risk = buildDemoDashboard().forecast.risks.find((r) => r.id === GAP_RISK_ID);
+    return Number(risk?.unmet_minutes ?? 45);
+  }, []);
+
+  const log = useCallback((text: string) => {
     setEvents((prev) => [
-      { id: crypto.randomUUID(), at, text },
+      { id: crypto.randomUUID(), at: new Date().toISOString(), text },
       ...prev,
     ]);
+  }, []);
+
+  const nameOf = useCallback(
+    (id: string) => physicianName(id, dashboard.physicians),
+    [dashboard.physicians],
+  );
+
+  const injectEvent = useCallback((text: string) => {
+    const at = new Date().toISOString();
+    log(text);
     setDashboard((d) => {
       const next = structuredClone(d);
       const risk = {
@@ -93,11 +140,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       next.freshness = { stale: next.freshness.stale, conflicts: true };
       return next;
     });
-  }, []);
+  }, [log]);
 
   const openDecide = useCallback(() => {
     setPanel("decide");
-    setOfferStep("ready");
+    setOfferStep((s) => (s === "idle" ? "ready" : s));
   }, []);
 
   const runLaborCheck = useCallback(async () => {
@@ -112,99 +159,108 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const approve = useCallback(() => {
+    if (!primary) return;
     setRecommendation((r) => ({ ...r, status: "approved" }));
     setOfferStep("approved");
     setPanel("act");
-    setEvents((prev) => [
-      {
-        id: crypto.randomUUID(),
-        at: new Date().toISOString(),
-        text: "Clinical lead approved split-shift offer for Dr. Morgan Vale",
-      },
-      ...prev,
-    ]);
-  }, []);
+    log(
+      `Clinical lead approved split-shift offer for ${nameOf(primary.candidate.physician_id)}` +
+        (rankBy === "cost" ? " · lowest-cost eligible candidate" : " · best clinical fit"),
+    );
+  }, [primary, rankBy, log, nameOf]);
 
   const sendOffer = useCallback(() => {
+    if (!primary) return;
     setRecommendation((r) => ({ ...r, status: "offered" }));
     setOfferStep("sent");
-    setEvents((prev) => [
-      {
-        id: crypto.randomUUID(),
-        at: new Date().toISOString(),
-        text: "Offer sent (simulated) · expires in 10 minutes · no patient information included",
-      },
-      ...prev,
-    ]);
-  }, []);
+    log(
+      `Offer sent to ${nameOf(primary.candidate.physician_id)} (simulated) · expires in 10 minutes · no patient information included`,
+    );
+  }, [primary, log, nameOf]);
 
   const physicianRespond = useCallback((accepted: boolean) => {
-    if (accepted) {
-      setRecommendation((r) => ({ ...r, status: "accepted" }));
-      setOfferStep("accepted");
-      setDashboard((d) => {
-        const next = structuredClone(d);
-        next.forecast.risks = next.forecast.risks.filter(
-          (r) => r.id !== "risk-river-shift-end",
-        );
-        next.forecast.intervals = next.forecast.intervals.map((bin, i) =>
-          i >= 2
-            ? {
-                ...bin,
-                capacity_minutes: Math.max(
-                  bin.demand_minutes ?? 0,
-                  (bin.capacity_minutes ?? 0) + 15,
-                ),
-                unmet_minutes: 0,
-              }
-            : bin,
-        );
+    if (!primary) return;
+    const id = primary.candidate.physician_id;
+    const name = nameOf(id);
+
+    if (!accepted) {
+      setRecommendation((r) => ({ ...r, status: "declined" }));
+      setOfferStep("declined");
+      setDeclinedIds((prev) => [...prev, id]);
+      log(`${name} declined · ladder moves to the next eligible candidate`);
+      return;
+    }
+
+    const closed = Math.min(primary.minutesClosed, gapMinutes);
+    const full = closed >= gapMinutes;
+    setRecommendation((r) => ({ ...r, status: "accepted" }));
+    setOfferStep("accepted");
+    setLastFill({ physicianId: id, minutesClosed: closed, gapMinutes });
+    setDashboard((d) => {
+      const next = structuredClone(d);
+      next.forecast.risks = full
+        ? next.forecast.risks.filter((r) => r.id !== GAP_RISK_ID)
+        : next.forecast.risks.map((r) =>
+            r.id === GAP_RISK_ID
+              ? {
+                  ...r,
+                  severity: "medium",
+                  unmet_minutes: gapMinutes - closed,
+                  reason: `${name} accepted and closes ${closed} of ${gapMinutes} uncovered minutes. ${gapMinutes - closed} minutes still need cover.`,
+                }
+              : r,
+          );
+      next.forecast.intervals = next.forecast.intervals.map((bin, i) =>
+        i >= 2
+          ? {
+              ...bin,
+              capacity_minutes: Math.max(
+                full ? (bin.demand_minutes ?? 0) : 0,
+                (bin.capacity_minutes ?? 0) + 15,
+              ),
+              unmet_minutes: full ? 0 : bin.unmet_minutes,
+            }
+          : bin,
+      );
+      if (full) {
         next.counts.at_risk_hospitals = Math.max(
           0,
           (next.counts.at_risk_hospitals ?? 1) - 1,
         );
         next.counts.pending_interventions = 0;
-        next.consultations = next.consultations.map((c) =>
-          c.id === "c-river-waiting-1"
-            ? { ...c, status: "assigned", physician_id: "phy-vale" }
-            : c,
-        );
-        next.physicians = next.physicians.map((p) =>
-          p.id === "phy-vale"
-            ? {
-                ...p,
-                availability: {
-                  ...p.availability,
-                  on_shift: true,
-                  workload: 1,
-                  status: "available",
-                },
-              }
-            : p,
-        );
-        return next;
-      });
-      setEvents((prev) => [
-        {
-          id: crypto.randomUUID(),
-          at: new Date().toISOString(),
-          text: "Physician accepted · projected coverage updated · gap filled. Offers stopped",
-        },
-        ...prev,
-      ]);
-      setTimeout(() => setOfferStep("filled"), 600);
-    } else {
-      setRecommendation((r) => ({ ...r, status: "declined" }));
-      setOfferStep("declined");
-      setEvents((prev) => [
-        {
-          id: crypto.randomUUID(),
-          at: new Date().toISOString(),
-          text: "Physician declined · ranking will propose the next eligible candidate",
-        },
-        ...prev,
-      ]);
-    }
+      }
+      next.consultations = next.consultations.map((c) =>
+        c.id === "c-river-waiting-1"
+          ? { ...c, status: "assigned", physician_id: id }
+          : c,
+      );
+      next.physicians = next.physicians.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              availability: {
+                ...p.availability,
+                on_shift: true,
+                workload: 1,
+                status: "available",
+              },
+            }
+          : p,
+      );
+      return next;
+    });
+    log(
+      full
+        ? `${name} accepted · projected coverage updated · gap filled. Offers stopped`
+        : `${name} accepted · ${closed} of ${gapMinutes} gap minutes closed · ${gapMinutes - closed} still uncovered`,
+    );
+    setTimeout(() => setOfferStep("filled"), 600);
+  }, [primary, gapMinutes, log, nameOf]);
+
+  const proposeNext = useCallback(() => {
+    setRecommendation((r) => ({ ...r, status: "proposed" }));
+    setOfferStep("ready");
+    setPanel("decide");
   }, []);
 
   const resetFlow = useCallback(() => {
@@ -213,6 +269,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setOfferStep("idle");
     setPanel("none");
     setLaborIndex(-1);
+    setDeclinedIds([]);
+    setLastFill(null);
   }, []);
 
   const value = useMemo(
@@ -231,9 +289,17 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       approve,
       sendOffer,
       physicianRespond,
+      proposeNext,
       resetFlow,
       panel,
       setPanel,
+      rankBy,
+      setRankBy,
+      ranked,
+      declinedIds,
+      primary,
+      gapMinutes,
+      lastFill,
     }),
     [
       mode,
@@ -248,8 +314,15 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       approve,
       sendOffer,
       physicianRespond,
+      proposeNext,
       resetFlow,
       panel,
+      rankBy,
+      ranked,
+      declinedIds,
+      primary,
+      gapMinutes,
+      lastFill,
     ],
   );
 

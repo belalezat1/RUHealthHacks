@@ -1,5 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useDemo, type OfferStep } from "../demo/store";
+import { usd } from "../demo/economics";
+import { physicianName } from "../lib/format";
 
 const STEPS: { key: OfferStep; label: string }[] = [
   { key: "ready", label: "Propose" },
@@ -21,6 +23,14 @@ export function OfferLoop() {
   const demo = useDemo();
   const idx = stepIndex(demo.offerStep);
   const busy = demo.offerStep === "checking";
+  const primaryName = demo.primary
+    ? physicianName(demo.primary.candidate.physician_id, demo.dashboard.physicians)
+    : "";
+  const fillName = demo.lastFill
+    ? physicianName(demo.lastFill.physicianId, demo.dashboard.physicians)
+    : "";
+  const gapLeft = demo.lastFill ? demo.lastFill.gapMinutes - demo.lastFill.minutesClosed : 0;
+  const fullFill = gapLeft <= 0;
 
   return (
     <div>
@@ -71,28 +81,54 @@ export function OfferLoop() {
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         >
           {demo.offerStep === "filled" ? (
-            <div className="success-banner" role="status">
-              <strong>Gap filled. Offers stopped.</strong>
-              <p style={{ margin: "8px 0 0", color: "var(--text-soft)" }}>
-                Projected coverage meets the minimum. Audit trail recorded. No further
-                offers will be sent for this gap.
-              </p>
-            </div>
+            fullFill ? (
+              <div className="success-banner" role="status">
+                <strong>Gap filled. Offers stopped.</strong>
+                <p style={{ margin: "8px 0 0", color: "var(--text-soft)" }}>
+                  {fillName} closes all {demo.lastFill?.gapMinutes} uncovered minutes. Audit
+                  trail recorded. No further offers will be sent for this gap.
+                </p>
+              </div>
+            ) : (
+              <div className="partial-banner" role="status">
+                <strong>
+                  Gap reduced, not closed: {gapLeft} min still uncovered
+                </strong>
+                <p style={{ margin: "8px 0 0", color: "var(--text-soft)" }}>
+                  {fillName} closes {demo.lastFill?.minutesClosed} of{" "}
+                  {demo.lastFill?.gapMinutes} minutes. Review the remaining risk before
+                  offering more cover.
+                </p>
+              </div>
+            )
           ) : (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            <div className="offer-actions">
+              {demo.primary && (demo.offerStep === "idle" || demo.offerStep === "ready") ? (
+                <p className="offer-target">
+                  Offer goes to <strong>{primaryName}</strong> ·{" "}
+                  <span className="tabular">{usd(demo.primary.cost)}</span> est.
+                </p>
+              ) : null}
               {(demo.offerStep === "idle" || demo.offerStep === "ready") && (
                 <>
                   <button className="btn btn-ghost" type="button" onClick={() => demo.runLaborCheck()}>
                     Re-check eligibility
                   </button>
-                  <button className="btn btn-primary" type="button" onClick={() => demo.approve()}>
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    disabled={!demo.primary}
+                    onClick={() => demo.approve()}
+                  >
                     Approve offer
+                    <span className="btn-arrow" aria-hidden>→</span>
                   </button>
                 </>
               )}
               {demo.offerStep === "approved" && (
                 <button className="btn btn-primary" type="button" onClick={() => demo.sendOffer()}>
-                  Send offer
+                  Send offer to {primaryName}
+                  <span className="btn-arrow" aria-hidden>→</span>
                 </button>
               )}
               {demo.offerStep === "sent" && (
@@ -113,11 +149,17 @@ export function OfferLoop() {
                   </button>
                 </>
               )}
-              {demo.offerStep === "declined" && (
-                <button className="btn btn-ghost" type="button" onClick={() => demo.resetFlow()}>
-                  Reset demo flow
-                </button>
-              )}
+              {demo.offerStep === "declined" &&
+                (demo.primary ? (
+                  <button className="btn btn-primary" type="button" onClick={() => demo.proposeNext()}>
+                    Propose next: {primaryName}
+                    <span className="btn-arrow" aria-hidden>→</span>
+                  </button>
+                ) : (
+                  <button className="btn btn-ghost" type="button" onClick={() => demo.resetFlow()}>
+                    No eligible candidates left · reset demo
+                  </button>
+                ))}
             </div>
           )}
         </motion.div>

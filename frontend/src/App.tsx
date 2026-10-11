@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { motion, useScroll, useSpring } from "framer-motion";
+import { usePressRipple } from "./lib/ripple";
 import Landing from "./pages/Landing";
 import Desk from "./pages/Desk";
 import Lab from "./pages/Lab";
@@ -8,11 +11,30 @@ import { useDemo } from "./demo/store";
 import { clock, clockDate } from "./lib/format";
 import { brand } from "./brand";
 
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 220, damping: 32, mass: 0.3 });
+  return <motion.div className="scroll-progress" style={{ scaleX }} aria-hidden />;
+}
+
+function useScrolled(threshold = 8) {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > threshold);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
+  return scrolled;
+}
+
 function AppShell({ children }: { children: React.ReactNode }) {
   const { dashboard, openDecide } = useDemo();
   const navigate = useNavigate();
   const location = useLocation();
   const isLab = location.pathname.includes("/lab");
+  const scrolled = useScrolled();
+  usePressRipple();
 
   return (
     <div className="app-shell">
@@ -46,7 +68,8 @@ function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <div className="app-main">
-        <header className="app-topbar">
+        <header className={`app-topbar${scrolled ? " scrolled" : ""}`}>
+          <ScrollProgress />
           <div className="app-topbar-title">
             <h1>{isLab ? brand.labLabel : brand.deskLabel}</h1>
             <p className="app-topbar-sub">
@@ -66,6 +89,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
                 }}
               >
                 Review intervention
+                <span className="btn-arrow" aria-hidden>→</span>
               </button>
             ) : null}
           </div>

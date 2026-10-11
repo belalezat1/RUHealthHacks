@@ -5,6 +5,8 @@ import { physicianName } from "../lib/format";
 type Props = {
   recommendation: Recommendation;
   physicians: { id: string; name: string }[];
+  /** Eligible physician ids in offer order; the first is offered first. */
+  order?: string[];
 };
 
 type LooseRule = {
@@ -47,10 +49,10 @@ function outcomeLabel(outcome?: string, kind?: string) {
   return { label: outcome ?? kind ?? "Review", tone: "warn" as const };
 }
 
-export function EligibilityMatrix({ recommendation, physicians }: Props) {
+export function EligibilityMatrix({ recommendation, physicians, order }: Props) {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
-  const rows: {
+  const unordered: {
     kind: "recommended" | "alternative" | "rejected";
     physician_id: string;
     outcome?: string;
@@ -84,6 +86,20 @@ export function EligibilityMatrix({ recommendation, physicians }: Props) {
     })),
   ];
 
+  const rank = (id: string) => {
+    const i = order?.indexOf(id) ?? -1;
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  const rows = order
+    ? [
+        ...unordered
+          .filter((r) => r.kind !== "rejected")
+          .sort((a, b) => rank(a.physician_id) - rank(b.physician_id))
+          .map((r, i) => ({ ...r, kind: i === 0 ? ("recommended" as const) : ("alternative" as const) })),
+        ...unordered.filter((r) => r.kind === "rejected"),
+      ]
+    : unordered;
+
   return (
     <div className="eligibility-matrix">
       <div className="eligibility-trap">
@@ -106,9 +122,13 @@ export function EligibilityMatrix({ recommendation, physicians }: Props) {
                 </div>
                 <div className="eligibility-meta">
                   {row.kind === "recommended"
-                    ? "Recommended"
+                    ? order
+                      ? "Offer first"
+                      : "Recommended"
                     : row.kind === "alternative"
-                      ? "Alternative"
+                      ? order
+                        ? "Backup"
+                        : "Alternative"
                       : "Excluded"}
                   {row.explanation ? ` · ${row.explanation}` : ""}
                 </div>
