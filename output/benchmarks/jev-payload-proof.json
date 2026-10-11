@@ -1,0 +1,10 @@
+{
+  "outbound_endpoint": "https://api.typesafe.ai/v1/systemone",
+  "maximum_live_requests": 25,
+  "request_bytes": 2821,
+  "contains_names_or_source_ids": false,
+  "contains_raw_clinical_narratives": false,
+  "contains_credentials": false,
+  "source": "Unchanged organizer challenge records; only anonymous allowlisted operational features sent",
+  "credential_handling": "Ignored root .env, HTTPS Authorization header only; no request/response body or key saved"
+}

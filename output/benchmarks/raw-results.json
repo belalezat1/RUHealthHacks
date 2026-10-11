@@ -1,0 +1,1346 @@
+{
+  "measured_at": "2026-10-11T14:58:53.494631+00:00",
+  "release_sha": "c54c2e95441ad02bcaf9fd4e43ab6e15cffe58a3",
+  "machine": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "python": "3.12.14",
+    "cpus": 8
+  },
+  "dataset": {
+    "source_hashes": {
+      "event_stream.csv": "b3370a5d7fb98092303a1bd35b1017fda33d2420124b4d6d35ef73d8f116d967",
+      "hospitals.csv": "7fe1c593adf78408fbc365d2651541d2509729a5918418d8ea6d63c4b63dbf6b",
+      "physicians_on_shift.csv": "fa6e3da8912e111f7c7adf81268de76d5ce7382671859d947147738054714848",
+      "physicians_off_shift_roster.csv": "39371d1b32c4748cbd86dc150c4172b6b01034db5070d9707f6de50166a0e5e3",
+      "credentialing_matrix.csv": "4757e898b87b3ae4db95cabe89ba75bd55290e35ee346daf312d1ff96453f34f",
+      "baseline_hourly_volume.csv": "111a6932b232e8e88cdc4948549c664b7a1516d5f26dbfe0de4663b88ff0becf",
+      "coverage_requirements.csv": "13941b1d8c6dacc3ec6b3dc0ddc44a03fc4bec69d8b01f742df00c67436201c6",
+      "snapshot_physicians_1820.csv": "b6fe7b830fb960f34a074d7d25d7e7a32aafcb53d1821f72a2ba74b02da35e51",
+      "snapshot_open_consults_1820.csv": "602b42bc85e0302575682174bc72173f0f1ed297d5b3a5d605b3fbdfae590c25"
+    },
+    "raw_rows": 1164,
+    "unique_events": 1163,
+    "physicians": 14,
+    "hospitals": 12,
+    "reference_match": "208/208"
+  },
+  "runs_per_measurement": 25,
+  "speed": {
+    "Routing (one hospital)": {
+      "n": 25,
+      "p50_ms": 0.0117,
+      "p95_ms": 0.0158,
+      "min_ms": 0.0085,
+      "max_ms": 0.016,
+      "samples_ms": [
+        0.011625001206994057,
+        0.010707997716963291,
+        0.01604200224392116,
+        0.013708006008528173,
+        0.010750001820269972,
+        0.015708996215835214,
+        0.008666997018735856,
+        0.012750002497341484,
+        0.013500000932253897,
+        0.015792000340297818,
+        0.010374998964834958,
+        0.011500000255182385,
+        0.010875002772081643,
+        0.010458003089297563,
+        0.01562500256113708,
+        0.013709002814721316,
+        0.010958996426779777,
+        0.015457997506018728,
+        0.008457995136268437,
+        0.012666001566685736,
+        0.013417004083748907,
+        0.015499994333367795,
+        0.010374998964834958,
+        0.01166600122814998,
+        0.010957999620586634
+      ]
+    },
+    "Parse, dedupe + event replay": {
+      "n": 25,
+      "p50_ms": 7.7778,
+      "p95_ms": 7.9054,
+      "min_ms": 7.5815,
+      "max_ms": 10.3527,
+      "samples_ms": [
+        7.8584170041722246,
+        7.675000000745058,
+        7.7448750016628765,
+        7.630415995663498,
+        7.58154100185493,
+        7.807916001183912,
+        7.697041997744236,
+        7.749874996079598,
+        7.687249999435153,
+        7.908749998023268,
+        7.731499994406477,
+        7.89204199827509,
+        7.837666002160404,
+        7.849250003346242,
+        7.761708002362866,
+        7.80108300386928,
+        7.774082994728815,
+        10.352749995945487,
+        7.777792001434136,
+        7.80920800025342,
+        7.790666997607332,
+        7.826583001588006,
+        7.6573339974856935,
+        7.60512499982724,
+        7.82108299608808
+      ]
+    },
+    "Forecast (12 hospitals / 90 min)": {
+      "n": 25,
+      "p50_ms": 4.3339,
+      "p95_ms": 4.4614,
+      "min_ms": 4.2076,
+      "max_ms": 4.5136,
+      "samples_ms": [
+        4.331708994868677,
+        4.382040999189485,
+        4.513625004619826,
+        4.409000001032837,
+        4.370875001768582,
+        4.432707995874807,
+        4.461709002498537,
+        4.309875002945773,
+        4.3384580058045685,
+        4.2932090000249445,
+        4.460290998395067,
+        4.244832998665515,
+        4.225790995405987,
+        4.207625002891291,
+        4.40754099690821,
+        4.307082999730483,
+        4.294041995308362,
+        4.277291998732835,
+        4.380375001346692,
+        4.225541997584514,
+        4.25708299735561,
+        4.209165999782272,
+        4.369499998574611,
+        4.333917000622023,
+        4.377666002255864
+      ]
+    },
+    "Full load + analysis + JSON": {
+      "n": 25,
+      "p50_ms": 18.4841,
+      "p95_ms": 20.4033,
+      "min_ms": 18.0518,
+      "max_ms": 20.8522,
+      "samples_ms": [
+        18.64062499953434,
+        18.737667000095826,
+        18.469959002686664,
+        20.784082997124642,
+        18.168540998885874,
+        18.29929200175684,
+        18.21370900142938,
+        18.63237499492243,
+        18.59041699935915,
+        18.71650000248337,
+        18.341458002396394,
+        18.0517909975606,
+        18.394042002910282,
+        18.484124993847217,
+        18.463665997842327,
+        18.3912920037983,
+        18.165708002925385,
+        18.585624995466787,
+        18.27762500033714,
+        20.852207999269012,
+        18.744708999292925,
+        18.880374998843763,
+        18.2847909964039,
+        18.743499997071922,
+        18.85220900294371
+      ]
+    },
+    "HTTP API report (warm)": {
+      "n": 25,
+      "p50_ms": 14.3825,
+      "p95_ms": 15.5283,
+      "min_ms": 13.1901,
+      "max_ms": 17.7992,
+      "samples_ms": [
+        15.377625000837725,
+        14.534291003656108,
+        14.222957994206809,
+        14.561500000127126,
+        14.58154200372519,
+        13.847082998836413,
+        13.190083001973107,
+        13.701417003176175,
+        13.961165997898206,
+        14.347749995067716,
+        15.22491699870443,
+        17.799167006160133,
+        15.565917005005758,
+        14.56279100239044,
+        14.382540997758042,
+        14.091042001382448,
+        14.569457998732105,
+        14.790916997299064,
+        14.654625003458932,
+        14.106583003012929,
+        14.702624997880775,
+        14.029457997821737,
+        13.968916995509062,
+        14.031083999725524,
+        13.841957996191923
+      ]
+    }
+  },
+  "api": {
+    "state": {
+      "n": 25,
+      "p50_ms": 4.8832,
+      "p95_ms": 5.0502,
+      "min_ms": 4.48,
+      "max_ms": 5.9633,
+      "samples_ms": [
+        5.051667001680471,
+        5.038957999204285,
+        4.8891660044319,
+        5.027457998949103,
+        4.807291996257845,
+        4.82933299645083,
+        4.712916997959837,
+        4.930082999635488,
+        4.924790999211837,
+        4.883207999228034,
+        4.621749998477753,
+        5.044333003752399,
+        4.868584001087584,
+        4.880207998212427,
+        5.9633330020005815,
+        4.849666998779867,
+        4.929167000227608,
+        4.927583002427127,
+        4.9872090021381155,
+        4.889457995886914,
+        4.587249997712206,
+        4.5672909982386045,
+        4.480042000068352,
+        4.649000002245884,
+        4.701709003711585
+      ]
+    },
+    "report": {
+      "n": 25,
+      "p50_ms": 14.3825,
+      "p95_ms": 15.5283,
+      "min_ms": 13.1901,
+      "max_ms": 17.7992,
+      "samples_ms": [
+        15.377625000837725,
+        14.534291003656108,
+        14.222957994206809,
+        14.561500000127126,
+        14.58154200372519,
+        13.847082998836413,
+        13.190083001973107,
+        13.701417003176175,
+        13.961165997898206,
+        14.347749995067716,
+        15.22491699870443,
+        17.799167006160133,
+        15.565917005005758,
+        14.56279100239044,
+        14.382540997758042,
+        14.091042001382448,
+        14.569457998732105,
+        14.790916997299064,
+        14.654625003458932,
+        14.106583003012929,
+        14.702624997880775,
+        14.029457997821737,
+        13.968916995509062,
+        14.031083999725524,
+        13.841957996191923
+      ]
+    },
+    "actionlab": {
+      "n": 25,
+      "p50_ms": 15.5988,
+      "p95_ms": 18.3319,
+      "min_ms": 15.1975,
+      "max_ms": 19.6607,
+      "samples_ms": [
+        15.377499999885913,
+        15.79320800374262,
+        15.75095800217241,
+        15.56158399762353,
+        15.754957996250596,
+        15.708458005974535,
+        17.600459003006108,
+        15.579208004055545,
+        15.407375001814216,
+        15.312875002564397,
+        15.455624998139683,
+        15.21866700204555,
+        15.197542001260445,
+        15.280167004675604,
+        18.51475000148639,
+        19.660709003801458,
+        16.782416998466942,
+        16.969791999144945,
+        16.322875002515502,
+        15.806124996743165,
+        15.59883399750106,
+        15.468125006009359,
+        15.216833002341446,
+        15.552875003777444,
+        15.946915998938493
+      ]
+    }
+  },
+  "api_state": {
+    "revision": 5,
+    "event_count": 1163,
+    "offer_count": 1
+  },
+  "selection": {
+    "n": 25,
+    "passed": 25,
+    "cases": [
+      {
+        "case": 1,
+        "cutoff": "2026-03-17T17:00:02-04:00",
+        "hospital_id": "SYN-009",
+        "expected_best_physicians": [
+          "PHY-001"
+        ],
+        "selected_physician": "PHY-001",
+        "expected_eligible": [
+          "PHY-001",
+          "PHY-004",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-001",
+          "PHY-004",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "cooldown",
+          "credentials",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 4,
+          "cooldown": 1,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 2,
+        "cutoff": "2026-03-17T15:11:02-04:00",
+        "hospital_id": "SYN-007",
+        "expected_best_physicians": [
+          "PHY-002"
+        ],
+        "selected_physician": "PHY-002",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "cooldown",
+          "credentials",
+          "least_recent_answer_tiebreak"
+        ],
+        "exclusions": {
+          "credentials": 5,
+          "cooldown": 1,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 3,
+        "cutoff": "2026-03-17T17:17:03-04:00",
+        "hospital_id": "SYN-010",
+        "expected_best_physicians": [
+          "PHY-008"
+        ],
+        "selected_physician": "PHY-008",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "credentials",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 4,
+        "cutoff": "2026-03-17T17:56:00-04:00",
+        "hospital_id": "SYN-002",
+        "expected_best_physicians": [
+          "PHY-007"
+        ],
+        "selected_physician": "PHY-007",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-007"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-007"
+        ],
+        "passed": true,
+        "categories": [
+          "agent_offline_assumption",
+          "credentials",
+          "low_volume_priority",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 5,
+        "cutoff": "2026-03-17T18:20:00-04:00",
+        "hospital_id": "SYN-002",
+        "expected_best_physicians": [],
+        "selected_physician": null,
+        "expected_eligible": [],
+        "actual_eligible": [],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "no_eligible_physician",
+          "ringing"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "busy": 1,
+          "ringing": 1,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 6,
+        "cutoff": "2026-03-17T17:02:00-04:00",
+        "hospital_id": "SYN-002",
+        "expected_best_physicians": [
+          "PHY-007"
+        ],
+        "selected_physician": "PHY-007",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-007"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-007"
+        ],
+        "passed": true,
+        "categories": [
+          "credentials",
+          "low_volume_priority",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 7,
+        "cutoff": "2026-03-17T08:13:04-04:00",
+        "hospital_id": "SYN-007",
+        "expected_best_physicians": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "selected_physician": "PHY-002",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "credentials",
+          "equal_tie_unspecified_by_handbook",
+          "low_volume_priority"
+        ],
+        "exclusions": {
+          "credentials": 4,
+          "off_shift": 8
+        }
+      },
+      {
+        "case": 8,
+        "cutoff": "2026-03-17T11:17:07-04:00",
+        "hospital_id": "SYN-008",
+        "expected_best_physicians": [
+          "PHY-001"
+        ],
+        "selected_physician": "PHY-001",
+        "expected_eligible": [
+          "PHY-001",
+          "PHY-005",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-001",
+          "PHY-005",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "low_volume_priority",
+          "workload"
+        ],
+        "exclusions": {
+          "busy": 1,
+          "credentials": 4,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 9,
+        "cutoff": "2026-03-17T15:11:02-04:00",
+        "hospital_id": "SYN-011",
+        "expected_best_physicians": [
+          "PHY-002"
+        ],
+        "selected_physician": "PHY-002",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-006",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-006",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "busy",
+          "cooldown",
+          "credentials",
+          "least_recent_answer_tiebreak",
+          "workload"
+        ],
+        "exclusions": {
+          "busy": 1,
+          "credentials": 3,
+          "cooldown": 1,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 10,
+        "cutoff": "2026-03-17T15:40:18-04:00",
+        "hospital_id": "SYN-009",
+        "expected_best_physicians": [
+          "PHY-003"
+        ],
+        "selected_physician": "PHY-003",
+        "expected_eligible": [
+          "PHY-003"
+        ],
+        "actual_eligible": [
+          "PHY-003"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "busy",
+          "cooldown",
+          "credentials"
+        ],
+        "exclusions": {
+          "busy": 2,
+          "credentials": 4,
+          "cooldown": 1,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 11,
+        "cutoff": "2026-03-17T13:10:00-04:00",
+        "hospital_id": "SYN-010",
+        "expected_best_physicians": [],
+        "selected_physician": null,
+        "expected_eligible": [],
+        "actual_eligible": [],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "no_eligible_physician"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "busy": 2,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 12,
+        "cutoff": "2026-03-17T07:00:01-04:00",
+        "hospital_id": "SYN-001",
+        "expected_best_physicians": [
+          "PHY-003",
+          "PHY-006"
+        ],
+        "selected_physician": "PHY-003",
+        "expected_eligible": [
+          "PHY-003",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-003",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "equal_tie_unspecified_by_handbook",
+          "low_volume_priority"
+        ],
+        "exclusions": {
+          "off_shift": 12
+        }
+      },
+      {
+        "case": 13,
+        "cutoff": "2026-03-17T08:40:33-04:00",
+        "hospital_id": "SYN-007",
+        "expected_best_physicians": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "selected_physician": "PHY-002",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "credentials",
+          "equal_tie_unspecified_by_handbook",
+          "low_volume_priority"
+        ],
+        "exclusions": {
+          "credentials": 4,
+          "off_shift": 8
+        }
+      },
+      {
+        "case": 14,
+        "cutoff": "2026-03-17T09:26:05-04:00",
+        "hospital_id": "SYN-002",
+        "expected_best_physicians": [],
+        "selected_physician": null,
+        "expected_eligible": [],
+        "actual_eligible": [],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "no_eligible_physician"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "busy": 1,
+          "off_shift": 7
+        }
+      },
+      {
+        "case": 15,
+        "cutoff": "2026-03-17T09:52:36-04:00",
+        "hospital_id": "SYN-008",
+        "expected_best_physicians": [
+          "PHY-006"
+        ],
+        "selected_physician": "PHY-006",
+        "expected_eligible": [
+          "PHY-005",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-005",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "least_recent_answer_tiebreak",
+          "low_volume_priority"
+        ],
+        "exclusions": {
+          "busy": 2,
+          "credentials": 3,
+          "off_shift": 7
+        }
+      },
+      {
+        "case": 16,
+        "cutoff": "2026-03-17T10:45:45-04:00",
+        "hospital_id": "SYN-003",
+        "expected_best_physicians": [],
+        "selected_physician": null,
+        "expected_eligible": [],
+        "actual_eligible": [],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "no_eligible_physician"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "busy": 2,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 17,
+        "cutoff": "2026-03-17T11:17:07-04:00",
+        "hospital_id": "SYN-009",
+        "expected_best_physicians": [
+          "PHY-001"
+        ],
+        "selected_physician": "PHY-001",
+        "expected_eligible": [
+          "PHY-001",
+          "PHY-003",
+          "PHY-004",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-001",
+          "PHY-003",
+          "PHY-004",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "credentials",
+          "low_volume_priority",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 4,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 18,
+        "cutoff": "2026-03-17T11:56:52-04:00",
+        "hospital_id": "SYN-004",
+        "expected_best_physicians": [
+          "PHY-001"
+        ],
+        "selected_physician": "PHY-001",
+        "expected_eligible": [
+          "PHY-001",
+          "PHY-005",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-001",
+          "PHY-005",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "low_volume_priority",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 4,
+          "busy": 1,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 19,
+        "cutoff": "2026-03-17T12:29:39-04:00",
+        "hospital_id": "SYN-010",
+        "expected_best_physicians": [
+          "PHY-008"
+        ],
+        "selected_physician": "PHY-008",
+        "expected_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-002",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "credentials",
+          "low_volume_priority",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 6,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 20,
+        "cutoff": "2026-03-17T13:10:00-04:00",
+        "hospital_id": "SYN-005",
+        "expected_best_physicians": [
+          "PHY-003"
+        ],
+        "selected_physician": "PHY-003",
+        "expected_eligible": [
+          "PHY-003",
+          "PHY-005",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-003",
+          "PHY-005",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "credentials",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 5,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 21,
+        "cutoff": "2026-03-17T13:28:53-04:00",
+        "hospital_id": "SYN-011",
+        "expected_best_physicians": [
+          "PHY-002"
+        ],
+        "selected_physician": "PHY-002",
+        "expected_eligible": [
+          "PHY-001",
+          "PHY-002",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-001",
+          "PHY-002",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "busy",
+          "credentials",
+          "least_recent_answer_tiebreak",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 3,
+          "busy": 2,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 22,
+        "cutoff": "2026-03-17T14:11:45-04:00",
+        "hospital_id": "SYN-006",
+        "expected_best_physicians": [
+          "PHY-001"
+        ],
+        "selected_physician": "PHY-001",
+        "expected_eligible": [
+          "PHY-001",
+          "PHY-006",
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-001",
+          "PHY-006",
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "busy",
+          "credentials",
+          "least_recent_answer_tiebreak",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 4,
+          "busy": 1,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 23,
+        "cutoff": "2026-03-17T14:54:54-04:00",
+        "hospital_id": "SYN-012",
+        "expected_best_physicians": [
+          "PHY-007"
+        ],
+        "selected_physician": "PHY-007",
+        "expected_eligible": [
+          "PHY-006",
+          "PHY-007"
+        ],
+        "actual_eligible": [
+          "PHY-006",
+          "PHY-007"
+        ],
+        "passed": true,
+        "categories": [
+          "busy",
+          "credentials",
+          "low_volume_priority",
+          "workload"
+        ],
+        "exclusions": {
+          "busy": 2,
+          "credentials": 4,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 24,
+        "cutoff": "2026-03-17T15:40:18-04:00",
+        "hospital_id": "SYN-007",
+        "expected_best_physicians": [
+          "PHY-008"
+        ],
+        "selected_physician": "PHY-008",
+        "expected_eligible": [
+          "PHY-008"
+        ],
+        "actual_eligible": [
+          "PHY-008"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "busy",
+          "credentials"
+        ],
+        "exclusions": {
+          "credentials": 5,
+          "busy": 2,
+          "off_shift": 6
+        }
+      },
+      {
+        "case": 25,
+        "cutoff": "2026-03-17T17:02:00-04:00",
+        "hospital_id": "SYN-001",
+        "expected_best_physicians": [
+          "PHY-001"
+        ],
+        "selected_physician": "PHY-001",
+        "expected_eligible": [
+          "PHY-001",
+          "PHY-003",
+          "PHY-004",
+          "PHY-006"
+        ],
+        "actual_eligible": [
+          "PHY-001",
+          "PHY-003",
+          "PHY-004",
+          "PHY-006"
+        ],
+        "passed": true,
+        "categories": [
+          "above_threshold_fewest_consults",
+          "credentials",
+          "workload"
+        ],
+        "exclusions": {
+          "credentials": 4,
+          "off_shift": 6
+        }
+      }
+    ],
+    "category_coverage": {
+      "above_threshold_fewest_consults": 10,
+      "cooldown": 4,
+      "credentials": 24,
+      "workload": 14,
+      "least_recent_answer_tiebreak": 5,
+      "agent_offline_assumption": 1,
+      "low_volume_priority": 11,
+      "busy": 13,
+      "no_eligible_physician": 4,
+      "ringing": 1,
+      "equal_tie_unspecified_by_handbook": 3
+    },
+    "missing_categories": [],
+    "basis": "Handbook routing rules, independent oracle over actual replay state; equal unspecified ties accept any equally best physician. Not clinical accuracy."
+  },
+  "off_shift_roster_checks": [
+    {
+      "physician_id": "PHY-009",
+      "expected_eligible": true,
+      "actual_eligible": true,
+      "passed": true
+    },
+    {
+      "physician_id": "PHY-010",
+      "expected_eligible": false,
+      "actual_eligible": false,
+      "passed": true
+    },
+    {
+      "physician_id": "PHY-011",
+      "expected_eligible": false,
+      "actual_eligible": false,
+      "passed": true
+    },
+    {
+      "physician_id": "PHY-012",
+      "expected_eligible": false,
+      "actual_eligible": false,
+      "passed": true
+    },
+    {
+      "physician_id": "PHY-013",
+      "expected_eligible": false,
+      "actual_eligible": false,
+      "passed": true
+    },
+    {
+      "physician_id": "PHY-014",
+      "expected_eligible": false,
+      "actual_eligible": false,
+      "passed": true
+    }
+  ],
+  "constraint_cases": [
+    {
+      "case": "Rest 9.983h",
+      "category": "10h rest",
+      "expected": false,
+      "actual": false,
+      "passed": true,
+      "start": "2026-03-17T16:59:00-04:00",
+      "end": "2026-03-17T18:59:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Rest 10h",
+      "category": "10h rest",
+      "expected": true,
+      "actual": true,
+      "passed": true,
+      "start": "2026-03-17T17:00:00-04:00",
+      "end": "2026-03-17T19:00:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Rest 10.02h",
+      "category": "10h rest",
+      "expected": true,
+      "actual": true,
+      "passed": true,
+      "start": "2026-03-17T17:01:00-04:00",
+      "end": "2026-03-17T19:01:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Weekly total 59.5h",
+      "category": "60h weekly cap",
+      "expected": true,
+      "actual": true,
+      "passed": true,
+      "start": "2026-03-17T18:20:00-04:00",
+      "end": "2026-03-18T17:50:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Weekly total 60h",
+      "category": "60h weekly cap",
+      "expected": true,
+      "actual": true,
+      "passed": true,
+      "start": "2026-03-17T18:20:00-04:00",
+      "end": "2026-03-18T18:20:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Weekly total 60.5h",
+      "category": "60h weekly cap",
+      "expected": false,
+      "actual": false,
+      "passed": true,
+      "start": "2026-03-17T18:20:00-04:00",
+      "end": "2026-03-18T18:50:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Ends at shift start",
+      "category": "Shift overlap",
+      "expected": true,
+      "actual": true,
+      "passed": true,
+      "start": "2026-03-17T17:00:00-04:00",
+      "end": "2026-03-17T19:00:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Overlaps by one minute",
+      "category": "Shift overlap",
+      "expected": false,
+      "actual": false,
+      "passed": true,
+      "start": "2026-03-17T17:01:00-04:00",
+      "end": "2026-03-17T19:01:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Original conflicting candidate",
+      "category": "Shift overlap",
+      "expected": false,
+      "actual": false,
+      "passed": true,
+      "start": "2026-03-17T18:20:00-04:00",
+      "end": "2026-03-17T20:20:00-04:00",
+      "basis": "Hypothetical offer boundary using unchanged supplied roster; no source events or live offers created"
+    },
+    {
+      "case": "Coordinator cannot approve",
+      "category": "Lead approval",
+      "expected_status": 403,
+      "actual_status": 403,
+      "passed": true,
+      "basis": "Actual FastAPI workflow in a disposable isolated test adapter; no live operational mutations"
+    },
+    {
+      "case": "Cannot send without approval",
+      "category": "Lead approval",
+      "expected_status": 409,
+      "actual_status": 409,
+      "passed": true,
+      "basis": "Actual FastAPI workflow in a disposable isolated test adapter; no live operational mutations"
+    },
+    {
+      "case": "Clinical lead can approve",
+      "category": "Lead approval",
+      "expected_status": 200,
+      "actual_status": 200,
+      "passed": true,
+      "basis": "Actual FastAPI workflow in a disposable isolated test adapter; no live operational mutations"
+    },
+    {
+      "case": "Approved simulated send works",
+      "category": "Lead approval",
+      "expected_status": 200,
+      "actual_status": 200,
+      "passed": true,
+      "basis": "Actual FastAPI workflow in a disposable isolated test adapter; no live operational mutations"
+    },
+    {
+      "case": "Accept at 9m59s",
+      "category": "10m offer expiry",
+      "expected_status": 200,
+      "actual_status": 200,
+      "passed": true,
+      "basis": "Actual FastAPI workflow in a disposable isolated test adapter; no live operational mutations"
+    },
+    {
+      "case": "Reject at exact 10m expiry",
+      "category": "10m offer expiry",
+      "expected_status": 409,
+      "actual_status": 409,
+      "passed": true,
+      "basis": "Actual FastAPI workflow in a disposable isolated test adapter; no live operational mutations"
+    }
+  ],
+  "scalability": {
+    "kind": "duplicate-heavy unchanged-record replay stress; unique-event growth untested",
+    "points": [
+      {
+        "factor": 1,
+        "input_rows": 1164,
+        "unique_events": 1163,
+        "duplicates": 1,
+        "measurement": {
+          "n": 25,
+          "p50_ms": 15.8558,
+          "p95_ms": 20.1676,
+          "min_ms": 14.9637,
+          "max_ms": 35.3308,
+          "samples_ms": [
+            15.982041004463099,
+            14.963749999878928,
+            15.070875000674278,
+            15.593875003105495,
+            20.619249997253064,
+            35.330792001332156,
+            15.669499996874947,
+            15.082457997777965,
+            15.693417000875343,
+            15.115333000721876,
+            18.361125003139023,
+            15.950125001836568,
+            15.226625000650529,
+            15.492124999582302,
+            15.216584004519973,
+            15.651124995201826,
+            15.85575000353856,
+            15.744417003588751,
+            15.943375001370441,
+            15.945667000778485,
+            15.976709000824485,
+            15.954750000673812,
+            16.031999999540858,
+            15.932292000798043,
+            16.066290998423938
+          ]
+        }
+      },
+      {
+        "factor": 5,
+        "input_rows": 5820,
+        "unique_events": 1163,
+        "duplicates": 4657,
+        "measurement": {
+          "n": 25,
+          "p50_ms": 39.4098,
+          "p95_ms": 42.0002,
+          "min_ms": 38.4301,
+          "max_ms": 42.4665,
+          "samples_ms": [
+            42.46654199960176,
+            40.055333003692795,
+            38.983999998890795,
+            38.43008400144754,
+            39.18229199916823,
+            39.1549580017454,
+            38.91129200201249,
+            40.75670800375519,
+            40.949124995677266,
+            40.73979199893074,
+            42.06666599930031,
+            39.563541002280544,
+            38.84479200496571,
+            39.078458001313265,
+            40.27808299724711,
+            39.409832999808714,
+            39.39316600008169,
+            40.42770899832249,
+            38.61999999935506,
+            38.832416001241654,
+            41.734375001396984,
+            39.96049999841489,
+            39.57283299678238,
+            39.112792001105845,
+            39.22299999976531
+          ]
+        }
+      },
+      {
+        "factor": 10,
+        "input_rows": 11640,
+        "unique_events": 1163,
+        "duplicates": 10477,
+        "measurement": {
+          "n": 25,
+          "p50_ms": 71.8177,
+          "p95_ms": 73.6008,
+          "min_ms": 71.0767,
+          "max_ms": 74.4981,
+          "samples_ms": [
+            71.33912499557482,
+            73.06141599838156,
+            72.07291699887719,
+            73.51862500217976,
+            73.01429200015264,
+            73.62133399874438,
+            73.15587499761023,
+            72.77937499748077,
+            71.8177079979796,
+            71.27716700051678,
+            71.34724999923492,
+            71.07674999861047,
+            71.7363750009099,
+            71.37683300243225,
+            71.43687500501983,
+            71.38437499816064,
+            73.33949999883771,
+            71.23904199397657,
+            72.6029169964022,
+            72.42270900314907,
+            71.57000000006519,
+            72.57029199536191,
+            71.1469589950866,
+            74.49812500271946,
+            71.4472499967087
+          ]
+        }
+      }
+    ]
+  },
+  "coverage": {
+    "hospital_id": "SYN-005",
+    "hospital_name": "Suncrest Medical Pavilion",
+    "before_deficit_physician_minutes": 100,
+    "after_conditional_deficit_physician_minutes": 55,
+    "selected_physicians": [
+      "PHY-009"
+    ],
+    "kind": "Modeled conditional 90-minute hospital-access shortfall. No online activation or observed outcome improvement generated."
+  },
+  "limits": [
+    "Official dataset only; no new unique operational facts generated",
+    "Selection oracle reuses replay state, independently verified by the 208-field reference; it is independent of routing output, not a clinical label set",
+    "Runtime API reads are warm-cache localhost PostgreSQL reads at current persisted official-data run",
+    "Boundary offer tests are isolated hypothetical proposals, not observed scheduling outcomes",
+    "Timing samples are local serial runs; no production SLA or maximum-throughput claim"
+  ]
+}

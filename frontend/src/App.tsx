@@ -13,7 +13,7 @@ function Login({ onLogin }: { onLogin: (user: User) => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   return <main className="login-wrap"><section className="panel login-panel">
-    <RelayMark href={null} /><h1>Sevaro Command Center</h1>
+    <RelayMark href={null} /><h1>Relay Coverage desk</h1>
     <p>Sign in to review coverage and coordinate approved staffing actions.</p>
     <form onSubmit={async event => {
       event.preventDefault(); setBusy(true); setError("");
@@ -102,7 +102,7 @@ export default function App() {
   return <div className="app-shell command-shell">
     <a className="skip-link" href="#main">Skip to content</a>
     <aside className="app-aside"><div className="app-aside-top"><RelayMark />
-      <div className="app-workspace"><strong>Sevaro Command Center</strong><span>Organizer / judge records</span></div></div>
+      <div className="app-workspace"><strong>Relay Coverage desk</strong><span>Organizer / judge records</span></div></div>
       {user.role !== "physician" && <nav className="app-nav" aria-label="Workspace">
         {([["desk", "Coverage desk"], ["state", "Physicians & consults"], ["offers", "Offers"], ["data", "Data & ActionLab"], ["audit", "Audit"]] as [Tab, string][]).map(([key, label]) =>
           <button key={key} className={tab === key ? "nav-active" : ""} aria-current={tab === key ? "page" : undefined} onClick={() => { setTab(key); setNotice(""); }}>{label}</button>)}

@@ -1,0 +1,568 @@
+{
+  "deterministic_selector": {
+    "n": 25,
+    "p50_ms": 0.3576,
+    "p95_ms": 0.5701,
+    "min_ms": 0.099,
+    "max_ms": 4.1936,
+    "samples_ms": [
+      0.09900000441120937,
+      0.32508300500921905,
+      0.4497079935390502,
+      0.44779200106859207,
+      0.356249998731073,
+      0.3590420019463636,
+      0.13333300012163818,
+      0.186333003512118,
+      0.14783300139242783,
+      0.21112499962328002,
+      0.2489159960532561,
+      4.19362499815179,
+      0.5440000022645108,
+      0.35408300027484074,
+      0.3602920041885227,
+      0.5765839960076846,
+      0.38108300213934854,
+      0.25550000282237306,
+      0.2760420029517263,
+      0.48704200162319466,
+      0.2671249967534095,
+      0.5011670000385493,
+      0.35958400258095935,
+      0.35762500192504376,
+      0.3770420007640496
+    ]
+  },
+  "live_runs": [
+    {
+      "run": 1,
+      "elapsed_ms": 284.6559579993482,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 284.571,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 2,
+      "elapsed_ms": 145.87283400032902,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 145.756,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 3,
+      "elapsed_ms": 242.90316599945072,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 242.811,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 4,
+      "elapsed_ms": 125.84454200259643,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 125.747,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 5,
+      "elapsed_ms": 124.47562500165077,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 124.38,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 6,
+      "elapsed_ms": 123.58225000207312,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 123.559,
+      "model": "jev-1.13.0",
+      "confidence": 0.9,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 7,
+      "elapsed_ms": 126.08225000440143,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 126.053,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 8,
+      "elapsed_ms": 142.73716699972283,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 142.707,
+      "model": "jev-1.13.0",
+      "confidence": 0.9,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 9,
+      "elapsed_ms": 140.70295900455676,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 140.655,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 10,
+      "elapsed_ms": 128.4308750036871,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 128.364,
+      "model": "jev-1.13.0",
+      "confidence": 0.9,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 11,
+      "elapsed_ms": 156.00729099969612,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 155.875,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 12,
+      "elapsed_ms": 137.45087500137743,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 137.308,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 13,
+      "elapsed_ms": 203.26570799807087,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 203.165,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 14,
+      "elapsed_ms": 126.66824999905657,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 126.563,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 15,
+      "elapsed_ms": 166.82262499671197,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 166.702,
+      "model": "jev-1.13.0",
+      "confidence": 0.9,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 16,
+      "elapsed_ms": 232.53050000494113,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 232.414,
+      "model": "jev-1.13.0",
+      "confidence": 0.9,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 17,
+      "elapsed_ms": 165.215334003733,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 165.156,
+      "model": "jev-1.13.0",
+      "confidence": 0.9,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 18,
+      "elapsed_ms": 144.84683299815515,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 144.76,
+      "model": "jev-1.13.0",
+      "confidence": 0.9,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 19,
+      "elapsed_ms": 210.16679199965438,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 210.083,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 20,
+      "elapsed_ms": 180.77987500146264,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 180.717,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 21,
+      "elapsed_ms": 129.5162079986767,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 129.415,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 22,
+      "elapsed_ms": 216.60145799978636,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 216.495,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 23,
+      "elapsed_ms": 149.89999999670545,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 149.809,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 24,
+      "elapsed_ms": 125.05674999556504,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 124.95,
+      "model": "jev-1.13.0",
+      "confidence": 0.92,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    },
+    {
+      "run": 25,
+      "elapsed_ms": 129.62541700107977,
+      "source": "jev",
+      "status": "ready",
+      "provider_status": "available",
+      "provider_latency_ms": 129.493,
+      "model": "jev-1.13.0",
+      "confidence": 0.94,
+      "fallback_reason": null,
+      "selected_physicians": [
+        "PHY-009"
+      ],
+      "baseline_physicians": [
+        "PHY-009"
+      ],
+      "agrees_with_deterministic": true
+    }
+  ],
+  "live_attempt_latency": {
+    "n": 25,
+    "p50_ms": 144.8468,
+    "p95_ms": 240.8286,
+    "min_ms": 123.5823,
+    "max_ms": 284.656,
+    "samples_ms": [
+      284.6559579993482,
+      145.87283400032902,
+      242.90316599945072,
+      125.84454200259643,
+      124.47562500165077,
+      123.58225000207312,
+      126.08225000440143,
+      142.73716699972283,
+      140.70295900455676,
+      128.4308750036871,
+      156.00729099969612,
+      137.45087500137743,
+      203.26570799807087,
+      126.66824999905657,
+      166.82262499671197,
+      232.53050000494113,
+      165.215334003733,
+      144.84683299815515,
+      210.16679199965438,
+      180.77987500146264,
+      129.5162079986767,
+      216.60145799978636,
+      149.89999999670545,
+      125.05674999556504,
+      129.62541700107977
+    ]
+  },
+  "actual_jev_latency": {
+    "n": 25,
+    "p50_ms": 144.8468,
+    "p95_ms": 240.8286,
+    "min_ms": 123.5823,
+    "max_ms": 284.656,
+    "samples_ms": [
+      284.6559579993482,
+      145.87283400032902,
+      242.90316599945072,
+      125.84454200259643,
+      124.47562500165077,
+      123.58225000207312,
+      126.08225000440143,
+      142.73716699972283,
+      140.70295900455676,
+      128.4308750036871,
+      156.00729099969612,
+      137.45087500137743,
+      203.26570799807087,
+      126.66824999905657,
+      166.82262499671197,
+      232.53050000494113,
+      165.215334003733,
+      144.84683299815515,
+      210.16679199965438,
+      180.77987500146264,
+      129.5162079986767,
+      216.60145799978636,
+      149.89999999670545,
+      125.05674999556504,
+      129.62541700107977
+    ]
+  },
+  "requested_runs": 25,
+  "actual_jev_selections": 25,
+  "provider_status_counts": {
+    "available": 25
+  },
+  "jev_agreement": {
+    "matched": 25,
+    "n": 25
+  },
+  "comparison_scope": "Repeated one official staffing state: one feasible physician plus escalation, not diverse Jev accuracy evaluation",
+  "deadline_ms": 900.0,
+  "contains_raw_request_response_or_credentials": false
+}

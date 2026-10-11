@@ -1,4 +1,4 @@
-# Sevaro Command Center
+# Relay
 
 An integrated Challenge 2 operations desk on `belal`: replay organizer CSVs, detect consult and hospital coverage risks, review hard-gated staffing recommendations, obtain clinical-lead approval, and run a simulated offer workflow. React uses one FastAPI API; PostgreSQL owns events, decisions, sessions, offers, reservations and audit history.
 
@@ -6,7 +6,7 @@ The runtime reads only supplied organizer records and explicitly imported CSVs. 
 
 ## Local startup
 
-Prerequisites: Python 3.12, Node 22, PostgreSQL 18 server/client tools on PATH, and `rg`. Run from this repository root:
+Prerequisites: Python 3.12, Node 22, and PostgreSQL 18 server/client tools on PATH. Run from this repository root:
 
 ```sh
 python3.12 -m venv .venv
