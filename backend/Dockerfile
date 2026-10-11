@@ -32,7 +32,10 @@ COPY data/original data/original
 COPY scripts scripts
 COPY --from=frontend-build /build/frontend/dist frontend/dist
 
-RUN useradd --system --uid 10001 --home /app sevaro \
+# The deployment checkout uses umask 027; newly fetched files can be mode 640.
+# Make bundled code/assets readable by the unprivileged application user.
+RUN chmod -R a+rX /app \
+ && useradd --system --uid 10001 --home /app sevaro \
  && mkdir -p /state && chown sevaro /state
 USER sevaro
 
