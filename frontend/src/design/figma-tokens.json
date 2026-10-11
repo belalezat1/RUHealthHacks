@@ -1,0 +1,21 @@
+{
+  "inspiration": { "shell": "robodog", "domain": "sevaro-neuro-ops", "notTemplate": "sevaro-marketing" },
+  "color": {
+    "ink": "#1A1F2C",
+    "paper": "#F4F5F7",
+    "surface": "#FFFFFF",
+    "signal": "#2F9E8F",
+    "path": "#7EC8B8",
+    "select": "#3B82F6",
+    "action": "#1F2937",
+    "critical": "#E11D48",
+    "caution": "#E8A317"
+  },
+  "layout": {
+    "rail": 72,
+    "missionPanel": 340,
+    "radius": 16,
+    "searchPill": true
+  },
+  "type": { "family": "IBM Plex Sans", "mono": "IBM Plex Mono" }
+}
