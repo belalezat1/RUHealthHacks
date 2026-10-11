@@ -65,6 +65,31 @@ Container rollback does **not** undo database migrations, so migrations must rem
 compatible with the previous application release. This setup has one server;
 it does not provide high availability or blue/green deployment.
 
+## Enable and verify live Jev
+
+Set `TYPESAFE_API_KEY` and `SEVARO_JEV_ENABLED=true` in the root-owned
+`/etc/sevaro/backend.env`. Keep the actual key outside Git and browser code;
+`.env.example` lists the supported local configuration without a credential.
+After changing the server environment, recreate the container to apply it:
+
+```bash
+sudo /usr/local/bin/sevaro-deploy --force
+sudo docker exec sevaro python -m backend.intelligence.smoke
+```
+
+The smoke command makes one real provider request using the bundled original
+synthetic scenario. It does not read the application database, save decisions or
+send offers. Output contains only source, status, resolved model, latency and a
+fallback reason. Exit code 0 means Jev returned an accepted selection; exit code
+1 means configuration, provider or confidence checks prevented one. The normal
+900 ms deadline and 0.75 confidence threshold also apply to this check.
+
+Locally, place the key in the ignored root `.env` and run
+`python -m backend.intelligence.smoke` after installing backend dependencies.
+In the website, sign in and click **Review recommendation** on the Coverage desk.
+A successful provider selection displays **Jev selection** and the resolved model.
+Clinical-lead approval is still required before any proposed offer can be sent.
+
 Deploy logs appear in the systemd journal and application logs in Docker, rotated
 at 10 MB with three files. Changes to the installed updater/service files require
 running `deploy/install.sh` again. Images accumulate for rollback; periodically
