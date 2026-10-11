@@ -2,21 +2,21 @@ import { useRef, useState } from "react";
 import { brand } from "../brand";
 import { NeuroHero } from "./NeuroHero";
 import { NeuralScene } from "./NeuralScene";
+import { ProductPreview } from "./site/ProductPreview";
 
-export function HeroStage() {
+export function HeroStage({ stage }: { stage: 0 | 1 | 2 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoReady, setVideoReady] = useState(false);
-
-  const showClassic = (brand.heroVisual as string) === "classic";
-  const showVideo = videoReady && !showClassic;
+  const visual = brand.heroVisual as string;
+  const showVideo = videoReady && visual !== "classic";
 
   return (
-    <div className="hero-media hero-stage" aria-label="Neurology coverage preview">
+    <div className="lp-hero-stage">
       {/* Probe only via real playable media — never HEAD-swap to a black video */}
       <video
         ref={videoRef}
         src={brand.heroVideo}
-        className={showVideo ? "hero-video-on" : "hero-video-probe"}
+        className={showVideo ? "lp-hero-video" : "lp-hero-probe"}
         muted
         loop
         playsInline
@@ -30,13 +30,16 @@ export function HeroStage() {
         }}
         onError={() => setVideoReady(false)}
       />
-
-      {showVideo ? null : showClassic ? (
+      {showVideo ? null : visual === "classic" ? (
         <div className="hero-classic-fill">
           <NeuralScene />
         </div>
+      ) : visual === "neuro" ? (
+        <div className="hero-media">
+          <NeuroHero />
+        </div>
       ) : (
-        <NeuroHero />
+        <ProductPreview stage={stage} />
       )}
     </div>
   );

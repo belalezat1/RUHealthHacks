@@ -34,7 +34,7 @@ export function GetStarted() {
 
   return (
     <div
-      className="gs-wrap"
+      className="lp-menu-wrap"
       ref={ref}
       onMouseEnter={() => {
         clearClose();
@@ -44,7 +44,7 @@ export function GetStarted() {
     >
       <button
         type="button"
-        className="btn btn-outline-nav"
+        className="rx-btn rx-btn-primary"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((v) => !v)}
@@ -69,20 +69,30 @@ export function GetStarted() {
       <AnimatePresence>
         {open ? (
           <motion.div
-            className="gs-menu"
+            className="lp-menu"
             role="menu"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: -4, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             <Link to="/app" role="menuitem" onClick={() => setOpen(false)}>
-              <IconDesk size={18} />
-              <strong>{brand.deskLabel}</strong>
+              <span className="lp-menu-icon">
+                <IconDesk size={18} />
+              </span>
+              <span>
+                <strong>{brand.deskLabel}</strong>
+                <small>Live coverage risk and offers</small>
+              </span>
             </Link>
             <Link to="/app/lab" role="menuitem" onClick={() => setOpen(false)}>
-              <IconBolt size={18} />
-              <strong>{brand.labLabel}</strong>
+              <span className="lp-menu-icon">
+                <IconBolt size={18} />
+              </span>
+              <span>
+                <strong>{brand.labLabel}</strong>
+                <small>Inject edge cases, audit decisions</small>
+              </span>
             </Link>
           </motion.div>
         ) : null}

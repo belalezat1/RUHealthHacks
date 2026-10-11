@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { IconCheck, IconChevron, IconX } from "./Icons";
+import { EASE, Pill } from "./ui";
 import type { Recommendation } from "../api/types";
 import { physicianName } from "../lib/format";
 
@@ -18,20 +21,27 @@ type LooseRule = {
   passed?: boolean;
 };
 
+function isPass(r: LooseRule) {
+  return r.passed ?? r.status === "pass";
+}
+
 function Rules({ rules }: { rules?: LooseRule[] }) {
   if (!rules?.length) return null;
   return (
-    <div className="rule-grid">
+    <ul className="rx-rules">
       {rules.map((r, i) => {
-        const pass = r.passed ?? r.status === "pass";
+        const pass = isPass(r);
         return (
-          <div key={r.code ?? r.id ?? i} className={`rule ${pass ? "pass" : "fail"}`}>
+          <li key={r.code ?? r.id ?? i} className={pass ? "pass" : "fail"}>
+            <span className="rx-rule-mark" aria-hidden>
+              {pass ? <IconCheck size={11} strokeWidth={2.6} /> : <IconX size={11} strokeWidth={2.6} />}
+            </span>
             <span>{r.label ?? r.explanation ?? r.code ?? r.id}</span>
-            <strong>{pass ? "Pass" : "Fail"}</strong>
-          </div>
+            <span className="sr-only">{pass ? "passed" : "failed"}</span>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }
 
@@ -51,6 +61,7 @@ function outcomeLabel(outcome?: string, kind?: string) {
 
 export function EligibilityMatrix({ recommendation, physicians, order }: Props) {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const reduce = useReducedMotion();
 
   const unordered: {
     kind: "recommended" | "alternative" | "rejected";
@@ -101,48 +112,68 @@ export function EligibilityMatrix({ recommendation, physicians, order }: Props) 
     : unordered;
 
   return (
-    <div className="eligibility-matrix">
-      <div className="eligibility-trap">
+    <div className="rx-elig">
+      <div className="rx-callout warn">
         <strong>Split-shift trap</strong>
         <p>
-          A physician joining mid-shift at zero consults would absorb nearly every
-          call. We seed workload and limit offers to gap hospitals so the imbalance
-          is fixed, not moved.
+          A physician joining mid-shift at zero consults would absorb nearly every call. We seed workload and limit
+          offers to gap hospitals so the imbalance is fixed, not moved.
         </p>
       </div>
       {rows.map((row, idx) => {
         const status = outcomeLabel(row.outcome, row.kind);
         const open = openIdx === idx;
+        const failed = row.rules?.filter((r) => !isPass(r)).length ?? 0;
+        const role =
+          row.kind === "recommended"
+            ? order
+              ? "Offer first"
+              : "Recommended"
+            : row.kind === "alternative"
+              ? order
+                ? "Backup"
+                : "Alternative"
+              : "Excluded";
         return (
-          <section className={`eligibility-card${open ? " open" : ""}`} key={idx}>
-            <div className="eligibility-card-head">
-              <div>
-                <div className="eligibility-name">
-                  {physicianName(row.physician_id, physicians)}
-                </div>
-                <div className="eligibility-meta">
-                  {row.kind === "recommended"
-                    ? order
-                      ? "Offer first"
-                      : "Recommended"
-                    : row.kind === "alternative"
-                      ? order
-                        ? "Backup"
-                        : "Alternative"
-                      : "Excluded"}
-                  {row.explanation ? ` · ${row.explanation}` : ""}
-                </div>
-              </div>
-              <button
-                type="button"
-                className={`eligibility-status-btn ${status.tone}`}
-                aria-pressed={open}
-                onClick={() => setOpenIdx(open ? null : idx)}
-              >
+          <section className={`rx-elig-item${open ? " is-open" : ""}`} key={row.physician_id || idx}>
+            <button
+              type="button"
+              className="rx-elig-trigger"
+              aria-expanded={open}
+              onClick={() => setOpenIdx(open ? null : idx)}
+            >
+              <span style={{ minWidth: 0 }}>
+                <strong>{physicianName(row.physician_id, physicians)}</strong>
+                <span className="meta">
+                  {role}
+                  {row.rules?.length
+                    ? failed
+                      ? ` · fails ${failed} of ${row.rules.length} rules`
+                      : ` · passes all ${row.rules.length} rules`
+                    : ""}
+                </span>
+              </span>
+              <Pill tone={status.tone === "pass" ? "ok" : status.tone === "fail" ? "critical" : "caution"} dot>
                 {status.label}
-              </button>
-            </div>
-            {open ? <Rules rules={row.rules} /> : null}
+              </Pill>
+              <IconChevron size={16} />
+            </button>
+            <AnimatePresence initial={false}>
+              {open ? (
+                <motion.div
+                  style={{ overflow: "hidden" }}
+                  initial={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                  animate={reduce ? { opacity: 1 } : { height: "auto", opacity: 1 }}
+                  exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: EASE }}
+                >
+                  {row.explanation ? (
+                    <p style={{ padding: "0 16px 8px", fontSize: 13, color: "var(--rx-text-2)" }}>{row.explanation}</p>
+                  ) : null}
+                  <Rules rules={row.rules} />
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </section>
         );
       })}

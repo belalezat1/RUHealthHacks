@@ -9,7 +9,7 @@ import {
 import type { Dashboard, Recommendation } from "../api/types";
 import { physicianName } from "../lib/format";
 import { buildDemoDashboard, demoRecommendation } from "./snapshot";
-import { rankCandidates, type CostedCandidate, type RankBy } from "./economics";
+import { rankCandidates, usd, type CostedCandidate, type RankBy } from "./economics";
 
 export type OfferStep =
   | "idle"
@@ -20,6 +20,16 @@ export type OfferStep =
   | "accepted"
   | "declined"
   | "filled";
+
+/** A party has said yes: the clinical lead approved, or the physician accepted. */
+export type Confirmation = {
+  id: string;
+  kind: "approved" | "accepted";
+  party: string;
+  title: string;
+  detail: string;
+  facts: string[];
+};
 
 export type FillResult = {
   physicianId: string;
@@ -55,6 +65,8 @@ type DemoContextValue = {
   primary: CostedCandidate | null;
   gapMinutes: number;
   lastFill: FillResult | null;
+  confirmation: Confirmation | null;
+  dismissConfirmation: () => void;
 };
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -81,6 +93,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const [rankBy, setRankBy] = useState<RankBy>("cost");
   const [declinedIds, setDeclinedIds] = useState<string[]>([]);
   const [lastFill, setLastFill] = useState<FillResult | null>(null);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const dismissConfirmation = useCallback(() => setConfirmation(null), []);
   const [events, setEvents] = useState<
     { id: string; at: string; text: string }[]
   >([
@@ -163,11 +177,24 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setRecommendation((r) => ({ ...r, status: "approved" }));
     setOfferStep("approved");
     setPanel("act");
+    const approvedName = nameOf(primary.candidate.physician_id);
+    setConfirmation({
+      id: crypto.randomUUID(),
+      kind: "approved",
+      party: "Clinical lead",
+      title: "Offer approved",
+      detail: `Split shift for ${approvedName} is cleared to send.`,
+      facts: [
+        `${usd(primary.cost)} est.`,
+        `${Math.min(primary.minutesClosed, gapMinutes)} of ${gapMinutes} min`,
+        "Eligibility verified",
+      ],
+    });
     log(
       `Clinical lead approved split-shift offer for ${nameOf(primary.candidate.physician_id)}` +
         (rankBy === "cost" ? " · lowest-cost eligible candidate" : " · best clinical fit"),
     );
-  }, [primary, rankBy, log, nameOf]);
+  }, [primary, rankBy, gapMinutes, log, nameOf]);
 
   const sendOffer = useCallback(() => {
     if (!primary) return;
@@ -196,6 +223,20 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setRecommendation((r) => ({ ...r, status: "accepted" }));
     setOfferStep("accepted");
     setLastFill({ physicianId: id, minutesClosed: closed, gapMinutes });
+    setConfirmation({
+      id: crypto.randomUUID(),
+      kind: "accepted",
+      party: name,
+      title: full ? "Offer accepted. Gap closed" : "Offer accepted",
+      detail: full
+        ? `${name} confirmed the Riverfront split shift. Offers stopped.`
+        : `${name} confirmed. ${gapMinutes - closed} minutes still need cover.`,
+      facts: [
+        `${closed} of ${gapMinutes} min covered`,
+        `Starts ${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(primary.candidate.start_at))} ET`,
+        "Audit logged",
+      ],
+    });
     setDashboard((d) => {
       const next = structuredClone(d);
       next.forecast.risks = full
@@ -271,6 +312,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setLaborIndex(-1);
     setDeclinedIds([]);
     setLastFill(null);
+    setConfirmation(null);
   }, []);
 
   const value = useMemo(
@@ -300,6 +342,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       primary,
       gapMinutes,
       lastFill,
+      confirmation,
+      dismissConfirmation,
     }),
     [
       mode,
@@ -323,6 +367,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       primary,
       gapMinutes,
       lastFill,
+      confirmation,
+      dismissConfirmation,
     ],
   );
 

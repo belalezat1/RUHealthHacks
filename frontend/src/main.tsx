@@ -6,6 +6,16 @@ import App from "./App";
 import { DemoProvider } from "./demo/store";
 import { ThemeProvider } from "./theme";
 import "./styles.css";
+import "./styles/app.css";
+import "./styles/site.css";
+
+// Arm scroll reveals only when they can run and the user wants motion.
+if (
+  typeof IntersectionObserver !== "undefined" &&
+  !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+) {
+  document.documentElement.classList.add("rv-on");
+}
 
 const client = new QueryClient({
   defaultOptions: {

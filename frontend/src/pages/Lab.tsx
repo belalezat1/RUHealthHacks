@@ -1,31 +1,16 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { IconAlert, IconBolt, IconCheck, IconClock, IconLink, IconShield } from "../components/Icons";
+import { Card, EASE } from "../components/ui";
 import { Reveal } from "../components/Reveal";
-import { IconAlert, IconBolt, IconClock, IconLink } from "../components/Icons";
 import { useDemo } from "../demo/store";
 import { clock } from "../lib/format";
 
 const PRESETS = [
-  {
-    kind: "Outage",
-    icon: IconAlert,
-    text: "Physician unavailable: Lakeside backup offline",
-  },
-  {
-    kind: "Demand spike",
-    icon: IconBolt,
-    text: "Demand spike: Bayview 3 consults in 12 minutes",
-  },
-  {
-    kind: "Replay",
-    icon: IconLink,
-    text: "Duplicate event replayed (idempotent)",
-  },
-  {
-    kind: "Late signal",
-    icon: IconClock,
-    text: "Late-arriving camera signal for Dr. Park",
-  },
+  { kind: "Outage", icon: IconAlert, text: "Physician unavailable: Lakeside backup offline" },
+  { kind: "Demand spike", icon: IconBolt, text: "Demand spike: Bayview 3 consults in 12 minutes" },
+  { kind: "Replay", icon: IconLink, text: "Duplicate event replayed (idempotent)" },
+  { kind: "Late signal", icon: IconClock, text: "Late-arriving camera signal for Dr. Park" },
 ];
 
 const SAFETY = [
@@ -37,12 +22,16 @@ const SAFETY = [
   "Cost only reorders physicians who are already eligible",
 ];
 
+const MAX = 160;
+
 export default function Lab() {
   const demo = useDemo();
   const reduce = useReducedMotion();
   const [text, setText] = useState(PRESETS[0].text);
-  const [flash, setFlash] = useState(0);
+  const [touched, setTouched] = useState(false);
   const [justInjected, setJustInjected] = useState(false);
+  const trimmed = text.trim();
+  const invalid = touched && !trimmed;
 
   useEffect(() => {
     if (!justInjected) return;
@@ -50,149 +39,142 @@ export default function Lab() {
     return () => window.clearTimeout(t);
   }, [justInjected]);
 
-  return (
-    <div className="lab-stack">
-      <Reveal className="panel lab-hero-panel">
-        <div className="panel-head">
-          <div>
-            <h2>Inject an event</h2>
-            <p>Push an edge case into the live snapshot without restarting the app</p>
-          </div>
-          <span className="pill pill-muted tabular">{demo.events.length} logged</span>
-        </div>
+  const inject = () => {
+    setTouched(true);
+    if (!trimmed) return;
+    demo.injectEvent(trimmed);
+    setJustInjected(true);
+  };
 
-        <div className="preset-grid" role="group" aria-label="Scenario presets">
+  return (
+    <div className="rx-page">
+      <Card
+        title="Inject an event"
+        icon={<IconBolt size={18} />}
+        index={0}
+      >
+        <div className="rx-presets" role="group" aria-label="Scenario presets">
           {PRESETS.map((p) => {
             const Icon = p.icon;
             const on = text === p.text;
             return (
-              <motion.button
+              <button
                 key={p.text}
                 type="button"
-                className={`preset-chip${on ? " on" : ""}`}
+                className="rx-preset"
                 aria-pressed={on}
-                onClick={() => setText(p.text)}
-                whileTap={reduce ? undefined : { scale: 0.97 }}
+                onClick={() => {
+                  setText(p.text);
+                  setTouched(false);
+                }}
               >
-                <span className="preset-icon">
+                <span className="rx-preset-icon">
                   <Icon size={16} />
                 </span>
-                <span className="preset-copy">
-                  <span className="preset-kind">{p.kind}</span>
-                  <span className="preset-text">{p.text}</span>
+                <span>
+                  <span className="rx-preset-kind">{p.kind}</span>
+                  <span className="rx-preset-text">{p.text}</span>
                 </span>
-              </motion.button>
+              </button>
             );
           })}
         </div>
 
-        <label className="lab-label">
+        <label className="rx-field">
           Event description
           <textarea
             value={text}
+            maxLength={MAX}
             onChange={(e) => setText(e.target.value)}
+            onBlur={() => setTouched(true)}
+            aria-invalid={invalid}
+            aria-describedby="lab-hint"
             rows={3}
-            className="lab-textarea"
           />
+          <span id="lab-hint" className={`rx-field-hint${invalid ? " error" : ""}`}>
+            {invalid ? "Describe the event before injecting it." : `${text.length}/${MAX} · plain language, no patient details`}
+          </span>
         </label>
 
-        <div className="lab-actions">
+        <div className="rx-lab-actions">
           <button
             type="button"
-            className={`btn btn-primary${justInjected ? " btn-done" : ""}`}
-            disabled={!text.trim()}
-            onClick={() => {
-              demo.injectEvent(text.trim());
-              setFlash((n) => n + 1);
-              setJustInjected(true);
-            }}
+            className={`rx-btn rx-btn-primary${justInjected ? " is-success" : ""}`}
+            onClick={inject}
+            aria-live="polite"
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
                 key={justInjected ? "done" : "idle"}
-                className="btn-swap"
+                style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
                 initial={reduce ? false : { opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduce ? undefined : { opacity: 0, y: -6 }}
-                transition={{ duration: 0.18 }}
+                transition={{ duration: 0.16, ease: EASE }}
               >
-                {justInjected ? (
-                  <>Injected ✓</>
-                ) : (
-                  <>
-                    <IconBolt size={16} /> Inject event
-                  </>
-                )}
+                {justInjected ? <IconCheck size={16} strokeWidth={2.2} /> : <IconBolt size={16} />}
+                {justInjected ? "Injected" : "Inject event"}
               </motion.span>
             </AnimatePresence>
           </button>
-          <button type="button" className="btn btn-ghost" onClick={() => demo.resetFlow()}>
+          <button type="button" className="rx-btn rx-btn-secondary" onClick={() => demo.resetFlow()}>
             Reset demo snapshot
           </button>
-          <span className="lab-hint">Lands in Ranked risks on the Coverage desk.</span>
+          <span className="rx-note">Lands in Ranked risks on the Coverage desk.</span>
         </div>
-      </Reveal>
+      </Card>
 
-      <div className="desk-grid">
-        <Reveal className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Event log</h2>
-              <p>Audit trail for every inject and decision</p>
-            </div>
-          </div>
-          <ol className="event-log">
-            <AnimatePresence initial={false}>
-              {demo.events.map((e, idx) => (
-                <motion.li
-                  className={`event-entry${idx === 0 ? " latest" : ""}`}
-                  key={e.id}
-                  initial={reduce ? false : { opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  layout={!reduce}
-                >
-                  <span className="event-dot" aria-hidden />
-                  <span className="event-time tabular">{clock(e.at)}</span>
-                  <p className="event-text">{e.text}</p>
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </ol>
-          {!demo.events.length ? (
-            <p className="event-text" style={{ color: "var(--text-faint)" }}>
+      <div className="rx-grid-2">
+        <Card
+          title="Event log"
+          count={`×${demo.events.length}`}
+          icon={<IconClock size={18} />}
+          index={1}
+        >
+          {demo.events.length ? (
+            <ol className="rx-timeline">
+              <AnimatePresence initial={false}>
+                {demo.events.map((e, i) => (
+                  <motion.li
+                    key={e.id}
+                    className={i === 0 ? "is-latest" : ""}
+                    layout={!reduce}
+                    initial={reduce ? false : { opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.28, ease: EASE }}
+                  >
+                    <time dateTime={e.at} className="num">
+                      {clock(e.at)}
+                    </time>
+                    {e.text}
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </ol>
+          ) : (
+            <div className="rx-empty">
+              <strong>No events yet</strong>
               Inject a scenario to start the audit trail.
-            </p>
-          ) : null}
-          <span className="sr-only" aria-live="polite">
-            {flash ? `Event injected. Log has ${demo.events.length} entries.` : ""}
-          </span>
-        </Reveal>
-
-        <Reveal className="panel" delay={0.06}>
-          <div className="panel-head">
-            <div>
-              <h2>Safety constraints</h2>
-              <p>Enforced on every offer, visible by design</p>
             </div>
-          </div>
-          <ul className="safety-list">
-            {SAFETY.map((s) => (
-              <li key={s}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path
-                    d="M5 12.5l4.2 4.2L19 7"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                {s}
-              </li>
+          )}
+        </Card>
+
+        <Card
+          title="Safety constraints"
+          icon={<IconShield size={18} />}
+          index={2}
+        >
+          <ul className="rx-safety">
+            {SAFETY.map((s, i) => (
+              <Reveal as="li" key={s} delay={i * 0.06}>
+                <span aria-hidden>
+                  <IconCheck size={13} strokeWidth={2.4} />
+                </span>
+                <span>{s}</span>
+              </Reveal>
             ))}
           </ul>
-        </Reveal>
+        </Card>
       </div>
     </div>
   );

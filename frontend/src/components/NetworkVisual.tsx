@@ -9,14 +9,14 @@ type Node = {
   phy?: boolean;
 };
 
-/** Fixed layout: hospitals top row, physicians bottom; no overlaps */
+/** Fixed layout: hospitals top row, physician pools bottom; no overlaps. */
 const nodes: Node[] = [
-  { id: "R", x: 18, y: 32, risk: true, label: "Riverfront" },
-  { id: "L", x: 42, y: 28, risk: true, label: "Lakeside" },
-  { id: "C", x: 66, y: 34, risk: false, label: "Cedar" },
-  { id: "B", x: 88, y: 30, risk: false, label: "Bayview" },
+  { id: "R", x: 18, y: 30, risk: true, label: "Riverfront" },
+  { id: "L", x: 42, y: 26, risk: true, label: "Lakeside" },
+  { id: "C", x: 66, y: 32, risk: false, label: "Cedar Ridge" },
+  { id: "B", x: 88, y: 28, risk: false, label: "Bayview" },
   { id: "P1", x: 28, y: 72, risk: false, label: "On shift", phy: true },
-  { id: "P2", x: 52, y: 78, risk: false, label: "Eligible", phy: true },
+  { id: "P2", x: 52, y: 78, risk: false, label: "Eligible pool", phy: true },
   { id: "P3", x: 76, y: 70, risk: false, label: "Off shift", phy: true },
 ];
 
@@ -30,100 +30,79 @@ const edges: [number, number][] = [
   [2, 6],
 ];
 
-export function NetworkVisual({
-  filled = false,
-  schematic = false,
-}: {
-  filled?: boolean;
-  schematic?: boolean;
-}) {
+/**
+ * Schematic of hospitals and the physician pools that can cover them.
+ * Edges draw in once; risk is shown by colour and a static ring, never by
+ * pulsing, so the map stays calm next to the clinical alert.
+ */
+export function NetworkVisual({ filled = false }: { filled?: boolean }) {
   const reduce = useReducedMotion();
+
+  const fillFor = (n: Node) => {
+    if (n.risk && !(filled && n.id === "R")) return "var(--rx-danger)";
+    if (n.phy && n.id === "P3") return "var(--rx-text-3)";
+    if (n.phy || (filled && n.id === "R")) return "var(--rx-accent)";
+    return "var(--rx-text-3)";
+  };
+  const atRisk = (n: Node) => n.risk && !(filled && n.id === "R");
+
   return (
-    <div
-      className={schematic ? "map-board" : "panel"}
-      aria-label="Hospital coverage network"
-      style={schematic ? undefined : { minHeight: 420, position: "relative" }}
-    >
-      {schematic ? <div className="map-label">Coverage hall · next 90 minutes</div> : null}
-      <svg
-        viewBox="0 0 108 100"
-        width="100%"
-        height={schematic ? "300" : "100%"}
-        role="img"
-        style={{ position: "relative", zIndex: 1, marginTop: schematic ? 18 : 0 }}
-      >
-        <defs>
-          <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-            <stop
-              offset="0%"
-              stopColor={filled ? "#12a37a" : "#e11d48"}
-              stopOpacity="0.45"
-            />
-            <stop
-              offset="100%"
-              stopColor={filled ? "#12a37a" : "#e11d48"}
-              stopOpacity="0"
-            />
-          </radialGradient>
-        </defs>
-        {edges.map(([a, b], i) => (
-          <path
-            key={i}
-            d={`M ${nodes[a].x} ${nodes[a].y} Q ${(nodes[a].x + nodes[b].x) / 2} ${(nodes[a].y + nodes[b].y) / 2 - 8} ${nodes[b].x} ${nodes[b].y}`}
-            stroke={filled ? "rgba(18,163,122,0.45)" : "rgba(128,128,128,0.35)"}
-            strokeWidth="0.85"
-            fill="none"
-            strokeLinecap="round"
-          />
-        ))}
-        {nodes.map((n) => {
-          const atRisk = n.risk && !filled;
-          const healthy = (filled && n.id === "R") || (n.phy && n.id !== "P3");
+    <figure className="rx-map" style={{ margin: 0 }}>
+      <svg viewBox="0 0 108 96" width="100%" height="320" role="img" aria-label="Hospital coverage network">
+        {edges.map(([a, b], i) => {
+          const live = filled && (a === 0 || b === 0);
           return (
-            <g key={n.id}>
-              {atRisk || (n.id === "R" && filled) ? (
-                <motion.circle
-                  cx={n.x}
-                  cy={n.y}
-                  r={10}
-                  fill="url(#nodeGlow)"
-                  animate={
-                    reduce
-                      ? undefined
-                      : { r: [9, 12, 9], opacity: [0.4, 0.85, 0.4] }
-                  }
-                  transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-                />
-              ) : null}
-              <circle
-                cx={n.x}
-                cy={n.y}
-                r={n.phy ? 3.2 : 4.2}
-                fill={
-                  atRisk
-                    ? "#e11d48"
-                    : healthy
-                      ? "#12a37a"
-                      : n.phy
-                        ? "#8a8a8a"
-                        : "#5c5c5c"
-                }
-              />
-              <text
-                x={n.x}
-                y={n.y + (n.phy ? 9 : 11)}
-                textAnchor="middle"
-                fontSize="3.2"
-                fill="currentColor"
-                opacity="0.7"
-                fontFamily="DM Sans, sans-serif"
-              >
-                {n.label}
-              </text>
-            </g>
+            <motion.path
+              key={i}
+              d={`M ${nodes[a].x} ${nodes[a].y} Q ${(nodes[a].x + nodes[b].x) / 2} ${(nodes[a].y + nodes[b].y) / 2 - 8} ${nodes[b].x} ${nodes[b].y}`}
+              stroke={live ? "var(--rx-accent)" : "var(--rx-line-strong)"}
+              strokeWidth={live ? 1.1 : 0.7}
+              fill="none"
+              strokeLinecap="round"
+              initial={reduce ? false : { pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.7, delay: 0.05 * i, ease: [0.22, 1, 0.36, 1] }}
+            />
           );
         })}
+        {nodes.map((n) => (
+          <g key={n.id}>
+            {atRisk(n) ? (
+              <circle cx={n.x} cy={n.y} r={7.5} fill="none" stroke="var(--rx-danger)" strokeOpacity={0.35} strokeWidth={0.8} />
+            ) : null}
+            <circle
+              cx={n.x}
+              cy={n.y}
+              r={n.phy ? 3 : 4.2}
+              fill={fillFor(n)}
+              stroke="var(--rx-surface-2)"
+              strokeWidth={1}
+              style={{ transition: "fill 320ms cubic-bezier(0.22,1,0.36,1)" }}
+            />
+            <text
+              x={n.x}
+              y={n.y + (n.phy ? 8.5 : 11)}
+              textAnchor="middle"
+              fontSize="3.3"
+              fill="currentColor"
+              fontWeight={n.phy ? 500 : 600}
+            >
+              {n.label}
+            </text>
+          </g>
+        ))}
       </svg>
-    </div>
+      <figcaption className="rx-map-legend">
+        <span>
+          <i className="rx-dot critical" aria-hidden /> Below minimum coverage
+        </span>
+        <span>
+          <i className="rx-dot" style={{ background: "var(--rx-accent)" }} aria-hidden /> Covering capacity
+        </span>
+        <span>
+          <i className="rx-dot" style={{ background: "var(--rx-text-3)" }} aria-hidden /> Stable or off shift
+        </span>
+      </figcaption>
+    </figure>
   );
 }
