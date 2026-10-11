@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const target = env.VITE_PROXY_TARGET || "http://127.0.0.1:8000";
   return {
     plugins: [react(), tailwindcss()],
-    server: { port: 5173, proxy: { "/api": target, "/health": target } },
+    server: { port: 5173, proxy: { "/v1": target, "/health": target } },
     build: { chunkSizeWarningLimit: 650 },
   };
 });

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const TARGETS = ".btn, .preset-chip, .seg-btn, .eligibility-status-btn";
+const TARGETS = ".rx-btn, .rx-preset, .btn";
 
 /**
  * One delegated listener gives every button a press ripple from the pointer.

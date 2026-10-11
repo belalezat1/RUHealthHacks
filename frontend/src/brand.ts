@@ -1,6 +1,5 @@
 export const brand = {
   name: "Relay",
-  nameLower: "relay",
   product: "Coverage desk",
   slogan: "See the gap. Fill it before the consult waits.",
   support:
@@ -10,8 +9,11 @@ export const brand = {
   disclaimer:
     "Synthetic demo data. No patient information. Human approval before every offer.",
   heroVideo: "/hero/relay-hero.mp4",
-  /** Flip to "classic" to restore NeuralScene without git history */
-  heroVisual: "neuro",
+  /**
+   * Hero visual when no hero video is present: "product" (theme-aware desk
+   * preview), "neuro" (dark neural canvas) or "classic" (NeuralScene).
+   */
+  heroVisual: "product",
   ctaPrimary: "Open coverage desk",
   getStarted: "Get started",
   deskLabel: "Coverage desk",
@@ -23,7 +25,6 @@ export const brand = {
   missionBody:
     "Stroke-priority consults cannot wait on a silent coverage gap. Relay watches credentialed capacity, explains who can fill the shortfall, and keeps a human in the loop before every offer.",
   missionTags: ["Neurology", "AI ops", "Patient impact"] as const,
-  partnersHeader: "Event partners",
   faqTitle: "Frequently asked questions",
   faqTouch: "Eligibility first. Human approval before every offer.",
   reachOutEmail: "relay@rutgershealthhack.dev",
@@ -43,12 +44,4 @@ export const FAQ = [
     q: "What gap does Relay fill?",
     a: "Networks often discover shortfalls too late, or push offers without checking rest windows, credentialing, or the split-shift trap. Relay makes eligibility first-class, keeps AI advisory, and stops offers when the gap is filled, matching how clinical ops actually work.",
   },
-] as const;
-
-/** Order: Rutgers Health, Sevaro, AWS, Microsoft */
-export const PARTNER_LOGOS = [
-  { src: "/brand/rutgers-health-hack-dark.svg", alt: "Rutgers Health Hack" },
-  { src: "/brand/sevaro.svg", alt: "Sevaro" },
-  { src: "/brand/partners/aws.png", alt: "AWS" },
-  { src: "/brand/partners/microsoft.png", alt: "Microsoft" },
 ] as const;

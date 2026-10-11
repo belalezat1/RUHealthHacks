@@ -6,6 +6,10 @@ COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
 RUN npm run build
+# StaticFiles serves directory indexes for the frontend branch's SPA routes.
+RUN mkdir -p dist/app/lab \
+ && cp dist/index.html dist/app/index.html \
+ && cp dist/index.html dist/app/lab/index.html
 
 FROM python:3.12-slim
 
