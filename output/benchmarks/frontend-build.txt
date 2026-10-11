@@ -1,0 +1,18 @@
+
+> relay-command-center@0.2.0 build
+> tsc -b && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 1214 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.01 kB │ gzip:   0.53 kB
+dist/assets/index-n3AMT5wW.css   71.96 kB │ gzip:  13.84 kB
+dist/assets/index-B95BrG4z.js   797.79 kB │ gzip: 248.65 kB
+
+(!) Some chunks are larger than 650 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.42s
