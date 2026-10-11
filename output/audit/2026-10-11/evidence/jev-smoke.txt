@@ -1,0 +1,54 @@
+{
+  "provider": "typesafe",
+  "mode": "live",
+  "status": "uncertain",
+  "model": "jev-1.13.0",
+  "requested_model": "jev-latest",
+  "answers": {
+    "ambiguity": {
+      "type": "noul",
+      "noul": 0.58
+    },
+    "handoff": {
+      "type": "score",
+      "score": 0.85,
+      "confidence": 0.73,
+      "legend": {
+        "0": "Straightforward",
+        "1": "Needs coordination",
+        "2": "Complex"
+      },
+      "probabilities": {
+        "0": 0.17,
+        "1": 0.82,
+        "2": 0.01
+      }
+    },
+    "preference": {
+      "type": "choice",
+      "choice": "clear",
+      "confidence": 0.16,
+      "probabilities": {
+        "clear": 0.58,
+        "defer": 0.42
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 403,
+    "output_tokens": 66
+  },
+  "latency_ms": 208.75,
+  "input_version": null,
+  "dataset_id": null,
+  "proposal_id": null,
+  "rubric_version": "operations-handoff-v1",
+  "as_of": null,
+  "valid_until": null,
+  "uncertain": true,
+  "uncertainty_reasons": [
+    "ambiguity: ambiguous yes/no distribution",
+    "preference: low advisory confidence"
+  ],
+  "message": "TypeSafe advisory received. Confidence summarizes model distribution, not clinical safety or hospital risk."
+}

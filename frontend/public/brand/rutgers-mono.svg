@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 56" fill="none">
+  <rect x="2" y="4" width="36" height="48" rx="2" fill="#737373"/>
+  <text x="8" y="42" fill="#E5E5E5" font-family="Georgia, serif" font-size="36" font-weight="700">R</text>
+  <line x1="48" y1="8" x2="48" y2="48" stroke="#737373" stroke-width="1.5"/>
+  <text x="58" y="26" fill="#A3A3A3" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="0.06em">RUTGERS HEALTH</text>
+  <text x="58" y="46" fill="#A3A3A3" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="0.06em">HACK 2026</text>
+</svg>

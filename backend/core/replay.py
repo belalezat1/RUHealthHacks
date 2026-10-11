@@ -79,6 +79,9 @@ class PhysicianState:
     active_call: tuple[str, str, datetime] | None = None  # (incoming|outgoing, consult_id, started)
     active_video: tuple[str, datetime] | None = None  # (consult_id, started)
     ringing: tuple[str, datetime] | None = None  # (consult_id, since)
+    active_calls: dict[tuple[str, str], datetime] = field(default_factory=dict)
+    active_videos: dict[str, datetime] = field(default_factory=dict)
+    ringing_calls: dict[str, datetime] = field(default_factory=dict)
     last_call_ended_at: datetime | None = None
     last_answered_at: datetime | None = None
     shift_started_at: datetime | None = None
@@ -156,8 +159,9 @@ def replay(events: list[Event], ref: ReferenceData, cutoff: datetime) -> State:
             if et in ("shift_started", "incoming_call_started", "outgoing_call_started", "video_started"):
                 p.online_evidence.append((t, ev.event_id, et))
             work_channel = ("shift" if et == "shift_started" else
-                            "call" if et.startswith(("incoming_call_", "outgoing_call_")) else
-                            "video" if et.startswith("video_") else None)
+                            "incoming_call:" + ev.consult_id if et.startswith("incoming_call_") else
+                            "outgoing_call:" + ev.consult_id if et.startswith("outgoing_call_") else
+                            "video:" + ev.consult_id if et.startswith("video_") else None)
             if work_channel and et.endswith(("started", "ended")):
                 key = (p.physician_id, work_channel)
                 if et.endswith("started"):
@@ -200,19 +204,28 @@ def replay(events: list[Event], ref: ReferenceData, cutoff: datetime) -> State:
             p.consults_this_shift.add(ev.consult_id)
             p.assignment_history.append((t, ev.consult_id))
         elif et == "incoming_call_ringing" and p and c:
-            p.ringing = (ev.consult_id, t)
+            p.ringing_calls[ev.consult_id] = t
+            p.ringing = min(p.ringing_calls.items(), key=lambda item: (item[1], item[0]))
             c.ringing_physician, c.ringing_since = ev.physician_id, t
         elif et in ("incoming_call_started", "outgoing_call_started") and p:
-            p.active_call = ("incoming" if et.startswith("incoming") else "outgoing", ev.consult_id, t)
+            kind = "incoming" if et.startswith("incoming") else "outgoing"
+            p.active_calls[(kind, ev.consult_id)] = t
+            (kind, cid), started = min(p.active_calls.items(), key=lambda item: (item[1], item[0]))
+            p.active_call = (kind, cid, started)
             p.calls_this_shift += 1
             p.call_history.append(t)
             p.last_answered_at = t
-            if p.ringing and p.ringing[0] == ev.consult_id:
-                p.ringing = None
+            p.ringing_calls.pop(ev.consult_id, None)
+            p.ringing = min(p.ringing_calls.items(), key=lambda item: (item[1], item[0])) if p.ringing_calls else None
             if c and c.ringing_physician == ev.physician_id:
                 c.ringing_physician = c.ringing_since = None
         elif et in ("incoming_call_ended", "outgoing_call_ended") and p:
-            if p.active_call and p.active_call[1] == ev.consult_id:
+            kind = "incoming" if et.startswith("incoming") else "outgoing"
+            p.active_calls.pop((kind, ev.consult_id), None)
+            if p.active_calls:
+                (kind, cid), started = min(p.active_calls.items(), key=lambda item: (item[1], item[0]))
+                p.active_call = (kind, cid, started)
+            else:
                 p.active_call = None
             p.last_call_ended_at = t
             if c and "phone-only" in ev.description.lower():
@@ -221,10 +234,11 @@ def replay(events: list[Event], ref: ReferenceData, cutoff: datetime) -> State:
                 c.clinical_end_at, c.clinical_end_reason = t, "phone-only call ended"
                 _advance(c, "Note Pending", t)
         elif et == "video_started" and p:
-            p.active_video = (ev.consult_id, t)
+            p.active_videos[ev.consult_id] = t
+            p.active_video = min(p.active_videos.items(), key=lambda item: (item[1], item[0]))
         elif et == "video_ended" and p:
-            if p.active_video and p.active_video[0] == ev.consult_id:
-                p.active_video = None
+            p.active_videos.pop(ev.consult_id, None)
+            p.active_video = min(p.active_videos.items(), key=lambda item: (item[1], item[0])) if p.active_videos else None
             if c:
                 c.clinical_end_at, c.clinical_end_reason = t, "video ended"
         elif et == "routing_attempt_failed" and c:
@@ -318,6 +332,8 @@ def availability(state: State, ref: ReferenceData, physician_id: str, *, active_
             flags.append("Accepted offer and ETA are planned capacity; imported online evidence is still required")
     if p.conflicting_signals:
         flags.append("Equal-time availability records conflict; no source winner is assumed")
+    if len(p.active_calls) > 1 or len(p.active_videos) > 1:
+        flags.append("Multiple active operational interactions remain recorded; ending one cannot free this physician")
     if ds == "Camera Active - No Synapse Session":
         flags.append("Camera active with no Synapse session: probable external video, treated as busy")
     if not p.agent_online and ds not in ("Off Shift",):
@@ -332,6 +348,8 @@ def availability(state: State, ref: ReferenceData, physician_id: str, *, active_
         "in_cooldown": in_cooldown,
         "cooldown_until": cooldown_until,
         "verified": p.agent_online and bool(evidence) and not p.conflicting_signals,
+        "verification_basis": "imported operational participation (shift/call/video start), challenge presence assumption until heartbeat loss; not a live desktop heartbeat",
+        "desktop_presence_basis": "challenge assumes agent online until supplied heartbeat loss" if p.agent_online else "supplied heartbeat loss; camera presence remains unverified",
         "online_evidence_event_ids": [e[1] for e in evidence],
         "conflicting_signal_event_ids": sorted({eid for _, ids in p.conflicting_signals.values() for eid in ids}),
         "routable": not (busy or unavailable or p.ringing or in_cooldown),

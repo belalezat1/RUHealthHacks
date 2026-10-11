@@ -192,3 +192,119 @@ def test_malformed_judge_schema_is_rejected_atomically(csv):
     rows, errors = read_csv_text(csv)
     assert not rows and errors
 
+
+def test_late_original_receipt_rebuilds_earliest_clock_once(ref):
+    earlier = event("original", -19, "consult_received", description="Stroke", ingested_delay=18 * 60)
+    retry = event("retry", -8, "consult_received", description="Stroke")
+    before = replay([earlier, retry], ref, SCENARIO_NOW - timedelta(minutes=3))
+    after = replay([retry, earlier], ref, SCENARIO_NOW)
+    assert before.consults["REG-1"].received_at == retry.event_time
+    assert after.consults["REG-1"].received_at == earlier.event_time
+    assert after.received_times["SYN-005"] == [earlier.event_time]
+    assert after.consults["REG-1"].receipt_event_ids == ["original", "retry"]
+
+
+@pytest.mark.parametrize("started,ended", [
+    ("incoming_call_started", "incoming_call_ended"),
+    ("video_started", "video_ended"),
+])
+def test_ending_one_concurrent_interaction_does_not_manufacture_free_capacity(ref, started, ended):
+    events = [event("s", 15, "shift_started", cid="", pid="PHY-009", hid=""),
+              event("a", 16, started, cid="REG-A", pid="PHY-009"),
+              event("b", 17, started, cid="REG-B", pid="PHY-009"),
+              event("end-b", 18, ended, cid="REG-B", pid="PHY-009")]
+    now = SCENARIO_NOW + timedelta(minutes=21)
+    state = replay(events, ref, now)
+    assert availability(state, ref, "PHY-009", active_commitment=commitment())["busy"]
+    assert "PHY-009" not in [r["physician_id"] for r in route_order(state, ref, "SYN-005", [commitment()])]
+    assert (SCENARIO_NOW + timedelta(minutes=16), now) in state.observed_work_intervals["PHY-009"]
+
+
+def test_answering_one_ring_does_not_clear_another_waiting_call(ref):
+    events = [event("s", 15, "shift_started", cid="", pid="PHY-009", hid=""),
+              event("a", 16, "incoming_call_ringing", cid="REG-A", pid="PHY-009"),
+              event("b", 17, "incoming_call_ringing", cid="REG-B", pid="PHY-009"),
+              event("answer-b", 18, "incoming_call_started", cid="REG-B", pid="PHY-009"),
+              event("end-b", 19, "incoming_call_ended", cid="REG-B", pid="PHY-009")]
+    state = replay(events, ref, SCENARIO_NOW + timedelta(minutes=22))
+    assert state.physicians["PHY-009"].ringing[0] == "REG-A"
+    assert not availability(state, ref, "PHY-009", active_commitment=commitment())["routable"]
+
+
+@pytest.mark.parametrize("kind,consult_type,warn,critical", [
+    ("consult_triaged", "General Neuro", 5, 10),
+    ("physician_assigned", "Stroke", 3, 8),
+    ("imaging_requested", "Stroke", 12, 20),
+    ("imaging_returned", "Stroke", 6, 12),
+])
+@pytest.mark.parametrize("boundary", ["before_warning", "warning", "critical"])
+def test_stage_thresholds_are_exact_not_rounded(ref, kind, consult_type, warn, critical, boundary):
+    elapsed = warn - 1 / 60 if boundary == "before_warning" else warn if boundary == "warning" else critical
+    events = [event("r", -elapsed - 2, "consult_received", description=consult_type),
+              event("stage", -elapsed, kind, pid="PHY-003" if kind == "physician_assigned" else "")]
+    risks = build_report(events, ref, SCENARIO_NOW)["risks"]
+    risk = next((r for r in risks if r["id"] == "stage:REG-1"), None)
+    if boundary == "before_warning":
+        assert risk is None
+    else:
+        assert risk["severity"] == boundary and risk["elapsed_min"] == elapsed
+
+
+@pytest.mark.parametrize("consult_type,warn,critical", [("Stroke", 30, 45), ("General Neuro", 45, 90)])
+@pytest.mark.parametrize("boundary", ["before_warning", "warning", "critical"])
+def test_documentation_thresholds_use_recorded_clinical_end(ref, consult_type, warn, critical, boundary):
+    elapsed = warn - 1 / 60 if boundary == "before_warning" else warn if boundary == "warning" else critical
+    events = [event("r", -elapsed - 4, "consult_received", description=consult_type),
+              event("a", -elapsed - 3, "physician_assigned", pid="PHY-003"),
+              event("start", -elapsed - 2, "incoming_call_started", pid="PHY-003"),
+              event("end", -elapsed, "incoming_call_ended", pid="PHY-003", description="phone-only consult ended"),
+              event("note", -elapsed + 10, "note_started", pid="PHY-003")]
+    risks = build_report(events, ref, SCENARIO_NOW)["risks"]
+    risk = next((r for r in risks if r["id"] == "doc:REG-1"), None)
+    if boundary == "before_warning":
+        assert risk is None
+    else:
+        assert risk["severity"] == boundary and risk["elapsed_min"] == elapsed
+
+
+def test_shared_credentials_do_not_create_additional_network_physicians(ref):
+    state = replay([event("s", -10, "shift_started", cid="", pid="PHY-004", hid="")], ref, SCENARIO_NOW)
+    projections = [project_hospital(state, ref, hid, []) for hid in ref.credentials["PHY-004"]]
+    memberships = ["PHY-004" in h["samples"][0]["available_ids"] for h in projections]
+    assert all(memberships) and len(memberships) > 1
+    report = build_report([], ref, SCENARIO_NOW)
+    assert "not independent network supply" in report["coverage"]["total_deficit_minutes_basis"]
+
+
+def test_confirmed_joiner_is_not_flagged_off_shift_by_risk_engine(ref):
+    from backend.core.staffing import OfferLedgerView
+    events = [event("s", 15, "shift_started", cid="", pid="PHY-009", hid=""),
+              event("r", 16, "consult_received", description="Stroke"),
+              event("a", 16, "physician_assigned", pid="PHY-009")]
+    report = build_report(events, ref, SCENARIO_NOW + timedelta(minutes=17),
+                          OfferLedgerView(frozenset(), (commitment(),), {}))
+    assert not any(r["id"] == "unavail:REG-1" for r in report["risks"])
+
+
+def test_ring_and_cooldown_exclude_available_and_confirmed_coverage_headcount(ref):
+    ring_events = [event("s", -10, "shift_started", cid="", pid="PHY-003", hid=""),
+                   event("ring", -1, "incoming_call_ringing", pid="PHY-003")]
+    samples = project_hospital(replay(ring_events, ref, SCENARIO_NOW), ref, "SYN-005", [])["samples"]
+    assert all("PHY-003" not in sample["available_ids"] for sample in samples)
+    assert "PHY-003" not in samples[0]["confirmed_ids"]
+    ended = [event("s", -10, "shift_started", cid="", pid="PHY-003", hid=""),
+             event("start", -2, "incoming_call_started", pid="PHY-003"),
+             event("end", -1, "incoming_call_ended", pid="PHY-003")]
+    samples = project_hospital(replay(ended, ref, SCENARIO_NOW), ref, "SYN-005", [])["samples"]
+    assert "PHY-003" not in samples[0]["available_ids"] and "PHY-003" not in samples[0]["confirmed_ids"]
+    assert "PHY-003" in samples[1]["available_ids"]  # disclosed projection after known two-minute cooldown
+
+
+def test_available_self_report_cannot_override_active_call_at_same_time(ref):
+    events = [event("status", -1, "physician_status_changed", pid="PHY-003", description="Available"),
+              event("call", -1, "incoming_call_started", pid="PHY-003")]
+    a = availability(replay(events, ref, SCENARIO_NOW), ref, "PHY-003")
+    assert a["busy"] and not a["routable"]
+    sample = project_hospital(replay(events, ref, SCENARIO_NOW), ref, "SYN-005", [])["samples"][0]
+    assert "PHY-003" not in sample["available_ids"] and "PHY-003" not in sample["confirmed_ids"]
+

@@ -1,0 +1,14 @@
+{
+  "initial": "Skip to content\nrelay\nHarbor network\nLive ops · synthetic demo\nCoverage desk\nScenario lab\nNOW\n6:20 PM ET\nMar 17, 2026\nCoverage desk\n\nStroke-priority coverage · Synapse · human approval\n\nReview intervention\n\nNEEDS ATTENTION\n\nCoverage gap in 35 min at Riverfront Medical Center\n\nDr. Reed's shift ends in 35 minutes while Riverfront demand sits above baseline. Credentialed capacity drops below the minimum of 2.\n\nNext: review eligibility, then approve a split-shift offer.\n\nTELE-NEUROLOGY · STROKE-PRIORITY\nReview intervention\n4\nNeurologists on call\n1\nConsults waiting\n2\nStroke-priority\n3\nSynapse pathways\nNext 90 minutes\n\nCredentialed neurology capacity vs consult demand · 15-minute slots\n\n6:20 PM\n3/2\nCovered\n6:35 PM\n3/2\nCovered\n6:50 PM\n2/3\n15 uncovered min\n7:05 PM\n2/3\n15 uncovered min\n7:20 PM\n1/3\n30 uncovered min\n7:35 PM\n1/3\n30 uncovered min\nConsult board\n\nStroke vs routine · wait time · Synapse session\n\nBayview Regional\nstroke\nneurology\n30 min waiting\nSynapse active\nin progress\nRiverfront Medical Center\nstroke\nneurology\n15 min waiting\nSynapse ready\nwaiting\nLakeside Community Hospital\nroutine\nneurology\n40 min waiting\nSynapse active\nin progress\nRanked risks\n\nPlain-language coverage reasons\n",
+  "apiCalls": [],
+  "errors": [],
+  "gapFilled": 1,
+  "reloadLosesAccepted": true,
+  "duplicateCount": 2,
+  "focusBefore": "Review intervention",
+  "escapeCloses": false,
+  "mobileOverflow": {
+    "viewport": 390,
+    "document": 390
+  }
+}

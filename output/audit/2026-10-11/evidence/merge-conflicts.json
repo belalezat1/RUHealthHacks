@@ -1,0 +1,16 @@
+{
+  "method": "git merge-tree origin/main origin/ray origin/frontend (read-only three-tree preview)",
+  "conflicts": [
+    ".gitignore",
+    "README.md",
+    "frontend/README.md",
+    "frontend/index.html",
+    "frontend/package-lock.json",
+    "frontend/package.json",
+    "frontend/src/App.tsx",
+    "frontend/src/main.tsx",
+    "frontend/src/styles.css",
+    "frontend/tsconfig.json",
+    "frontend/vite.config.ts"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "import": 200,
+  "chosen_candidate": {
+    "physician_id": "harbor_demo-03-reserve",
+    "action": "activate",
+    "duration_minutes": 25.0
+  },
+  "two_open_proposals_same_physician": {
+    "same_physician": true,
+    "first_status": "proposed",
+    "second_status": "proposed"
+  },
+  "dispatcher_approve_status": 200,
+  "no_auth_dashboard": 401,
+  "wrong_physician_accept": 403,
+  "official_event_rejected": 422,
+  "official_dataset_rejected": false,
+  "invalid_signal_pair_status": 200,
+  "equal_time_conflict_orders": [
+    {
+      "order": [
+        "connected",
+        "disconnected"
+      ],
+      "responses": [
+        {
+          "event_id": "audit-connected",
+          "outcome": "applied",
+          "source_version": 10
+        },
+        {
+          "event_id": "audit-disconnected",
+          "outcome": "late",
+          "source_version": 10
+        }
+      ],
+      "status": "off_shift_available",
+      "connected": true,
+      "conflicts": []
+    },
+    {
+      "order": [
+        "disconnected",
+        "connected"
+      ],
+      "responses": [
+        {
+          "event_id": "audit-disconnected",
+          "outcome": "applied",
+          "source_version": 12
+        },
+        {
+          "event_id": "audit-connected",
+          "outcome": "late",
+          "source_version": 12
+        }
+      ],
+      "status": "disconnected",
+      "connected": false,
+      "conflicts": [
+        "AVAILABILITY_WITHOUT_CONNECTIVITY: self-report does not prove current connection",
+        "CONFLICTING_HEARTBEAT: connected, disconnected"
+      ]
+    }
+  ],
+  "dashboard_25_serial_ms": {
+    "p50": 4.882582998106955,
+    "p95": 5.530459002329735,
+    "max": 5.594750000454951
+  }
+}

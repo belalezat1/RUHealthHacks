@@ -1,0 +1,45 @@
+{
+  "renamed_same_schema_hospitals": {
+    "hospitals": 12,
+    "credential_edges": 0
+  },
+  "accepted_work_omitted_from_hours_and_rest": {
+    "eligible": true,
+    "actual_total_hours": 62,
+    "actual_rest_hours": 2,
+    "reported_checks": [
+      {
+        "rule": "rest",
+        "label": "At least 10h since last shift (at offer start)",
+        "passed": true,
+        "detail": "16h00m rest"
+      },
+      {
+        "rule": "weekly_hours",
+        "label": "Trailing 7-day hours + offer <= 60",
+        "passed": true,
+        "detail": "58h + 2h = 60h"
+      },
+      {
+        "rule": "no_accepted_overlap",
+        "label": "No overlapping accepted offer",
+        "passed": true,
+        "detail": "None"
+      }
+    ]
+  },
+  "new_day_same_schema": "event_time is outside the supported scenario window (2026-03-17 00:00 to 2026-03-18 07:00 ET)",
+  "repeat_call_same_consult": {
+    "consult_count": 1,
+    "received_demand_count": 2,
+    "received_at": "2026-03-17T18:12:00-04:00",
+    "elapsed_minutes": 8.0,
+    "expected_first_received_minutes": 15
+  },
+  "changed_payload_same_idempotency_key": {
+    "first_status": 200,
+    "second_status": 200,
+    "second_replayed": true,
+    "clock": "2026-03-17T18:21:00-04:00"
+  }
+}

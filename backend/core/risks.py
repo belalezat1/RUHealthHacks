@@ -53,7 +53,8 @@ def detect(state: State, ref: ReferenceData, coverage: dict, commitments: list[C
            target_hospital: str | None) -> list[dict]:
     now = state.as_of
     risks: list[dict] = []
-    avail = {pid: availability(state, ref, pid) for pid in ref.physicians}
+    active_commitments = {c.physician_id: c for c in commitments if c.start <= now < c.end}
+    avail = {pid: availability(state, ref, pid, active_commitment=active_commitments.get(pid)) for pid in ref.physicians}
 
     def add(**r) -> None:
         r.setdefault("physician_id", None)
@@ -72,6 +73,9 @@ def detect(state: State, ref: ReferenceData, coverage: dict, commitments: list[C
         risks.append(r)
 
     def reassign_or_escalate(c, why: str) -> dict:
+        if c.conflicting_hospital_ids:
+            return {"action": "escalate", "role": "clinical_lead", "label": "Resolve conflicting hospital evidence",
+                    "why": "Consult receipts name conflicting hospitals; no automatic hospital-specific reassignment is safe"}
         targets = route_order(state, ref, c.hospital_id, commitments, exclude=frozenset({c.physician_id or ""}))
         if targets:
             t = targets[0]
@@ -159,6 +163,9 @@ def detect(state: State, ref: ReferenceData, coverage: dict, commitments: list[C
     for pid, phy in ref.physicians.items():
         a = avail[pid]
         shift = current_shift(ref, pid, now)
+        commitment = active_commitments.get(pid)
+        if commitment is not None:
+            shift = (commitment.start, commitment.end)
         if state.physicians[pid].conflicting_signals:
             add(id=f"conflict:{pid}", kind="signal_conflict", severity="warning", physician_id=pid,
                 title=f"{pid} conflicting availability", summary="Equal-time source records disagree · availability unverified",

@@ -35,6 +35,7 @@ class OfferLedgerView:
     sent_counts_by_week: dict[tuple[str, tuple[int, int]], int]  # (physician, iso (year, week)) -> sent offers
     policy_mode: str = "challenge"
     observed_work_intervals: dict[str, tuple[tuple[datetime, datetime], ...]] | None = None
+    historical_reservations: tuple[Commitment, ...] = ()
 
 
 EMPTY_LEDGER = OfferLedgerView(frozenset(), (), {})
@@ -65,7 +66,8 @@ def select_target(state: State, ref: ReferenceData, coverage: dict) -> dict | No
 
 
 def evaluate_candidate(ref: ReferenceData, pid: str, hospitals: frozenset[str], start: datetime,
-                       end: datetime, ledger: OfferLedgerView, *, evaluated_at: datetime | None = None) -> dict:
+                       end: datetime, ledger: OfferLedgerView, *, evaluated_at: datetime | None = None,
+                       observed_state: State | None = None) -> dict:
     phy = ref.physicians[pid]
     hours = (end - start).total_seconds() / 3600
     online = start + timedelta(minutes=phy.minutes_to_online)
@@ -81,7 +83,18 @@ def evaluate_candidate(ref: ReferenceData, pid: str, hospitals: frozenset[str], 
     rule("credentialed", "Credentialed at a gap hospital", bool(scope),
          f"Credentialed at {', '.join(sorted(scope))}" if scope else
          f"Not credentialed at {', '.join(sorted(hospitals))}")
-    accepted = [c for c in ledger.accepted if c.physician_id == pid]
+    availability_unknown = False
+    if observed_state is not None:
+        activity = observed_state.physicians[pid]
+        availability_unknown = bool(activity.conflicting_signals)
+        busy = bool(activity.active_call or activity.active_video or activity.ringing or
+                    activity.status == "Temporarily Unavailable" or
+                    (activity.agent_online and activity.camera_active and activity.status != "In Meeting"))
+        rule("current_activity", "No current conflicting work or unavailable status", not busy,
+             "Imported activity prevents immediate offer" if busy else "No supplied blocking activity")
+        rule("availability_evidence", "Availability signals do not conflict", not availability_unknown,
+             "Contradictory imported availability evidence" if availability_unknown else "No conflicting source signals")
+    accepted = [c for c in ledger.accepted + ledger.historical_reservations if c.physician_id == pid]
     observed = list((ledger.observed_work_intervals or {}).get(pid, ()))
     previous_ends = [e for _, e in observed if e <= start] + [c.end for c in accepted if c.end <= start]
     if phy.last_shift_end:
@@ -115,9 +128,10 @@ def evaluate_candidate(ref: ReferenceData, pid: str, hospitals: frozenset[str], 
     rule("no_schedule_overlap", "No overlap with a scheduled shift", not overlaps,
          "No overlap" if not overlaps else
          "Overlaps scheduled shift starting " + ", ".join(f"{s:%m-%d %H:%M}" for s, _ in overlaps))
-    near_next = [(s, e) for s, e in phy.scheduled_intervals() if s >= end and s - end < timedelta(hours=MIN_REST_HOURS)]
-    rule("rest_before_next_shift", "At least 10h rest before the next scheduled shift", not near_next,
-         "Sufficient scheduled rest" if not near_next else "Next scheduled shift starts within 10h of offer end")
+    if ledger.policy_mode == "production":
+        near_next = [(s, e) for s, e in phy.scheduled_intervals() if s >= end and s - end < timedelta(hours=MIN_REST_HOURS)]
+        rule("rest_before_next_shift", "Production extension: 10h rest before the next scheduled shift", not near_next,
+             "Sufficient scheduled rest" if not near_next else "Next scheduled shift starts within 10h of offer end")
     effective = (end - online).total_seconds() / 60
     rule("duration", f"Offer at least {MIN_OFFER_HOURS}h", hours >= MIN_OFFER_HOURS,
          f"{hours:g}h offered; {phy.minutes_to_online} min to online leaves {int(effective)} min of coverage")
@@ -135,7 +149,10 @@ def evaluate_candidate(ref: ReferenceData, pid: str, hospitals: frozenset[str], 
         "authoritative active license and jurisdiction", "hospital privileges", "specialty authorization"]
     if not previous_ends:
         missing.append("last completed work interval")
-    known_failures = [r for r in rules if not r["passed"] and not (r["rule"] == "rest" and not previous_ends)]
+    if availability_unknown:
+        missing.append("resolved availability evidence")
+    known_failures = [r for r in rules if not r["passed"] and r["rule"] != "availability_evidence"
+                      and not (r["rule"] == "rest" and not previous_ends)]
     status = "ineligible" if known_failures else ("unverified" if missing else "eligible")
     if missing:
         eligible = False
@@ -176,7 +193,8 @@ def recommend(state: State, ref: ReferenceData, coverage: dict, ledger: OfferLed
     start = state.as_of
     end = start + timedelta(hours=OFFER_HOURS)
     gap_hospitals = frozenset({target["hospital_id"]})
-    candidates = [evaluate_candidate(ref, pid, gap_hospitals, start, end, ledger) for pid in off_shift]
+    candidates = [evaluate_candidate(ref, pid, gap_hospitals, start, end, ledger, observed_state=state)
+                  for pid in off_shift]
     eligible = [c for c in candidates if c["eligible"]]
 
     hid = target["hospital_id"]

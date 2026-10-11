@@ -171,6 +171,14 @@ def project_all(state: State, ref: ReferenceData, commitments: list[Commitment])
         "horizon_minutes": HORIZON_MIN,
         "hospitals": hospitals,
         "shift_changes": shift_changes(state, ref),
+        "planned_commitment_changes": [
+            {"at": at.isoformat(), "physician_id": c.physician_id,
+             "hospitals": sorted(c.hospitals), "change": change,
+             "basis": "accepted terms/estimated ETA; not an observed clinical event"}
+            for c in commitments
+            for at, change in ((c.start, "offered start"), (c.online_at, "estimated online"), (c.end, "offered end"))
+            if state.as_of < at <= state.as_of + timedelta(minutes=HORIZON_MIN)
+        ],
         "total_deficit_minutes": sum(h["deficit_minutes"] for h in hospitals),
         "total_deficit_minutes_basis": "sum of overlapping hospital-access deficits; not independent network supply or patient wait",
         "projection_only": True,

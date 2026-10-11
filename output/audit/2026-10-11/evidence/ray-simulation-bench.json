@@ -1,0 +1,15 @@
+{
+  "scope": "Ray custom split-shift fixture; shift_ending_surge; baseline versus greedy; full 90-minute run; 1-minute ticks; no Jev calls",
+  "physicians": 7,
+  "hospitals": 2,
+  "initial_consults": 5,
+  "runs": 3,
+  "milliseconds": [
+    1537.79,
+    1590.406,
+    1582.743
+  ],
+  "median_ms": 1582.743,
+  "trace_entries": 54,
+  "external_calls": false
+}

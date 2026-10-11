@@ -29,6 +29,8 @@ ASSUMPTIONS = [
     "Optimizer is exact only for the selected target and a fixed 2-hour offer window.",
     "Accepted offers count only as projected capacity after ETA; imported online evidence is required for actual joiner routing.",
     "No future clinical events, financial values or outcome improvements are generated.",
+    "Online evidence means imported shift/call/video participation; desktop-agent online is a challenge assumption until a supplied heartbeat-loss event, not independent live telemetry.",
+    "Recorded work counts are counts of supplied events; absent off-shift activity does not verify zero actual workload.",
 ]
 
 
@@ -60,6 +62,10 @@ def physicians_view(state: State, ref: ReferenceData, commitments: list[Commitme
             "ringing_consult": a["ringing"],
             "in_cooldown": a["in_cooldown"],
             "presence_verified": a["verified"],
+            "presence_verification_basis": a["verification_basis"],
+            "desktop_presence_basis": a["desktop_presence_basis"],
+            "workload_verified": bool(p.shift_started_at),
+            "workload_basis": "recorded events since imported shift start" if p.shift_started_at else "counts of supplied events only; actual shift workload is unknown",
             "online_evidence_event_ids": a["online_evidence_event_ids"],
             "conflicting_signal_event_ids": a["conflicting_signal_event_ids"],
             "flags": a["flags"],

@@ -1,0 +1,34 @@
+{
+  "measured_at": "2026-10-11T12:54:52.811358+00:00",
+  "release_sha": "unknown",
+  "machine": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "python": "3.12.14",
+    "processor": "arm",
+    "cpus": 8
+  },
+  "scenario": "original fixture, 18:20 ET",
+  "notes": "Interpreter startup excluded; OS file cache likely warm; no projection cache used.",
+  "warm_analysis_plus_json_ms": {
+    "n": 30,
+    "min": 11.46,
+    "p50": 11.619,
+    "p95": 11.961,
+    "p99": 12.095,
+    "max": 12.095,
+    "mean": 11.664,
+    "target_p95": 50,
+    "meets_target": true
+  },
+  "full_load_replay_analysis_json_ms": {
+    "n": 10,
+    "min": 17.162,
+    "p50": 17.25,
+    "p95": 17.371,
+    "p99": 17.371,
+    "max": 17.371,
+    "mean": 17.257,
+    "target_p95": 150,
+    "meets_target": true
+  }
+}
