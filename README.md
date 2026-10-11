@@ -1,126 +1,99 @@
 # Sevaro Command Center
 
-**Detect coverage risk, decide on an intervention, and act on it, before a stroke consult waits.**
+An integrated Challenge 2 operations desk on `belal`: replay organizer CSVs, detect consult and hospital coverage risks, review hard-gated staffing recommendations, obtain clinical-lead approval, and run a simulated offer workflow. React uses one FastAPI API; PostgreSQL owns events, decisions, sessions, offers, reservations and audit history.
 
-Built for Sevaro's Challenge 2 (Tele-Neurology Operations Command Center) at Rutgers Health Hack 2026.
+The runtime reads only supplied organizer records and explicitly imported CSVs. It generates no patients, financial rates, physician responses, online activations or clinical completions. The organizers describe their supplied dataset as synthetic; we use those files unchanged and add no synthetic operational data. Fault fixtures belong only to isolated tests. Profitability routing is disabled because verified financial inputs were not supplied.
 
-## The problem
+## Local startup
 
-Sevaro's tele-neurologists cover consults for many hospitals at once. Demand is uneven: one hospital can send several stroke consults in half an hour, sometimes right as physicians reach the end of their shift. Sevaro already has a live view of physician workload. What's missing is what happens next: noticing the risk early, working out who is credentialed and eligible to help, and getting that person online with approval.
+Prerequisites: Python 3.12, Node 22, PostgreSQL 18 server/client tools on PATH, and `rg`. Run from this repository root:
 
-## What it does
-
-Three connected layers:
-
-1. **Detect.** Rebuilds live state from the event stream and flags what needs attention now and in the next 90 minutes: consults breaching stage time standards, hospitals above their demand baseline, credentialed capacity dropping below the minimum when shifts end, and physician signals that contradict each other.
-2. **Decide.** Recommends an intervention for the top issue. For a split shift, it checks every off-shift physician against each eligibility rule and shows which rules each one passed or failed.
-3. **Act.** Runs the offer loop: propose, clinical lead approves, offer sent (simulated), physician accepts, declines or times out, projected coverage updates. Offers stop once the gap is filled.
-
-**Design principle:** eligibility first, ranking second, explanation third, human approval before any action.
-
-## How the backend works
-
-```
-event_stream.csv + reference CSVs
-        │
-        ▼
-1. Load        parse CSVs, normalize timestamps
-        │
-        ▼
-2. Replay      dedupe by event_id, order by event_time (not arrival),
-        │      build physician state and consult state separately
-        ▼
-3. Eligibility credentialing + real availability (reconciled signals)
-        │
-        ▼
-4. Gaps        15-minute slots over 90 minutes: required vs available,
-        │      shift ends, demand-spike adjustment
-        ▼
-5. Rank        split-shift candidates with pass/fail per rule,
-        │      plus a guard against the split-shift trap
-        ▼
-6. API         FastAPI endpoints for the dashboard + live event injection
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements-dev.txt
+bash scripts/dev_db.sh
+.venv/bin/python -m backend.api.admin migrate
 ```
 
-### Availability reconciliation
+The database helper starts a separate development cluster at `127.0.0.1:55433`, database `sevaro`, using your OS username. Its trust authentication is for local development only. Alternatively, set `SEVARO_DATABASE_URL` to a password-protected PostgreSQL URL in the ignored root `.env`.
 
-Physicians don't report being on a call. Activity is derived from signals that can disagree:
+Your Jev key stays in the **root `.env`** as `TYPESAFE_API_KEY=...`. The backend loads it automatically; never use a `VITE_` variable for the key. Existing `.env` contents are preserved. See [.env.example](.env.example) for optional settings. Missing or disabled Jev uses a disclosed deterministic fallback.
 
-| Signal combination | Interpretation |
-|---|---|
-| On a Synapse call or video session | Busy |
-| Camera active, no Synapse session, status not In Meeting | Busy (likely external video). Flagged. |
-| Camera active, status In Meeting | Available (interruptible) |
-| Desktop agent offline | Assumed available but **unverified**. Risk surfaced. |
+Provision your own accounts; each command prompts for a unique password of at least 12 characters. There are no default runtime passwords:
 
-Events can arrive late, and at least one appears twice. State is built from `event_time`, never from arrival order.
-
-### Split-shift eligibility
-
-An off-shift physician can receive an offer only if all of these hold:
-
-- Opted in to split-shift offers
-- Credentialed at one or more of the hospitals with the gap
-- At least 10 hours since their last shift ended, measured at the offered start time
-- Hours worked in the trailing 7 days plus offered hours ≤ 60
-- No overlap with a shift they're already scheduled for
-- Offer is at least 2 hours long (time to come online counts against it)
-
-Safety constraints: no patient information in notifications, clinical lead approval before every offer, one open offer per physician, at most 3 offers per physician per week, offers expire after 10 minutes, and a full log of who was considered, excluded, approved, and the outcome.
-
-### The split-shift trap
-
-Routing sends calls to the eligible physician with the fewest consults this shift. A physician joining mid-shift starts at zero, so they would receive nearly every call at every hospital they're credentialed for. That just moves the imbalance instead of fixing it. The command center accounts for this, for example by seeding a starting consult count or limiting the new physician to the gap hospitals.
-
-## Demo checklist (from the challenge brief)
-
-- [ ] Rebuild state from the event stream, handling late and duplicate events, and match the 18:20 reference snapshot
-- [ ] Show physician activity and consult lifecycle independently, with time in stage vs. standards
-- [ ] Detect and rank what needs attention, with a reason for each flag
-- [ ] Project coverage at least 90 minutes ahead, accounting for shift ends and demand baseline
-- [ ] Recommend an intervention; for a split shift, show every off-shift physician and each rule's pass/fail
-- [ ] Run the full loop: propose, approve, send (simulated), accept/decline, update projected coverage
-- [ ] Show how we handle the split-shift trap
-- [ ] Live test: accept judge-injected events in the same format without a restart
-
-## Data
-
-Synthetic dataset covering Tuesday 17 March 2026, 07:00–18:20 ET. "Now" is 18:20:00 ET.
-
-| File | Contents |
-|---|---|
-| `event_stream.csv` | ~1,160 events, the source of truth (sorted by `ingested_at`) |
-| `hospitals.csv` | 12 hospitals, time zone, coverage tier |
-| `physicians_on_shift.csv` | 8 on-shift physicians with shift times |
-| `physicians_off_shift_roster.csv` | 6 off-shift physicians: opt-in, last/next shift, hours worked, time to come online |
-| `credentialing_matrix.csv` | Which physicians may take consults from which hospitals |
-| `baseline_hourly_volume.csv` | 12-week weekday mean and p90 consults per hospital per hour |
-| `coverage_requirements.csv` | Minimum available credentialed physicians per hospital per time block |
-| `snapshot_*_1820.csv` | Reference state at 18:20; our replay must reproduce it |
-
-All data is synthetic. No patient information is used or required.
-
-## Tech stack
-
-- **Backend:** Python 3.12, FastAPI, Pytest
-- **State:** in memory, rebuilt by replaying the event stream; new events are applied live through the API
-- **Frontend:** TBD
-
-## Getting started
-
-> TODO: fill in once the backend code lands.
-
-```bash
-git clone <repo-url>
-cd RUHealthHacks
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+```sh
+.venv/bin/python -m backend.api.admin create-user --username coordinator --name Coordinator --role coordinator
+.venv/bin/python -m backend.api.admin create-user --username lead --name 'Clinical lead' --role clinical_lead
+.venv/bin/python -m backend.api.admin create-user --username grace --name 'Grace Okafor' --role physician --physician-id PHY-009
 ```
 
-## Team
+Start the backend in one terminal:
 
-| Name | Role |
-|---|---|
-| Ibrahim | Backend |
-| | |
-| | |
+```sh
+.venv/bin/python -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8000
+```
+
+Start the frontend in another:
+
+```sh
+cd frontend
+npm ci
+npm run dev
+```
+
+Open **http://127.0.0.1:5173**. Local API documentation is at **http://127.0.0.1:8000/api/docs**. For the built frontend served by FastAPI on port 8000, run `npm run build` in `frontend` before starting the backend.
+
+## Verified workflow
+
+1. Coordinator: view the **208/208** initial reference match, ranked risks, 90-minute hospital forecast and all six off-shift candidate explanations.
+2. Review a staffing recommendation. Its actual Jev/fallback source, latency and revision are shown. Propose the selected eligible offer.
+3. Clinical lead: approve or reject it under **Offers**. Coordinators can request a lead escalation; leads acknowledge it there.
+4. Coordinator: send the approved **simulated** offer. Physician account `PHY-009`: accept or decline only that physician's offer.
+5. Acceptance adds a planned reservation. Confirmation requires imported participation evidence and current availability; an ETA or reload never establishes that the physician is online. Leads can cancel accepted commitments; the gap claim is released and work-history reservations remain conservative.
+6. **Data & ActionLab**: validate/import the supplied eight-column event CSV without a restart. New rows advance the clock to their latest ingestion time. Duplicate-only uploads do not advance it. Manual clock movement creates no events.
+7. Compare five policies on the same recorded state. Conditional coverage and scope comparisons are labelled separately from shared observed metrics; no policy-specific patient or financial benefit is invented.
+
+Replay deduplicates event IDs, orders visible records by event time, preserves the earliest consult receipt and reconciles concurrent calls/video/ringing. Source schedules and baselines govern forecasts. Challenge credentialing is a documented proxy. `SEVARO_POLICY_MODE=production` blocks automatic eligibility without authoritative license, jurisdiction, privilege and specialty evidence.
+
+## Tests, measurements and recovery
+
+```sh
+SEVARO_TEST_DATABASE_URL="postgresql://$(whoami)@127.0.0.1:55433/postgres" .venv/bin/python -m pytest backend/tests -q
+cd frontend
+npm run build
+npm audit
+npx playwright install chromium
+cd ..
+.venv/bin/python scripts/e2e.py
+```
+
+The E2E harness creates a disposable PostgreSQL database, unique ephemeral accounts and separate local servers. It disables paid provider calls, exercises three roles and reload persistence, and withholds then imports authentic organizer rows to prove live ingestion. It drops only its own temporary database. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` if using an existing compatible Chromium installation.
+
+```sh
+.venv/bin/python scripts/bench.py --runs 100 --full-runs 50 --out .local/engine-benchmark.json
+.venv/bin/python -m backend.api.admin backup --output .local/backups/pre-change.dump
+.venv/bin/python scripts/restore_check.py .local/backups/pre-change.dump --out .local/restore-check.json
+```
+
+Use a `pg_dump`/`pg_restore` client at least as new as the database server. Recovery restores into a separate temporary database and compares a quiescent source; it never overwrites the original database. Backups contain sensitive account and operational state: keep them private and out of Git.
+
+Measured on the supplied 1,163 unique events, 14 physicians and 12 hospitals: warm analysis p95 **15.2 ms**, full CSV load/replay/analysis p95 **25.0 ms**, cached HTTP report p95 **16.8 ms**. One anonymous live Jev selection took **203.1 ms**, resolving to `jev-1.13.0`; the configured deadline is 900 ms. These local samples do not establish a production SLA or 200-hospital capacity. Full evidence and limitations: [integration report](docs/implementation-report.md).
+
+## Local containers
+
+Set a unique, URL-safe alphanumeric `SEVARO_LOCAL_DB_PASSWORD` in the ignored root `.env`, then:
+
+```sh
+docker compose up --build -d
+docker compose exec app python -m backend.api.admin create-user --username coordinator --name Coordinator --role coordinator
+docker compose exec app python -m backend.api.admin create-user --username lead --name 'Clinical lead' --role clinical_lead
+docker compose exec app python -m backend.api.admin create-user --username grace --name 'Grace Okafor' --role physician --physician-id PHY-009
+```
+
+Open **http://127.0.0.1:8080**. PostgreSQL is internal to the Compose network and uses a persistent volume. Use `docker compose stop` to stop services while preserving data. Do not remove the volume to restart the application. Perform container backups with the database container's matching `pg_dump` client. This Compose configuration is local development, not a hosted deployment.
+
+## Scope and handoff
+
+[Yassin](docs/integration-sources.json) contributed official domain/API foundations; Ray informed PostgreSQL/concurrency and native Jev patterns; the latest `frontend` commit contributed visual assets and styles. Its mock operational provider and invented financial values are excluded from the active application. All teammate source refs and the starting `belal` backup are preserved; no remote push or AWS action was performed.
+
+Read [the API contract](docs/api-contract.md), [Jev contract](docs/jev-contract.md), [production gaps and judging evidence](docs/implementation-report.md). Institutional identity, authoritative licensing, real Sevaro/EHR interfaces, clinical validation, production security/load testing and AWS operations remain work before clinical deployment. Passing challenge tests does not establish production readiness or HIPAA compliance.

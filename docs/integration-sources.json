@@ -269,5 +269,17 @@
       "source": "origin/frontend",
       "path": "frontend/vite.config.ts"
     }
-  ]
+  ],
+  "later_frontend_review": {
+    "source": "origin/frontend",
+    "sha": "67176cc887125bb7437b68c10e51ccdb33e91cfe",
+    "reason": "Source ref advanced during integration; inspected latest light-mode/confirmation changes",
+    "adopted_shared_files": [
+      "frontend/src/components/Icons.tsx",
+      "frontend/src/design/tokens.css",
+      "frontend/index.html"
+    ],
+    "operational_logic": "Connected canonical API retained; upstream DemoProvider and simulated economics excluded",
+    "layout": "Existing connected layout retained because visual redesign is deferred"
+  }
 }

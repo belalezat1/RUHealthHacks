@@ -300,3 +300,10 @@ def test_hosted_configuration_never_falls_back_to_local_database(monkeypatch):
     monkeypatch.delenv('SEVARO_DATABASE_URL', raising=False)
     with pytest.raises(RuntimeError, match='explicit PostgreSQL'):
         load_settings()
+
+
+def test_runtime_database_url_cannot_enable_sqlite(monkeypatch):
+    monkeypatch.setenv('SEVARO_MODE', 'local')
+    monkeypatch.setenv('SEVARO_DATABASE_URL', '/tmp/untrusted-runtime.sqlite3')
+    with pytest.raises(RuntimeError, match='requires a PostgreSQL'):
+        load_settings()

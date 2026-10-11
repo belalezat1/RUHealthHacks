@@ -60,6 +60,9 @@ def load_settings() -> Settings:
     policy_mode = os.environ.get('SEVARO_POLICY_MODE', 'challenge').lower()
     if policy_mode not in ('challenge', 'production'):
         raise RuntimeError('SEVARO_POLICY_MODE must be challenge or production')
+    database_url = os.environ.get('SEVARO_DATABASE_URL', f'postgresql://{getpass.getuser()}@127.0.0.1:55433/sevaro')
+    if not database_url.startswith(('postgresql://', 'postgres://')):
+        raise RuntimeError('Runtime state requires a PostgreSQL database URL; SQLite is an isolated test adapter only')
     static = os.environ.get('SEVARO_STATIC_DIR')
     default_static = ROOT / 'frontend' / 'dist'
     return Settings(
@@ -68,6 +71,6 @@ def load_settings() -> Settings:
         demo_password='', release_sha=os.environ.get('SEVARO_RELEASE_SHA', 'dev'),
         session_hours=float(os.environ.get('SEVARO_SESSION_HOURS', '12')),
         static_dir=Path(static) if static else (default_static if default_static.exists() else None),
-        database_url=os.environ.get('SEVARO_DATABASE_URL', f'postgresql://{getpass.getuser()}@127.0.0.1:55433/sevaro'),
+        database_url=database_url,
         auto_migrate=os.environ.get('SEVARO_AUTO_MIGRATE', 'false' if mode == 'hosted' else 'true').lower() == 'true', policy_mode=policy_mode,
     )

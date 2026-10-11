@@ -265,3 +265,24 @@ def test_actionlab_only_replays_matching_persisted_decision(supplied):
 
 def test_key_is_never_in_configuration_repr():
     assert "test-secret" not in repr(DecisionConfig(api_key="test-secret"))
+
+
+def test_actionlab_hash_binds_policy_and_cancelled_work_reservations():
+    from dataclasses import replace
+    from datetime import timedelta
+    from backend.core.coverage import Commitment
+    from backend.core.staffing import EMPTY_LEDGER
+    from backend.core.data import load_reference
+    from backend.core.events import read_csv_text, validate_batch
+    from backend.intelligence.actionlab import build_actionlab
+    ref = load_reference()
+    rows, _ = read_csv_text((ref.data_dir / 'event_stream.csv').read_text())
+    events = validate_batch(rows, ref, {}).accepted
+    first = build_actionlab(events, ref, ref.scenario_now)
+    production = build_actionlab(events, ref, ref.scenario_now, ledger=replace(EMPTY_LEDGER, policy_mode='production'))
+    reservation = Commitment('PHY-009', frozenset({'SYN-005'}), ref.scenario_now,
+        ref.scenario_now + timedelta(hours=2), ref.scenario_now + timedelta(minutes=15), 'CANCELLED-EVIDENCE')
+    cancelled = build_actionlab(events, ref, ref.scenario_now,
+        ledger=replace(EMPTY_LEDGER, historical_reservations=(reservation,)))
+    assert len({first['input_hash'], production['input_hash'], cancelled['input_hash']}) == 3
+    assert all(x['generated_event_count'] == 0 for x in (first, production, cancelled))

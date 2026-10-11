@@ -1,0 +1,14 @@
+{
+  "docker_version": "29.8.2",
+  "image_id": "sha256:be2deb2cb3a389982b7a9d852c9cb089a6a0dde94d27c16aaf5fe79455679b5e",
+  "build_passed": true,
+  "ready": true,
+  "built_frontend_served": true,
+  "reference_match": "208/208",
+  "accepted_commitment_persisted_across_image_recreation": true,
+  "finance_enabled": false,
+  "browser_workflow": "Verified final container workflow; see implementation report for test results",
+  "baked_key_or_root_env_file": false,
+  "host_binding": "127.0.0.1:8085",
+  "cloud_deployment": false
+}

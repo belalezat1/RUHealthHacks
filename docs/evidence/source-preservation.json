@@ -1,0 +1,51 @@
+{
+  "target_branch": "belal",
+  "source_refs": {
+    "origin/main": {
+      "initial_sha": "fb87fbd88080262f92963352d7f3f2889d2982ec",
+      "current_sha": "fb87fbd88080262f92963352d7f3f2889d2982ec",
+      "modified_by_integration_agent": false
+    },
+    "origin/yassin": {
+      "initial_sha": "29f0b6042f6ac86553c3d45edea22bb3926ff713",
+      "current_sha": "29f0b6042f6ac86553c3d45edea22bb3926ff713",
+      "modified_by_integration_agent": false
+    },
+    "origin/ray": {
+      "initial_sha": "ae6bdff862a57507b73d0a73e4d1a21112369fc6",
+      "current_sha": "ae6bdff862a57507b73d0a73e4d1a21112369fc6",
+      "modified_by_integration_agent": false
+    },
+    "origin/frontend": {
+      "initial_sha": "8806f782a602521e601b7ddc4196887f378027c3",
+      "current_sha": "67176cc887125bb7437b68c10e51ccdb33e91cfe",
+      "modified_by_integration_agent": false
+    },
+    "origin/backend": {
+      "initial_sha": "daf4dbc773faee66add34ddbf3267f42db839e38",
+      "current_sha": "daf4dbc773faee66add34ddbf3267f42db839e38",
+      "modified_by_integration_agent": false
+    },
+    "origin/henry": {
+      "initial_sha": "558cbc7915b9771629e17d4e7731058de5ce113a",
+      "current_sha": "558cbc7915b9771629e17d4e7731058de5ce113a",
+      "modified_by_integration_agent": false
+    }
+  },
+  "frontend_update": "Independent fetch advanced the tracking ref at 10:13:38 ET; latest shared assets inspected and adopted without changing source branch",
+  "backup_ref": "backup/belal-pre-integration-20261011-fb87fbd",
+  "backup_sha": "fb87fbd88080262f92963352d7f3f2889d2982ec",
+  "official_csvs_byte_identical_to_developer_kit": true,
+  "file_hashes": {
+    "snapshot_open_consults_1820.csv": "602b42bc85e0302575682174bc72173f0f1ed297d5b3a5d605b3fbdfae590c25",
+    "baseline_hourly_volume.csv": "111a6932b232e8e88cdc4948549c664b7a1516d5f26dbfe0de4663b88ff0becf",
+    "coverage_requirements.csv": "13941b1d8c6dacc3ec6b3dc0ddc44a03fc4bec69d8b01f742df00c67436201c6",
+    "physicians_on_shift.csv": "fa6e3da8912e111f7c7adf81268de76d5ce7382671859d947147738054714848",
+    "physicians_off_shift_roster.csv": "39371d1b32c4748cbd86dc150c4172b6b01034db5070d9707f6de50166a0e5e3",
+    "snapshot_physicians_1820.csv": "b6fe7b830fb960f34a074d7d25d7e7a32aafcb53d1821f72a2ba74b02da35e51",
+    "credentialing_matrix.csv": "4757e898b87b3ae4db95cabe89ba75bd55290e35ee346daf312d1ff96453f34f",
+    "event_stream.csv": "b3370a5d7fb98092303a1bd35b1017fda33d2420124b4d6d35ef73d8f116d967",
+    "hospitals.csv": "7fe1c593adf78408fbc365d2651541d2509729a5918418d8ea6d63c4b63dbf6b"
+  },
+  "remote_push_performed": false
+}
