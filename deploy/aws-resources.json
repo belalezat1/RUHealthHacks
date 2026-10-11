@@ -1,0 +1,17 @@
+{
+  "account_id": "033301207528",
+  "region": "us-west-2",
+  "branch": "belal",
+  "url": "https://d3n5vdu0x0beh3.cloudfront.net",
+  "elastic_ip": "184.32.91.82",
+  "instance_id": "i-0731739b7757d89d6",
+  "instance_type": "t3.medium",
+  "allocation_id": "eipalloc-0655cca26e70bc7ec",
+  "web_security_group": "sg-0d867ab2f643cb0e9",
+  "backend_security_group": "sg-08e9e186739cef485",
+  "instance_role": "sevaro-web-instance",
+  "cloudfront_distribution_id": "E2PR7SZRAS3XQY",
+  "database_instance": "sevaro-db",
+  "database_name": "sevaro_belal",
+  "update_interval_seconds": 60
+}
