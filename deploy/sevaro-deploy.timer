@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Sevaro belal for updates every minute
+
+[Timer]
+OnBootSec=60s
+OnUnitInactiveSec=60s
+Unit=sevaro-deploy.service
+
+[Install]
+WantedBy=timers.target
