@@ -48,3 +48,26 @@ input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; back
 
 .command-content input { max-width: 100%; min-width: 0; box-sizing: border-box; }
 .command-content, .command-content label, .command-content p { min-width: 0; overflow-wrap: anywhere; }
+
+/* Keep the demo sequence visible while technical evidence stays expandable. */
+.demo-guide { border: 1px solid var(--accent); background: var(--surface); }
+.demo-eyebrow { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.demo-guide h2 { margin-top: 8px; }
+.demo-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 22px 0; list-style: none; }
+.demo-steps li { display: flex; align-items: flex-start; gap: 10px; padding: 14px 12px; border: 1px solid var(--line, #dce4ed); border-radius: 12px; }
+.demo-step-number { display: grid; place-items: center; flex: 0 0 27px; height: 27px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-weight: 700; }
+.demo-steps strong { display: block; font-size: 14px; }
+.demo-steps small { display: block; margin-top: 3px; font-size: 12px; color: var(--text-muted); }
+.command-content .demo-steps p { font-size: 12px; line-height: 1.55; margin: 7px 0 0; }
+.demo-steps .is-current { border-color: var(--accent); background: var(--accent-dim); }
+.demo-steps .is-current .demo-step-number { background: var(--accent); color: white; }
+.demo-steps .is-complete { border-color: var(--accent); }
+.demo-next { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-radius: 10px; background: var(--accent-dim); }
+.demo-next .btn { flex-shrink: 0; }
+.demo-footnote { font-size: 12px; }
+.offer-next { padding: 10px 14px; background: var(--accent-dim); border-radius: 8px; }
+#backup-recommendation { scroll-margin-top: 20px; }
+@media (max-width: 1250px) { .demo-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .demo-steps { grid-template-columns: 1fr; } .demo-next { align-items: flex-start; flex-direction: column; } .demo-guide .section-title { align-items: flex-start; flex-wrap: wrap; } }
+
+.command-shell .btn-primary { background: #08735a; color: #fff; }

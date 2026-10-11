@@ -32,6 +32,7 @@ test("official data, role approval, physician response, reload and CSV replay", 
   await coordinator.reload();
   await expect(coordinator.getByText("208/208 reference fields matched", { exact: false })).toBeVisible();
   await expect(coordinator.getByText("Dr. Grace Okafor", { exact: true })).toBeVisible();
+  await expect(coordinator.getByRole("heading", { name: "From a coverage gap to an approved backup shift" })).toBeVisible();
   await expect(coordinator.getByRole("button", { name: "Approve offer", exact: true })).toHaveCount(0);
 
   const selected = coordinator.waitForResponse(r => r.url().includes("/decisions/preview") && r.request().method() === "POST");
@@ -42,16 +43,19 @@ test("official data, role approval, physician response, reload and CSV replay", 
   await expect(coordinator.getByRole("button", { name: "Propose selected offer", exact: true })).toBeEnabled();
   await coordinator.getByRole("button", { name: "Propose selected offer", exact: true }).click();
   await expect(coordinator.getByText("Awaiting lead approval", { exact: true })).toBeVisible();
+  await expect(coordinator.locator('[aria-current="step"]')).toContainText("Approve");
   await lead.getByRole("button", { name: "Offers", exact: true }).click();
   await lead.getByRole("button", { name: "Approve offer", exact: true }).click();
   await expect(coordinator.getByRole("button", { name: "Send simulated offer", exact: true })).toBeVisible();
+  await expect(coordinator.locator('[aria-current="step"]')).toContainText("Send");
   await coordinator.getByRole("button", { name: "Send simulated offer", exact: true }).click();
+  await expect(coordinator.locator('[aria-current="step"]')).toContainText("Respond");
   await expect(physician.getByRole("button", { name: "Accept offer", exact: true })).toBeVisible();
   await physician.getByRole("button", { name: "Accept offer", exact: true }).click();
   await expect(physician.getByText("This is not confirmation that you are online.", { exact: false })).toBeVisible();
   await coordinator.reload();
   await coordinator.getByRole("button", { name: "Offers", exact: true }).click();
-  await expect(coordinator.getByText("accepted", { exact: true })).toBeVisible();
+  await expect(coordinator.getByText("Accepted · check online activity", { exact: true })).toBeVisible();
   await expect(coordinator.getByText("Imported evidence is required for confirmed capacity.", { exact: false })).toBeVisible();
   await expect(coordinator.getByText("Coverage restored", { exact: false })).toHaveCount(0);
   await expect(coordinator.getByRole("button", { name: "Cancel offer", exact: true })).toHaveCount(0);
