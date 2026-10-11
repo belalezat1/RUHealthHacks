@@ -1,4 +1,4 @@
-// Types mirroring the v1 API (see contracts/API_CONTRACT.md).
+// Types mirroring the v1 API (see docs/api-contract.md).
 
 export type Role = "coordinator" | "clinical_lead" | "physician";
 
@@ -348,4 +348,18 @@ export interface Decision {
   requires_clinical_lead_approval: boolean;
   feasible_actions: Record<string, unknown>[];
   provider: { status: string; latency_ms: number; model: string | null; confidence: number | null };
+}
+
+
+export interface ActionLab {
+  generated_event_count: number;
+  input_hash: string;
+  as_of: string;
+  observed_metrics: {
+    visible_event_count: number;
+    unique_consults_with_receipt: number;
+    received_to_first_recorded_contact: { sample_size: number; p50: number | null; p95: number | null; definition: string };
+  };
+  policies: { policy: string; status: string; explanation: string; actual_source?: string | null }[];
+  split_shift_trap: { condition: string; candidates: { physician_id: string; naive_hospital_scope: string[]; guarded_hospital_scope: string[]; protected_from_unscoped_routing: string[] }[] };
 }

@@ -21,7 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from backend.core.data import SCENARIO_NOW, load_reference  # noqa: E402
+from backend.core.data import load_reference  # noqa: E402
 from backend.core.events import read_csv_text, validate_batch  # noqa: E402
 from backend.core.report import build_report  # noqa: E402
 
@@ -54,11 +54,11 @@ def main() -> int:
     events = validate_batch(rows, ref, {}).accepted
 
     for _ in range(args.warmup):
-        json.dumps(build_report(events, ref, SCENARIO_NOW), default=str)
+        json.dumps(build_report(events, ref, ref.scenario_now), default=str)
     warm = []
     for _ in range(args.runs):
         t0 = time.perf_counter()
-        json.dumps(build_report(events, ref, SCENARIO_NOW), default=str)
+        json.dumps(build_report(events, ref, ref.scenario_now), default=str)
         warm.append((time.perf_counter() - t0) * 1000)
 
     full = []
@@ -67,7 +67,7 @@ def main() -> int:
         r = load_reference()
         rws, _ = read_csv_text((r.data_dir / "event_stream.csv").read_text(encoding="utf-8"))
         ev = validate_batch(rws, r, {}).accepted
-        json.dumps(build_report(ev, r, SCENARIO_NOW), default=str)
+        json.dumps(build_report(ev, r, r.scenario_now), default=str)
         full.append((time.perf_counter() - t0) * 1000)
 
     out = {

@@ -1,0 +1,27 @@
+{
+  "backup_sha256": "f0598246460d33244bdb3e6a4e80e9920c3535092fa97609261238cb04e05e60",
+  "source_database_untouched": true,
+  "temporary_database": "sevaro_restore_c07a1ed7ead5",
+  "schema_version": 2,
+  "row_counts": {
+    "actions": 0,
+    "alembic_version": 1,
+    "audit": 15,
+    "decisions": 2,
+    "events": 2326,
+    "gap_claims": 2,
+    "gaps": 2,
+    "idempotency": 13,
+    "imports": 2,
+    "meta": 1,
+    "offers": 2,
+    "runs": 2,
+    "sessions": 9,
+    "users": 3
+  },
+  "row_counts_match_source": true,
+  "current_state_matches_source": true,
+  "report_rebuilds": true,
+  "revision": 5,
+  "note": "Counts compare a quiescent source; this does not establish a production recovery SLA."
+}

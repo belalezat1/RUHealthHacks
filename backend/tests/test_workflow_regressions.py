@@ -128,8 +128,14 @@ def pg_url():
         conn.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
     params['dbname'] = name
     # The Store API accepts URLs, so retain all connection options explicitly.
-    from urllib.parse import urlencode
-    target = f"postgresql://{params.get('user', 'b')}@{params.get('host', '127.0.0.1')}:{params.get('port', '55433')}/{name}"
+    from urllib.parse import quote, urlencode
+    target = 'postgresql://' + quote(params.get('user', ''), safe='')
+    if 'password' in params:
+        target += ':' + quote(params['password'], safe='')
+    target += '@' + params.get('host', '127.0.0.1') + ':' + str(params.get('port', '55433')) + '/' + name
+    extras = {k: v for k, v in params.items() if k not in {'user', 'password', 'host', 'port', 'dbname'}}
+    if extras:
+        target += '?' + urlencode(extras)
     try:
         yield target
     finally:
@@ -258,3 +264,39 @@ def test_approved_terms_mutation_is_rejected(tmp_path):
             conn.execute('UPDATE offers SET minutes_to_online=0 WHERE offer_id=?', (oid,))
         rejected = coord.post(f'/api/v1/offers/{oid}/send')
         assert rejected.status_code == 409 and 'immutable terms changed' in rejected.text
+
+
+def test_accepted_cancel_requires_lead_releases_capacity_retains_accounting(tmp_path):
+    app = create_app(make_settings(tmp_path))
+    with TestClient(app):
+        coord, lead, physician = User(app, 'coordinator'), User(app, 'lead'), User(app, 'phy-009')
+        oid = full_loop_to_sent(coord, lead)
+        assert physician.post(f'/api/v1/offers/{oid}/accept').status_code == 200
+        assert coord.post(f'/api/v1/offers/{oid}/cancel', json={'reason': 'lost eligibility'}).status_code == 403
+        cancelled = lead.post(f'/api/v1/offers/{oid}/cancel', json={'reason': 'lost eligibility'})
+        assert cancelled.status_code == 200, cancelled.text
+        assert cancelled.json()['result']['claim_released']
+        run_id = coord.state()['run_id']
+        with app.state.store.read() as conn:
+            ledger = app.state.service._ledger(conn, run_id)
+            assert not ledger.accepted
+            assert len(ledger.historical_reservations) == 1
+            assert conn.execute('SELECT COUNT(*) n FROM gap_claims').fetchone()['n'] == 0
+        report = coord.report()
+        assert all('PHY-009' not in sample['planned_ids'] for h in report['coverage']['hospitals'] for sample in h['samples'])
+        candidate = next(c for c in report['staffing']['candidates'] if c['physician_id'] == 'PHY-009')
+        assert not next(r for r in candidate['rules'] if r['rule'] == 'no_accepted_overlap')['passed']
+        assert candidate['workload']['incremental_hours'] == 2
+        later = evaluate_candidate(app.state.service.ref, 'PHY-009', frozenset({'SYN-005'}),
+            app.state.service.ref.scenario_now + timedelta(hours=3),
+            app.state.service.ref.scenario_now + timedelta(hours=5), ledger)
+        assert not next(r for r in later['rules'] if r['rule'] == 'rest')['passed']
+
+
+def test_hosted_configuration_never_falls_back_to_local_database(monkeypatch):
+    monkeypatch.setenv('SEVARO_MODE', 'hosted')
+    monkeypatch.setenv('SEVARO_ALLOWED_ORIGINS', 'https://approved.example')
+    monkeypatch.setenv('SEVARO_IDENTITY_MODE', 'provisioned_sessions')
+    monkeypatch.delenv('SEVARO_DATABASE_URL', raising=False)
+    with pytest.raises(RuntimeError, match='explicit PostgreSQL'):
+        load_settings()

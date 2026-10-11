@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, describeError, get, login, logout, mutate, rememberState, setCsrf, validateCsv } from "./api";
 import { RelayMark } from "./components/RelayMark";
-import type { Candidate, Decision, Envelope, ImportSummary, LiveState, Offer, PhysicianOffer, Report, Risk, User } from "./types";
+import type { ActionLab, Candidate, Decision, Envelope, ImportSummary, LiveState, Offer, PhysicianOffer, Report, Risk, User } from "./types";
 
 const time = (value: string | null | undefined) => value ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(value)) : "—";
 const number = (value: number | null | undefined) => value == null ? "—" : Math.round(value).toLocaleString();
@@ -37,7 +37,7 @@ export default function App() {
   const [phoneOffers, setPhoneOffers] = useState<PhysicianOffer[]>([]);
   const [tab, setTab] = useState<Tab>("desk");
   const [decision, setDecision] = useState<Decision | null>(null);
-  const [lab, setLab] = useState<Record<string, unknown> | null>(null);
+  const [lab, setLab] = useState<ActionLab | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -153,12 +153,13 @@ export default function App() {
               <section className="panel"><h2>Ranked issues</h2>{report.risks.map(r => <RiskItem key={r.id} risk={r} user={user} busy={busy || stale} act={act} />)}</section>
             </>}
             {tab === "state" && <>
-              <section className="panel"><h2>Physician activity</h2><p>Reported status, derived activity, and evidence are separate.</p><div className="table-scroll"><table><thead><tr><th>Physician</th><th>Activity</th><th>Presence</th><th>Consults / calls</th><th>Shift end</th></tr></thead><tbody>{report.physicians.map(p => <tr key={p.physician_id}><td><strong>{p.name}</strong><small>{p.physician_id}</small></td><td>{p.derived_state}<small>Reported: {p.self_reported_status}{p.in_cooldown ? " · cooling down" : ""}</small></td><td>{p.presence_verified ? "Verified evidence" : "Unverified"}{p.planned_capacity && <small>Planned: {time(p.planned_capacity.online_at)}–{time(p.planned_capacity.end)} ET</small>}</td><td>{p.consults_this_shift} / {p.calls_this_shift}</td><td>{p.minutes_to_shift_end == null ? "Off shift" : `${p.minutes_to_shift_end} min`}</td></tr>)}</tbody></table></div></section>
+              <section className="panel"><h2>Physician activity</h2><p>Reported status, derived activity, and evidence are separate.</p><div className="table-scroll"><table><thead><tr><th>Physician</th><th>Activity</th><th>Presence</th><th>Consults / calls</th><th>Shift end</th></tr></thead><tbody>{report.physicians.map(p => <tr key={p.physician_id}><td><strong>{p.name}</strong><small>{p.physician_id}</small></td><td>{p.derived_state}<small>Reported: {p.self_reported_status}{p.in_cooldown ? " · cooling down" : ""}</small></td><td>{p.presence_verified ? "Imported participation evidence" : "Unverified"}<small>{p.presence_verification_basis}</small>{p.planned_capacity && <small>Planned: {time(p.planned_capacity.online_at)}–{time(p.planned_capacity.end)} ET</small>}</td><td>{p.consults_this_shift} / {p.calls_this_shift}</td><td>{p.minutes_to_shift_end == null ? "Off shift" : `${p.minutes_to_shift_end} min`}</td></tr>)}</tbody></table></div></section>
               <section className="panel"><h2>Open consults</h2><div className="table-scroll"><table><thead><tr><th>Consult / hospital</th><th>Type</th><th>Current stage</th><th>Stage time</th><th>Original wait</th></tr></thead><tbody>{report.consults.map(c => <tr key={c.consult_id}><td>{c.consult_id}<small>{c.hospital_name} · {c.physician_id || "Unassigned"}</small></td><td>{c.consult_type}</td><td>{c.current_stage}<small>{c.routing_failures} failed routing attempts</small></td><td>{number(c.minutes_in_stage)} min</td><td>{number(c.minutes_since_received)} min</td></tr>)}</tbody></table></div></section>
             </>}
             {tab === "offers" && <section className="panel"><h2>Server-owned offer workflow</h2><p>Propose → lead approval → simulated send → physician response → planned coverage → imported online evidence.</p>
               {report.offers.length === 0 && <p>No offers. Review a recommendation from the coverage desk.</p>}
               {[...report.offers].reverse().map(o => <OfferCard key={o.offer_id} offer={o} user={user} busy={busy || stale} act={act} />)}
+              <h3>Lead escalations</h3>{report.actions.filter(a => a.kind === "escalation").map(a => <article className="history-row" key={a.action_id}><strong>{a.risk_id} · {a.status}</strong><p>{a.note || "Coordinator requested clinical-lead review."}</p>{a.status === "open" && user.role === "clinical_lead" && <button className="btn btn-sm" disabled={busy || stale} onClick={() => void act(() => mutate(`/api/v1/actions/${a.action_id}/acknowledge`, { decision: "Reviewed by clinical lead; external clinical actions require the existing care workflow." }), "Lead review recorded.")}>Acknowledge escalation</button>}</article>)}
               <h3>Accepted gap reservations</h3>{report.gaps.map(g => <p key={g.gap_id}>{g.hospitals.join(", ")} · {g.claims.length}/{g.slots} slots reserved · {g.status}</p>)}
             </section>}
             {tab === "data" && <DataLab report={report} busy={busy || stale} act={act} lab={lab} setLab={setLab} />}
@@ -207,12 +208,12 @@ function OfferCard({ offer: o, user, busy, act }: { offer: Offer; user: User; bu
     {o.online_at && <p>Planned online {time(o.online_at)} ET. Imported evidence is required for confirmed capacity.</p>}
     <div className="action-row">{user.role === "clinical_lead" && o.status === "proposed" && <><button className="btn btn-primary" disabled={busy} onClick={() => transition("approve")}>Approve offer</button><button className="btn" disabled={busy} onClick={() => transition("reject")}>Reject offer</button></>}
       {user.role === "coordinator" && o.status === "approved" && <button className="btn btn-primary" disabled={busy} onClick={() => transition("send")}>Send simulated offer</button>}
-      {["proposed", "approved", "sent", "accepted"].includes(o.status) && <button className="btn btn-sm" disabled={busy} onClick={() => transition("cancel")}>Cancel offer</button>}</div>
+      {(["proposed", "approved", "sent"].includes(o.status) || (o.status === "accepted" && user.role === "clinical_lead")) && <button className="btn btn-sm" disabled={busy} onClick={() => transition("cancel")}>Cancel offer</button>}</div>
     <details><summary>Decision and eligibility evidence</summary><pre>{JSON.stringify(o.rationale, null, 2)}</pre><CandidateList candidates={o.candidate_audit} /></details>
   </article>;
 }
 
-function DataLab({ report, busy, act, lab, setLab }: { report: Report; busy: boolean; act: ActionRunner; lab: Record<string, unknown> | null; setLab: (value: Record<string, unknown>) => void }) {
+function DataLab({ report, busy, act, lab, setLab }: { report: Report; busy: boolean; act: ActionRunner; lab: ActionLab | null; setLab: (value: ActionLab) => void }) {
   const [csv, setCsv] = useState("");
   const [filename, setFilename] = useState("judge.csv");
   const [validation, setValidation] = useState<ImportSummary | null>(null);
@@ -225,7 +226,11 @@ function DataLab({ report, busy, act, lab, setLab }: { report: Report; busy: boo
     <h3>Scenario replay clock</h3><p>Advancing time expires offers and recalculates elapsed limits; it creates no operational events.</p><button className="btn" disabled={busy} onClick={() => void act(() => mutate("/api/v1/clock", { minutes: 5 }), "Scenario clock advanced by five minutes.")}>Advance 5 minutes</button>
     <h3>Imported batches</h3>{report.imports.map(i => <p key={i.import_id}>{i.filename} · {i.summary.accepted} accepted · {i.summary.duplicates} duplicates</p>)}
   </section><section className="panel"><h2>ActionLab · recorded replay</h2><p>Compare recommendations from the same recorded state. Observed outcomes are shared evidence; future clinical events and policy-specific outcome improvements are not generated.</p>
-    <button className="btn btn-primary" disabled={busy} onClick={() => void act(async () => { const result = await get<Envelope<Record<string, unknown>>>("/api/v1/actionlab"); setLab(result.data); }, "Recorded comparison loaded.")}>Compare recorded policies</button>
-    {lab && <pre data-testid="actionlab-result">{JSON.stringify(lab, null, 2)}</pre>}
+    <button className="btn btn-primary" disabled={busy} onClick={() => void act(async () => { const result = await get<Envelope<ActionLab>>("/api/v1/actionlab"); setLab(result.data); }, "Recorded comparison loaded.")}>Compare recorded policies</button>
+    {lab && <div><p>{lab.observed_metrics.visible_event_count} supplied events · {lab.observed_metrics.unique_consults_with_receipt} recorded consults · {lab.generated_event_count} generated events</p>
+      <p>Receipt to first recorded contact: p50 {number(lab.observed_metrics.received_to_first_recorded_contact.p50)} min · p95 {number(lab.observed_metrics.received_to_first_recorded_contact.p95)} min ({lab.observed_metrics.received_to_first_recorded_contact.sample_size} records). Shared observations apply to all policies.</p>
+      <div className="table-scroll"><table><thead><tr><th>Policy</th><th>Evidence</th></tr></thead><tbody>{lab.policies.map(policy => <tr key={policy.policy}><td>{policy.policy.replaceAll("_", " ")}<small>{policy.actual_source ?? policy.status}</small></td><td>{policy.explanation}</td></tr>)}</tbody></table></div>
+      <h3>Split-shift scope guard</h3><p>{lab.split_shift_trap.condition}</p>{lab.split_shift_trap.candidates.map(candidate => <p key={candidate.physician_id}>{candidate.physician_id}: scoped to {candidate.guarded_hospital_scope.join(", ")}; excludes {candidate.protected_from_unscoped_routing.join(", ") || "no additional hospitals"} from the proposed routing scope.</p>)}
+      <details><summary>Reproducible source evidence</summary><pre data-testid="actionlab-result">{JSON.stringify(lab, null, 2)}</pre></details></div>}
   </section></div>;
 }

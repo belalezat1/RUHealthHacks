@@ -45,3 +45,6 @@ input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; back
 .phone-offer { margin: 20px 0; }
 @media (max-width: 1100px) { .command-grid { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .command-shell { display: block; } .command-shell .app-aside { position: static; width: auto; height: auto; padding: 16px; } .app-nav { display: flex; flex-wrap: wrap; } .app-aside-foot { display: flex; align-items: center; flex-wrap: wrap; margin-top: 10px; } .command-content { padding: 16px; } .app-topbar { gap: 12px; padding: 16px; flex-wrap: wrap; } .stat-grid { gap: 12px; } .command-content .panel { padding: 18px; } }
+
+.command-content input { max-width: 100%; min-width: 0; box-sizing: border-box; }
+.command-content, .command-content label, .command-content p { min-width: 0; overflow-wrap: anywhere; }

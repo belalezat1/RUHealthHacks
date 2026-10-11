@@ -1,4 +1,4 @@
-# Runtime dependencies (pinned). Python 3.12 in the container; also tested locally on 3.14.
+# Runtime dependencies (pinned). Python 3.12 in the container; verified locally on Python 3.12.
 fastapi==0.143.0
 starlette==1.7.0
 pydantic==2.14.0

@@ -1,0 +1,28 @@
+{
+  "sequential_http_report_read_ms": {
+    "n": 50,
+    "min": 14.402,
+    "p50": 15.477,
+    "p95": 16.76,
+    "p99": 54.441,
+    "max": 54.441,
+    "mean": 16.423
+  },
+  "four_concurrent_clients_report_read_ms": {
+    "n": 40,
+    "min": 33.059,
+    "p50": 42.979,
+    "p95": 56.955,
+    "p99": 60.046,
+    "max": 60.046,
+    "mean": 43.359
+  },
+  "concurrent_completed_reads_per_second": 89.29,
+  "failed_requests": 0,
+  "database": "local PostgreSQL",
+  "server_workers": 1,
+  "projection_cache": "warm",
+  "includes": "HTTP, fresh database read connection, report enrichment and serialization",
+  "excludes": "Jev, mutations, external integrations, production network latency",
+  "note": "Bounded local smoke benchmark; not a capacity or 200-hospital load test."
+}

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import getpass
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -42,7 +43,7 @@ class Settings:
     def db_path(self) -> Path | str:
         if self.test_adapter:
             return self.state_dir / 'sevaro.sqlite3'
-        return self.database_url or 'postgresql://b@127.0.0.1:55433/sevaro'
+        return self.database_url or f'postgresql://{getpass.getuser()}@127.0.0.1:55433/sevaro'
 
 
 def load_settings() -> Settings:
@@ -54,6 +55,8 @@ def load_settings() -> Settings:
         raise RuntimeError('Hosted mode requires explicit SEVARO_ALLOWED_ORIGINS')
     if mode == 'hosted' and os.environ.get('SEVARO_IDENTITY_MODE') != 'provisioned_sessions':
         raise RuntimeError('Hosted identity is not configured; trusted identity integration remains unverified')
+    if mode == 'hosted' and not os.environ.get('SEVARO_DATABASE_URL'):
+        raise RuntimeError('Hosted mode requires an explicit PostgreSQL database URL')
     policy_mode = os.environ.get('SEVARO_POLICY_MODE', 'challenge').lower()
     if policy_mode not in ('challenge', 'production'):
         raise RuntimeError('SEVARO_POLICY_MODE must be challenge or production')
@@ -65,6 +68,6 @@ def load_settings() -> Settings:
         demo_password='', release_sha=os.environ.get('SEVARO_RELEASE_SHA', 'dev'),
         session_hours=float(os.environ.get('SEVARO_SESSION_HOURS', '12')),
         static_dir=Path(static) if static else (default_static if default_static.exists() else None),
-        database_url=os.environ.get('SEVARO_DATABASE_URL', 'postgresql://b@127.0.0.1:55433/sevaro'),
+        database_url=os.environ.get('SEVARO_DATABASE_URL', f'postgresql://{getpass.getuser()}@127.0.0.1:55433/sevaro'),
         auto_migrate=os.environ.get('SEVARO_AUTO_MIGRATE', 'false' if mode == 'hosted' else 'true').lower() == 'true', policy_mode=policy_mode,
     )

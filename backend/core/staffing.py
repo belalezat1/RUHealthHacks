@@ -135,8 +135,8 @@ def evaluate_candidate(ref: ReferenceData, pid: str, hospitals: frozenset[str], 
     effective = (end - online).total_seconds() / 60
     rule("duration", f"Offer at least {MIN_OFFER_HOURS}h", hours >= MIN_OFFER_HOURS,
          f"{hours:g}h offered; {phy.minutes_to_online} min to online leaves {int(effective)} min of coverage")
-    clash = [c for c in ledger.accepted if c.physician_id == pid and c.start < end and start < c.end]
-    rule("no_accepted_overlap", "No overlapping accepted offer", not clash,
+    clash = [c for c in accepted if c.start < end and start < c.end]
+    rule("no_accepted_overlap", "No overlapping accepted or conservatively retained commitment", not clash,
          "None" if not clash else f"Already committed {clash[0].start:%H:%M}-{clash[0].end:%H:%M}")
     has_open = pid in ledger.open_offer_physicians
     rule("one_open_offer", "No other open offer", not has_open, "Has an open offer" if has_open else "None open")
