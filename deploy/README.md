@@ -69,3 +69,28 @@ Deploy logs appear in the systemd journal and application logs in Docker, rotate
 at 10 MB with three files. Changes to the installed updater/service files require
 running `deploy/install.sh` again. Images accumulate for rollback; periodically
 remove unneeded old images while retaining the current and previous release.
+# Current workshop deployment
+
+Live address: **https://d3n5vdu0x0beh3.cloudfront.net**. Elastic IP **184.32.91.82** redirects to HTTPS. Resource identifiers are in [aws-resources.json](aws-resources.json).
+
+Push completed changes to **belal**. The EC2 timer checks every 60 seconds, builds the new commit, runs migrations, and restarts the application. Refresh the website after deployment finishes. Unpushed local edits are not deployed. A failed build leaves the current site running; a failed new container restores the prior container. Database migrations must stay backward compatible.
+
+The hosted application uses the existing provisioned-session login and private RDS PostgreSQL. Its new database is `sevaro_belal`; prior databases are preserved. The EC2 role's temporary master-secret access was removed after setup. Database connections verify the RDS TLS certificate. CloudFront provides viewer HTTPS; the EC2 origin is HTTP with a private origin header. API and frontend caching are disabled for workshop updates.
+
+For administration, open AWS CloudShell in us-west-2 and run:
+
+```bash
+aws ssm start-session --region us-west-2 --target i-0731739b7757d89d6
+sudo journalctl -u sevaro-deploy.service -n 50 --no-pager
+sudo systemctl start sevaro-deploy.service
+```
+
+First account setup (enter a unique password at the prompt):
+
+```bash
+sudo docker exec -it sevaro python -m backend.api.admin create-user --username belal --name Belal --role coordinator
+```
+
+Coordinator proposes/sends; a separate `clinical_lead` approves, and a `physician` account linked with `--physician-id PHY-009` handles that physician's response. No default passwords are shipped.
+
+This is the temporary workshop account; keep source and required data exports before the workshop expires. EC2, its disk, Elastic IP, and RDS incur usage while retained.
